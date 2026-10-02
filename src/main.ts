@@ -1,3 +1,5 @@
+// Defines the $localize global. It must run before any component module is evaluated.
+import '@angular/localize/init';
 // Expo's runtime: its fetch, whose response streams a body, and URL, TextDecoderStream and
 // structuredClone. Metro runs it before this file only when something imports it, and nothing
 // else does in a release build, which would then get React Native's fetch, with no body.
@@ -9,6 +11,7 @@ import { getFabricUIManager, registerPlatformComponents } from '@ng-native/fabri
 import { withComponentInputBinding } from '@angular/router';
 import { provideNativeRouter, withHeaderDefaults, withTabDefaults } from '@ng-native/router';
 import tailwind from '../.angular-native/app.tailwind.js';
+import { provideLocalization } from './app/core/i18n/localization.ts';
 import { routes } from './app/app.routes.ts';
 import { App } from './app/app.ts';
 
@@ -21,6 +24,7 @@ AppRegistry.registerRunnable('main', ({ rootTag }: { rootTag: number | string })
     // Tailwind utilities, compiled by `withTailwind` in metro.config.js.
     globalStyles: tailwind,
     providers: [
+      provideLocalization(),
       provideNativeRouter(
         routes,
         withComponentInputBinding(),

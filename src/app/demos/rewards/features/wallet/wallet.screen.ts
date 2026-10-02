@@ -22,7 +22,7 @@ import { PointsHeroCard } from '../../shared/ui/points-hero-card.ts';
       >
         <view class="flex-row items-center justify-between">
           <view class="gap-1">
-            <text testID="wallet-greeting" class="text-h1 font-black text-ink dark:text-ink-dk">Hola, {{ store.member().name }}</text>
+            <text testID="wallet-greeting" class="text-h1 font-black text-ink dark:text-ink-dk" i18n="@@wallet.greeting">Hi, {{ store.member().name }}</text>
             <text class="text-body text-ink2 dark:text-ink2-dk">Tus puntos de hoy</text>
           </view>
           <pressable

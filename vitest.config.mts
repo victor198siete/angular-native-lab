@@ -5,4 +5,6 @@ import { defineConfig } from 'vitest/config';
 // a fake of the native side: no simulator, no device.
 export default defineConfig({
   plugins: [ngNative()],
+  // The $localize global, as src/main.ts loads it in the app.
+  test: { setupFiles: ['@angular/localize/init'] },
 });

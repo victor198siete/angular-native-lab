@@ -12,7 +12,7 @@ it('shows the 12,480 balance, the tier and the progress to the next one', async 
   expect(screen.getByText('Nivel Plata')).toBeTruthy();
   // 14,320 lifetime points: Plata (5,000), 680 short of Oro (15,000).
   expect(screen.getByText('Te faltan 680 pts para Oro')).toBeTruthy();
-  expect(screen.getByText(`Hola, ${MOCK_MEMBER.name}`)).toBeTruthy();
+  expect(screen.getByText(`Hi, ${MOCK_MEMBER.name}`)).toBeTruthy();
 });
 
 it('lists the 5 most recent movements', async () => {
