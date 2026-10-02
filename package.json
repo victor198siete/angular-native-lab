@@ -1,0 +1,37 @@
+{
+  "name": "angular-native-lab",
+  "version": "1.0.0",
+  "license": "MIT",
+  "main": "src/main.ts",
+  "dependencies": {
+    "@ng-native/components": "0.3.0",
+    "@ng-native/device": "0.3.0",
+    "@ng-native/fabric": "0.3.0",
+    "@ng-native/metro": "0.3.0",
+    "@ng-native/platform": "0.3.0",
+    "@angular/common": "^22.0.0",
+    "@angular/core": "^22.0.0",
+    "expo": "~57.0.26",
+    "expo-status-bar": "~57.0.1",
+    "expo-system-ui": "~57.0.4",
+    "react": "19.2.3",
+    "react-native": "0.86.3",
+    "react-native-safe-area-context": "~5.7.0"
+  },
+  "devDependencies": {
+    "@angular/compiler-cli": "^22.0.0",
+    "@babel/core": "^7.29.7",
+    "@ng-native/testing": "0.3.0",
+    "@types/react": "~19.2.2",
+    "typescript": "~6.0.3",
+    "vitest": "^5.0.0"
+  },
+  "scripts": {
+    "start": "expo start",
+    "android": "expo start --android",
+    "ios": "expo start --ios",
+    "typecheck": "node metro.config.js && ngc -p tsconfig.json --noEmit",
+    "test": "vitest run"
+  },
+  "private": true
+}
