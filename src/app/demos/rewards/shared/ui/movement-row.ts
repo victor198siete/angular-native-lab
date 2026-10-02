@@ -59,8 +59,7 @@ export class MovementRow {
     const m = this.movement();
     const time = timeLabel(m.date, this.locale);
     if (!this.showDay()) return time;
-    const day = dayLabel(m.date.slice(0, 10), this.locale);
-    return `${day.charAt(0)}${day.slice(1).toLowerCase()} ${time}`;
+    return `${dayLabel(m.date.slice(0, 10), this.locale, new Date(), false)} ${time}`;
   });
   protected readonly caption = computed(
     () =>

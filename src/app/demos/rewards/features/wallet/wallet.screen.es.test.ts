@@ -1,5 +1,3 @@
-import { registerLocaleData } from '@angular/common';
-import localeEs from '@angular/common/locales/es';
 import { LOCALE_ID } from '@angular/core';
 import { loadTranslations } from '@angular/localize';
 import { provideNativeRouter } from '@ng-native/router';
@@ -12,9 +10,7 @@ import { ANIMATE_NUMBERS } from '../../shared/animated-number.ts';
 import { WalletScreen } from './wallet.screen.ts';
 
 // Template messages are cached for the runtime's lifetime, so Spanish gets a test file of its own.
-// The app registers the es locale data in localization.ts; this file does it by hand.
 beforeAll(() => {
-  registerLocaleData(localeEs);
   loadTranslations(TRANSLATIONS['es']);
 });
 

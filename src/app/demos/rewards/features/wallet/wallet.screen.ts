@@ -3,6 +3,7 @@ import { Router } from '@angular/router';
 import { NgIcon } from '@ng-native/icons';
 import { Pressable, SafeAreaView, ScrollView, Text, View } from '@ng-native/components';
 import { RewardsStore } from '../../core/rewards.store.ts';
+import { LanguageSwitcher } from '../../../../core/i18n/language-switcher.ts';
 import { Theme } from '../../../../core/theme.ts';
 import { animatedNumber } from '../../shared/animated-number.ts';
 import { ICON_COLOR, provideUiIcons } from '../../shared/icons.ts';
@@ -25,6 +26,18 @@ import { PointsHeroCard } from '../../shared/ui/points-hero-card.ts';
             <text testID="wallet-greeting" class="text-h1 font-black text-ink dark:text-ink-dk" i18n="@@wallet.greeting">Hi, {{ store.member().name }}</text>
             <text class="text-body text-ink2 dark:text-ink2-dk" i18n="@@wallet.subtitle">Your points today</text>
           </view>
+          <view class="flex-row items-center gap-2">
+          <pressable
+            testID="language-toggle"
+            class="h-11 min-w-11 items-center justify-center rounded-full bg-raised px-3 dark:bg-raised-dk hover:opacity-70"
+            accessibilityRole="button"
+            [accessibilityLabel]="language.next.name"
+            [accessibilityState]="{ busy: language.switching() }"
+            [disabled]="language.switching()"
+            (press)="language.switchTo(language.next.code)"
+          >
+            <text class="text-caption font-bold text-ink dark:text-ink-dk">{{ language.next.code.toUpperCase() }}</text>
+          </pressable>
           <pressable
             testID="theme-toggle"
             class="h-11 w-11 items-center justify-center rounded-full bg-raised dark:bg-raised-dk hover:opacity-70"
@@ -35,6 +48,7 @@ import { PointsHeroCard } from '../../shared/ui/points-hero-card.ts';
           >
             <ng-icon [name]="theme.isDark() ? 'lucideSun' : 'lucideMoon'" [size]="22" [color]="ink()" />
           </pressable>
+          </view>
         </view>
 
         <view class="rise">
@@ -91,6 +105,7 @@ import { PointsHeroCard } from '../../shared/ui/points-hero-card.ts';
 export class WalletScreen {
   protected readonly store = inject(RewardsStore);
   protected readonly theme = inject(Theme);
+  protected readonly language = inject(LanguageSwitcher);
   protected readonly ink = computed(() => (this.theme.isDark() ? ICON_COLOR.ink.dark : ICON_COLOR.ink.light));
   protected readonly brand = computed(() => (this.theme.isDark() ? ICON_COLOR.brand.dark : ICON_COLOR.brand.light));
   private readonly router = inject(Router);

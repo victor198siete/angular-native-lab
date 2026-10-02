@@ -1,3 +1,5 @@
+import { registerLocaleData } from '@angular/common';
+import localeEs from '@angular/common/locales/es';
 import es from '../../../locale/messages.es.json';
 
 /** The language the source text is written in. There is nothing to load for it. */
@@ -10,6 +12,9 @@ export const LANGUAGE_KEY = 'language';
 export const TRANSLATIONS: Record<string, Record<string, string>> = {
   es: es.translations,
 };
+
+// Angular's number and date data for each translated language (English is built in).
+registerLocaleData(localeEs);
 
 /** The first language in the list that this app has, or the source language. */
 export function chooseLanguage(preferred: readonly (string | null | undefined)[]): string {
