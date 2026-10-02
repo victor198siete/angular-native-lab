@@ -58,7 +58,7 @@ Tests and type checking (run in Node, no simulator needed):
 ## Why this exists
 
 This repo backs my posts about Angular Native on
-[LinkedIn](POST_URL). Each post links to the demo that supports it.
+[LinkedIn](https://lnkd.in/p/eQYqFj7e). Each post links to the demo that supports it.
 
 ## Credits
 
