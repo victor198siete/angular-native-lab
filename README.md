@@ -91,12 +91,16 @@ toggle, which also restyles the native tab bar.
   `@ng-native/icons`. They have to be installed (and pinned) by hand, along with
   `react-native-screens` and `react-native-svg` through `npx expo install`. Its
   `src/main.ts` also gained an `import 'expo'` the 0.1.1 one did not have.
-- Metro warns once at startup. It is harmless, but it is there:
+- Metro warns at startup. Both warnings are harmless, but they are there:
   ```
   [angular-native] .visible (Tailwind): dropped 'visibility': 'visibility' has no React
   Native equivalent: no style prop of a native view does what it does. Use opacity: 0 to
   hide a box and keep its space, or display: none to remove it.
+  [angular-native] .table (Tailwind): dropped 'display': display: table does not exist on
+  native; only flex, block (read as flex), contents and none do
   ```
+  Tailwind scans every file for class names, so words like "visible" and "table" in the
+  source and this README become classes the native side then drops.
 - In development, each tab is **blank for 2–3 seconds the first time it opens** while
   Metro bundles that lazy route (2.6 s for the catalog). A release build was not tested.
 - My own mistake, not ng-native's: moving a file during the port broke an import,
