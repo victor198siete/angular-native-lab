@@ -6,7 +6,7 @@ import { HistoryScreen } from './history.screen.ts';
 it('groups movements under date headers, with signs on the amounts', async () => {
   await renderScreen(HistoryScreen);
 
-  expect(screen.getByText('Historial')).toBeTruthy();
+  expect(screen.getByText('History')).toBeTruthy();
   expect(screen.getAllByRole('header').length).toBeGreaterThan(0);
   expect(screen.getByText('+420')).toBeTruthy();
 });

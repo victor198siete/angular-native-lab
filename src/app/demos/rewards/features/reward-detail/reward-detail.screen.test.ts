@@ -18,7 +18,7 @@ it('redeems: confirms in the sheet, lowers the balance and records a movement', 
   await user.press(await screen.findByTestId('redeem-button'));
   await user.press(await screen.findByTestId('confirm-redeem'));
 
-  expect(await screen.findByText('¡Canjeado!', {}, { timeout: 3000 })).toBeTruthy();
+  expect(await screen.findByText('Redeemed!', {}, { timeout: 3000 })).toBeTruthy();
   const expected = MOCK_MEMBER.points - affordable.costPoints;
   expect(store.member().points).toBe(expected);
   expect(store.member().lifetimePoints).toBe(MOCK_MEMBER.lifetimePoints);
@@ -36,10 +36,10 @@ it('cancelling the sheet redeems nothing', async () => {
   const store = app.componentRef.injector.get(RewardsStore);
 
   await user.press(await screen.findByTestId('redeem-button'));
-  await user.press(await screen.findByRole('button', { name: 'Cancelar' }));
+  await user.press(await screen.findByRole('button', { name: 'Cancel' }));
 
   expect(store.member().points).toBe(MOCK_MEMBER.points);
-  expect(screen.queryByText('¡Canjeado!')).toBeNull();
+  expect(screen.queryByText('Redeemed!')).toBeNull();
 });
 
 it('an unaffordable reward disables the button and says how many points are missing', async () => {
@@ -51,11 +51,11 @@ it('an unaffordable reward disables the button and says how many points are miss
   const button = await screen.findByTestId('redeem-button');
   expect(button.props['accessibilityState']).toMatchObject({ disabled: true });
   expect(screen.getByTestId('detail-missing')).toBeTruthy();
-  expect(screen.getAllByText(`Te faltan ${formatPoints(missing)} pts`)).toHaveLength(2);
-  expect(screen.getByRole('button', { name: /Canjear no disponible/ })).toBeTruthy();
+  expect(screen.getAllByText(`${formatPoints(missing)} pts short`)).toHaveLength(2);
+  expect(screen.getByRole('button', { name: /Can't redeem/ })).toBeTruthy();
 
   await user.press(button);
-  expect(screen.queryByText('¿Canjear esta recompensa?')).toBeNull();
+  expect(screen.queryByText('Redeem this reward?')).toBeNull();
   expect(store.member().points).toBe(MOCK_MEMBER.points);
 });
 
@@ -67,12 +67,12 @@ it('an out-of-stock reward is not redeemable', async () => {
 
   const button = await screen.findByTestId('redeem-button');
   expect(button.props['accessibilityState']).toMatchObject({ disabled: true });
-  expect(screen.getAllByText('Agotado').length).toBeGreaterThan(0);
-  expect(screen.getByRole('button', { name: 'Canjear no disponible, agotado' })).toBeTruthy();
+  expect(screen.getAllByText('Sold out').length).toBeGreaterThan(0);
+  expect(screen.getByRole('button', { name: "Can't redeem, sold out" })).toBeTruthy();
 });
 
 it('shows a not-found state for an unknown id', async () => {
   await renderApp('reward/nope');
 
-  expect(await screen.findByText('Premio no encontrado')).toBeTruthy();
+  expect(await screen.findByText('Reward not found')).toBeTruthy();
 });

@@ -1,7 +1,8 @@
-import { Component, computed, input } from '@angular/core';
+import { Component, LOCALE_ID, computed, inject, input } from '@angular/core';
 import { Text, View } from '@ng-native/components';
 import type { Tier } from '../../core/models/index.ts';
 import { formatPoints, pointsToMoney } from '../format.ts';
+import { tierLabel } from '../labels.ts';
 import { TIER_COLOR } from '../tier-style.ts';
 import { TierProgress } from './tier-progress.ts';
 
@@ -17,16 +18,16 @@ import { TierProgress } from './tier-progress.ts';
       [accessibilityLabel]="summary()"
     >
       <view class="grad-glow absolute inset-0" pointerEvents="none"></view>
-      <text class="text-over font-bold tracking-widest text-white/80">PUNTOS DISPONIBLES</text>
+      <text class="text-over font-bold tracking-widest text-white/80" i18n="@@hero.available">AVAILABLE POINTS</text>
       <text testID="hero-balance" class="text-display font-black tracking-tight tabular-nums text-white">{{ shown() }}</text>
       <view class="flex-row items-center gap-2">
         <view class="flex-row items-center gap-2 rounded-full bg-black/25 px-3 py-1.5">
           <view class="h-2.5 w-2.5 rounded-full" [style]="{ backgroundColor: tierColor() }"></view>
-          <text class="text-caption font-semibold text-white">Nivel {{ tier().name }}</text>
+          <text class="text-caption font-semibold text-white" i18n="@@hero.tier">{{ tierName() }} tier</text>
         </view>
         <text class="text-caption text-white/80">{{ approx() }}</text>
       </view>
-      <app-tier-progress [progress]="progress()" [nextName]="nextTier()?.name ?? null" [missing]="missing()" />
+      <app-tier-progress [progress]="progress()" [nextName]="nextName()" [missing]="missing()" />
     </view>
   `,
 })
@@ -40,14 +41,22 @@ export class PointsHeroCard {
   readonly progress = input.required<number>();
   readonly missing = input(0);
 
-  protected readonly shown = computed(() => formatPoints(this.displayed() ?? this.balance()));
-  protected readonly approx = computed(() => '≈ $' + pointsToMoney(this.balance()));
+  private readonly locale = inject(LOCALE_ID);
+  protected readonly shown = computed(() => formatPoints(this.displayed() ?? this.balance(), this.locale));
+  protected readonly approx = computed(() => '≈ $' + pointsToMoney(this.balance(), this.locale));
+  protected readonly tierName = computed(() => tierLabel(this.tier().name));
+  protected readonly nextName = computed(() => {
+    const next = this.nextTier();
+    return next ? tierLabel(next.name) : null;
+  });
   protected readonly tierColor = computed(() => TIER_COLOR[this.tier().name]);
   protected readonly summary = computed(() => {
-    const next = this.nextTier();
+    const next = this.nextName();
+    const missing = formatPoints(this.missing(), this.locale);
     const tail = next
-      ? `Te faltan ${formatPoints(this.missing())} puntos para ${next.name}.`
-      : 'Nivel máximo alcanzado.';
-    return `Tienes ${formatPoints(this.balance())} puntos. Nivel ${this.tier().name}. ${tail}`;
+      ? $localize`:@@hero.summary.next:${missing}:missing: points to ${next}:next:.`
+      : $localize`:@@hero.summary.top:Top tier reached.`;
+    const balance = formatPoints(this.balance(), this.locale);
+    return $localize`:@@hero.summary:You have ${balance}:balance: points. ${this.tierName()}:tier: tier. ${tail}:tail:`;
   });
 }

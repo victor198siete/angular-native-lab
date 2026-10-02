@@ -1,4 +1,4 @@
-import { Component, computed, inject } from '@angular/core';
+import { Component, LOCALE_ID, computed, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { NgIcon } from '@ng-native/icons';
 import { Pressable, SafeAreaView, Text, View, VirtualList, VirtualListRow } from '@ng-native/components';
@@ -22,18 +22,18 @@ const ROW_HEIGHT = 68;
   providers: [provideUiIcons()],
   template: `
     <safe-area-view [edges]="['top']" class="flex-1 bg-canvas dark:bg-canvas-dk">
-      <text class="px-5 pb-2 pt-2 text-h1 font-black text-ink dark:text-ink-dk">Historial</text>
+      <text class="px-5 pb-2 pt-2 text-h1 font-black text-ink dark:text-ink-dk" i18n="@@history.title">History</text>
 
       @if (items().length === 0) {
         <view class="flex-1 items-center justify-center gap-4 px-5">
           <ng-icon name="lucideHistory" [size]="56" [color]="muted()" />
-          <text class="text-h2 font-bold text-ink dark:text-ink-dk">Sin movimientos todavía</text>
+          <text class="text-h2 font-bold text-ink dark:text-ink-dk" i18n="@@history.empty">No activity yet</text>
           <pressable
             class="h-12 items-center justify-center rounded-full bg-brand px-6"
             accessibilityRole="button"
             (press)="explore()"
           >
-            <text class="text-title font-bold text-white">Explorar catálogo</text>
+            <text class="text-title font-bold text-white" i18n="@@history.explore">Browse the catalog</text>
           </pressable>
         </view>
       } @else {
@@ -75,12 +75,13 @@ export class HistoryScreen {
   private readonly store = inject(RewardsStore);
   private readonly router = inject(Router);
   private readonly theme = inject(Theme);
+  private readonly locale = inject(LOCALE_ID);
   protected readonly muted = computed(() => (this.theme.isDark() ? ICON_COLOR.muted.dark : ICON_COLOR.muted.light));
 
   /** Date headers and movements, flattened in the order they are drawn. */
   protected readonly items = computed<readonly HistoryItem[]>(() =>
     this.store.movementsByDate().flatMap((group): HistoryItem[] => [
-      { kind: 'header', key: `h-${group.date}`, label: dayLabel(group.date) },
+      { kind: 'header', key: `h-${group.date}`, label: dayLabel(group.date, this.locale) },
       ...group.movements.map((movement): HistoryItem => ({ kind: 'movement', key: movement.id, movement })),
     ]),
   );

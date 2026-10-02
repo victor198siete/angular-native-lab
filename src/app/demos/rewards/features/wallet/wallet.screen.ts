@@ -23,13 +23,13 @@ import { PointsHeroCard } from '../../shared/ui/points-hero-card.ts';
         <view class="flex-row items-center justify-between">
           <view class="gap-1">
             <text testID="wallet-greeting" class="text-h1 font-black text-ink dark:text-ink-dk" i18n="@@wallet.greeting">Hi, {{ store.member().name }}</text>
-            <text class="text-body text-ink2 dark:text-ink2-dk">Tus puntos de hoy</text>
+            <text class="text-body text-ink2 dark:text-ink2-dk" i18n="@@wallet.subtitle">Your points today</text>
           </view>
           <pressable
             testID="theme-toggle"
             class="h-11 w-11 items-center justify-center rounded-full bg-raised dark:bg-raised-dk hover:opacity-70"
             accessibilityRole="switch"
-            accessibilityLabel="Modo oscuro"
+            [accessibilityLabel]="darkModeLabel"
             [accessibilityState]="{ checked: theme.isDark() }"
             (press)="theme.toggle()"
           >
@@ -52,28 +52,28 @@ import { PointsHeroCard } from '../../shared/ui/points-hero-card.ts';
           <pressable
             class="flex-1 items-center gap-2 rounded-lg bg-surface py-4 shadow-card dark:bg-surface-dk dark:shadow-card-dk hover:opacity-80"
             accessibilityRole="button"
-            accessibilityLabel="Ver catálogo de recompensas"
+            [accessibilityLabel]="catalogLabel"
             (press)="go('/catalog')"
           >
             <ng-icon name="lucideGift" [size]="26" [color]="brand()" />
-            <text class="text-caption font-semibold text-ink dark:text-ink-dk">Ver catálogo</text>
+            <text class="text-caption font-semibold text-ink dark:text-ink-dk" i18n="@@wallet.catalog">View catalog</text>
           </pressable>
           <pressable
             class="flex-1 items-center gap-2 rounded-lg bg-surface py-4 shadow-card dark:bg-surface-dk dark:shadow-card-dk hover:opacity-80"
             accessibilityRole="button"
-            accessibilityLabel="Ver historial de movimientos"
+            [accessibilityLabel]="historyLabel"
             (press)="go('/history')"
           >
             <ng-icon name="lucideHistory" [size]="26" [color]="brand()" />
-            <text class="text-caption font-semibold text-ink dark:text-ink-dk">Historial</text>
+            <text class="text-caption font-semibold text-ink dark:text-ink-dk" i18n="@@wallet.history">History</text>
           </pressable>
         </view>
 
         <view class="rise-2 gap-3">
           <view class="flex-row items-center justify-between">
-            <text class="text-h2 font-bold text-ink dark:text-ink-dk">Movimientos recientes</text>
-            <pressable class="min-h-11 justify-center" accessibilityRole="link" accessibilityLabel="Ver todo el historial" (press)="go('/history')">
-              <text class="text-body font-semibold text-brand-text dark:text-brand-text-dk">Ver todo</text>
+            <text class="text-h2 font-bold text-ink dark:text-ink-dk" i18n="@@wallet.recent">Recent activity</text>
+            <pressable class="min-h-11 justify-center" accessibilityRole="link" [accessibilityLabel]="seeAllLabel" (press)="go('/history')">
+              <text class="text-body font-semibold text-brand-text dark:text-brand-text-dk" i18n="@@wallet.seeAll">See all</text>
             </pressable>
           </view>
           <view class="overflow-hidden rounded-xl bg-surface dark:bg-surface-dk">
@@ -94,6 +94,11 @@ export class WalletScreen {
   protected readonly ink = computed(() => (this.theme.isDark() ? ICON_COLOR.ink.dark : ICON_COLOR.ink.light));
   protected readonly brand = computed(() => (this.theme.isDark() ? ICON_COLOR.brand.dark : ICON_COLOR.brand.light));
   private readonly router = inject(Router);
+
+  protected readonly darkModeLabel = $localize`:@@wallet.darkMode.a11y:Dark mode`;
+  protected readonly catalogLabel = $localize`:@@wallet.catalog.a11y:View the rewards catalog`;
+  protected readonly historyLabel = $localize`:@@wallet.history.a11y:View your points history`;
+  protected readonly seeAllLabel = $localize`:@@wallet.seeAll.a11y:View the full history`;
 
   /** Counts up from 0 on first render, and follows the balance afterwards. */
   protected readonly displayed = animatedNumber(() => this.store.member().points, { from: 0 });

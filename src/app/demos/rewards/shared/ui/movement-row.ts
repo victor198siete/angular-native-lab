@@ -1,4 +1,4 @@
-import { Component, computed, inject, input } from '@angular/core';
+import { Component, LOCALE_ID, computed, inject, input } from '@angular/core';
 import { Text, View } from '@ng-native/components';
 import { NgIcon } from '@ng-native/icons';
 import { Theme } from '../../../../core/theme.ts';
@@ -41,32 +41,36 @@ import { dayLabel, formatPoints, formatSigned, timeLabel } from '../format.ts';
 })
 export class MovementRow {
   readonly movement = input.required<Movement>();
-  /** Prefix the time with the day ("Hoy", "Ayer", "12 SEP"): for lists that are not grouped. */
+  /** Prefix the time with the day ("Today", "Yesterday", "12 Sep"): for lists that are not grouped. */
   readonly showDay = input(false);
 
   protected readonly earn = computed(() => this.movement().type === 'earn');
   private readonly theme = inject(Theme);
+  private readonly locale = inject(LOCALE_ID);
   protected readonly iconColor = computed(() => {
     const palette = this.earn() ? ICON_COLOR.gain : ICON_COLOR.brand;
     return this.theme.isDark() ? palette.dark : palette.light;
   });
   protected readonly title = computed(() => this.movement().description.replace(/^Canje:\s*/, ''));
   protected readonly amount = computed(() =>
-    formatSigned(this.movement().points, this.earn() ? '+' : '−'),
+    formatSigned(this.movement().points, this.earn() ? '+' : '−', this.locale),
   );
   private readonly when = computed(() => {
     const m = this.movement();
-    const time = timeLabel(m.date);
+    const time = timeLabel(m.date, this.locale);
     if (!this.showDay()) return time;
-    const day = dayLabel(m.date.slice(0, 10));
+    const day = dayLabel(m.date.slice(0, 10), this.locale);
     return `${day.charAt(0)}${day.slice(1).toLowerCase()} ${time}`;
   });
   protected readonly caption = computed(
-    () => `${this.earn() ? 'Puntos ganados' : 'Canje'} · ${this.when()}`,
+    () =>
+      `${this.earn() ? $localize`:@@movement.earned:Points earned` : $localize`:@@movement.redeemed:Redemption`} · ${this.when()}`,
   );
   protected readonly label = computed(() => {
     const m = this.movement();
-    const kind = this.earn() ? 'puntos ganados, más' : 'canje, menos';
-    return `${this.title()}, ${kind} ${formatPoints(m.points)} puntos, ${this.when()}`;
+    const points = formatPoints(m.points, this.locale);
+    return this.earn()
+      ? $localize`:@@movement.earned.a11y:${this.title()}:title:, points earned, plus ${points}:points: points, ${this.when()}:when:`
+      : $localize`:@@movement.redeemed.a11y:${this.title()}:title:, redemption, minus ${points}:points: points, ${this.when()}:when:`;
   });
 }

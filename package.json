@@ -45,7 +45,9 @@
     "android": "expo start --android",
     "ios": "expo start --ios",
     "typecheck": "node metro.config.js && ngc -p tsconfig.json --noEmit",
-    "test": "vitest run"
+    "test": "vitest run",
+    "i18n:extract": "expo export --platform ios --no-bytecode --no-minify --output-dir .i18n-build && localize-extract -s '.i18n-build/**/*.js' -f json -o src/locale/messages.json; rm -rf .i18n-build",
+    "i18n:check": "node scripts/check-translations.mjs"
   },
   "private": true
 }

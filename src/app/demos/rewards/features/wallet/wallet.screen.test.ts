@@ -9,9 +9,9 @@ it('shows the 12,480 balance, the tier and the progress to the next one', async 
 
   expect(screen.getByTestId('hero-balance')).toBeTruthy();
   expect(screen.getByText('12,480')).toBeTruthy();
-  expect(screen.getByText('Nivel Plata')).toBeTruthy();
-  // 14,320 lifetime points: Plata (5,000), 680 short of Oro (15,000).
-  expect(screen.getByText('Te faltan 680 pts para Oro')).toBeTruthy();
+  expect(screen.getByText('Silver tier')).toBeTruthy();
+  // 14,320 lifetime points: Silver (5,000), 680 short of Gold (15,000).
+  expect(screen.getByText('680 pts to Gold')).toBeTruthy();
   expect(screen.getByText(`Hi, ${MOCK_MEMBER.name}`)).toBeTruthy();
 });
 
@@ -32,9 +32,9 @@ it('counts the balance up from zero when animations are on', async () => {
 
 it('has an accessible theme toggle', async () => {
   await renderScreen(WalletScreen);
-  const toggle = screen.getByRole('switch', { name: 'Modo oscuro' });
+  const toggle = screen.getByRole('switch', { name: 'Dark mode' });
 
   await userEvent.setup().press(toggle);
 
-  expect(screen.getByRole('switch', { name: 'Modo oscuro' })).toBeTruthy();
+  expect(screen.getByRole('switch', { name: 'Dark mode' })).toBeTruthy();
 });

@@ -1,4 +1,4 @@
-import { Component, computed, input, output } from '@angular/core';
+import { Component, LOCALE_ID, computed, inject, input, output } from '@angular/core';
 import { Pressable, Text, View } from '@ng-native/components';
 import type { Reward } from '../../core/models/index.ts';
 import { formatPoints } from '../format.ts';
@@ -17,7 +17,7 @@ import { RewardTile } from './reward-tile.ts';
       [class]="affordable() ? '' : 'opacity-90'"
       accessibilityRole="button"
       [accessibilityLabel]="label()"
-      accessibilityHint="Abre el detalle"
+      [accessibilityHint]="hint"
       (press)="open.emit(reward().id)"
     >
       <app-reward-tile [icon]="reward().icon" [category]="reward().category" [size]="56" />
@@ -44,24 +44,29 @@ export class RewardRow {
   readonly balance = input.required<number>();
   readonly open = output<string>();
 
-  protected readonly cost = computed(() => `${formatPoints(this.reward().costPoints)} pts`);
+  private readonly locale = inject(LOCALE_ID);
+  protected readonly hint = $localize`:@@reward.row.hint:Opens the details`;
+  protected readonly cost = computed(() => `${formatPoints(this.reward().costPoints, this.locale)} pts`);
   protected readonly soldOut = computed(() => {
     const stock = this.reward().stock;
     return stock !== undefined && stock <= 0;
   });
   protected readonly affordable = computed(() => this.balance() >= this.reward().costPoints);
   protected readonly status = computed(() => {
-    if (this.soldOut()) return { ok: false, text: 'Agotado' };
-    if (this.affordable()) return { ok: true, text: 'Disponible' };
-    return { ok: false, text: `Te faltan ${formatPoints(this.reward().costPoints - this.balance())} pts` };
+    if (this.soldOut()) return { ok: false, text: $localize`:@@reward.soldOut:Sold out` };
+    if (this.affordable()) return { ok: true, text: $localize`:@@reward.available:Available` };
+    const missing = formatPoints(this.reward().costPoints - this.balance(), this.locale);
+    return { ok: false, text: $localize`:@@reward.short:${missing}:missing: pts short` };
   });
   protected readonly label = computed(() => {
     const r = this.reward();
+    const missing = formatPoints(r.costPoints - this.balance(), this.locale);
     const state = this.soldOut()
-      ? 'agotado'
+      ? $localize`:@@reward.soldOut.a11y:sold out`
       : this.affordable()
-        ? 'disponible'
-        : `te faltan ${formatPoints(r.costPoints - this.balance())} puntos`;
-    return `${r.title}, ${r.partner}, ${formatPoints(r.costPoints)} puntos, ${state}`;
+        ? $localize`:@@reward.available.a11y:available`
+        : $localize`:@@reward.short.a11y:${missing}:missing: points short`;
+    const cost = formatPoints(r.costPoints, this.locale);
+    return $localize`:@@reward.row.a11y:${r.title}:title:, ${r.partner}:partner:, ${cost}:cost: points, ${state}:state:`;
   });
 }

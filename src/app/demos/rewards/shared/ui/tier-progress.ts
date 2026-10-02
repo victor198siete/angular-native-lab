@@ -1,4 +1,4 @@
-import { Component, DestroyRef, computed, inject, input, signal } from '@angular/core';
+import { Component, DestroyRef, LOCALE_ID, computed, inject, input, signal } from '@angular/core';
 import { Text, View } from '@ng-native/components';
 import { formatPoints } from '../format.ts';
 
@@ -14,7 +14,7 @@ import { formatPoints } from '../format.ts';
       <view
         class="h-2 overflow-hidden rounded-full bg-black/25"
         accessibilityRole="progressbar"
-        [accessibilityLabel]="nextName() ? 'Progreso a ' + nextName() : 'Nivel máximo'"
+        [accessibilityLabel]="barLabel()"
         [accessibilityValue]="{ min: 0, max: 100, now: percent() }"
       >
         <view class="bar-fill grad-brand h-full rounded-full" [style]="{ width: fill() + '%' }"></view>
@@ -35,9 +35,20 @@ export class TierProgress {
   private readonly armed = signal(false);
   protected readonly percent = computed(() => Math.round(this.progress() * 100));
   protected readonly fill = computed(() => (this.armed() ? this.percent() : 0));
-  protected readonly caption = computed(() =>
-    this.nextName() ? `Te faltan ${formatPoints(this.missing())} pts para ${this.nextName()}` : 'Nivel máximo',
-  );
+  private readonly locale = inject(LOCALE_ID);
+  protected readonly caption = computed(() => {
+    const next = this.nextName();
+    const missing = formatPoints(this.missing(), this.locale);
+    return next ? $localize`:@@tier.progress.caption:${missing}:missing: pts to ${next}:next:` : this.topLabel();
+  });
+  protected readonly barLabel = computed(() => {
+    const next = this.nextName();
+    return next ? $localize`:@@tier.progress.a11y:Progress to ${next}:next:` : this.topLabel();
+  });
+
+  private topLabel(): string {
+    return $localize`:@@tier.top:Top tier`;
+  }
 
   constructor() {
     const timer = setTimeout(() => this.armed.set(true), 80);

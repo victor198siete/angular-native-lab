@@ -1,4 +1,4 @@
-import { Component, inject, viewChild } from '@angular/core';
+import { Component, LOCALE_ID, inject, viewChild } from '@angular/core';
 import { Router } from '@angular/router';
 import {
   SafeAreaView,
@@ -23,7 +23,7 @@ const ROW_HEIGHT = 88;
     <safe-area-view [edges]="['top']" class="flex-1 bg-canvas dark:bg-canvas-dk">
       <view class="gap-3 pb-3 pt-2">
         <view class="flex-row items-center justify-between px-5">
-          <text class="text-h1 font-black text-ink dark:text-ink-dk">Catálogo</text>
+          <text class="text-h1 font-black text-ink dark:text-ink-dk" i18n="@@catalog.title">Catalog</text>
           <view class="rounded-full bg-raised px-3 py-1.5 dark:bg-raised-dk">
             <text testID="catalog-balance" class="text-body font-semibold tabular-nums text-ink dark:text-ink-dk">{{ balanceLabel() }}</text>
           </view>
@@ -53,16 +53,18 @@ export class CatalogScreen {
   protected readonly store = inject(RewardsStore);
   private readonly router = inject(Router);
   private readonly list = viewChild(VirtualList);
+  private readonly locale = inject(LOCALE_ID);
 
   protected readonly rowHeight = ROW_HEIGHT;
   protected readonly keyOf = (reward: Reward): string => reward.id;
 
   protected balanceLabel(): string {
-    return `${formatPoints(this.store.member().points)} pts`;
+    return `${formatPoints(this.store.member().points, this.locale)} pts`;
   }
 
   protected countLabel(): string {
-    return `${this.store.filteredRewards().length} recompensas`;
+    const count = formatPoints(this.store.filteredRewards().length, this.locale);
+    return $localize`:@@catalog.count:${count}:count: rewards`;
   }
 
   protected pick(category: RewardCategory | null): void {

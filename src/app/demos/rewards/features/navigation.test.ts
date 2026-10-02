@@ -6,7 +6,7 @@ import { renderApp } from './testing.ts';
 it('opens on the wallet tab of the real route config', async () => {
   await renderApp();
 
-  expect(await screen.findByText('Movimientos recientes')).toBeTruthy();
+  expect(await screen.findByText('Recent activity')).toBeTruthy();
 });
 
 it('binds the :id param to the reward detail screen', async () => {

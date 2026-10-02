@@ -7,22 +7,22 @@ import { CatalogScreen } from './catalog.screen.ts';
 it('lists reward rows and the total count', async () => {
   await renderScreen(CatalogScreen);
 
-  expect(screen.getByText('200 recompensas')).toBeTruthy();
+  expect(screen.getByText('200 rewards')).toBeTruthy();
   expect(screen.getByText(MOCK_REWARDS[0].title)).toBeTruthy();
-  expect(screen.getAllByRole('button', { name: /puntos/ }).length).toBeGreaterThan(3);
+  expect(screen.getAllByRole('button', { name: /points/ }).length).toBeGreaterThan(3);
 });
 
-it('changes the count when a category chip is pressed, and clears it with Todo', async () => {
+it('changes the count when a category chip is pressed, and clears it with All', async () => {
   const user = userEvent.setup();
   await renderScreen(CatalogScreen);
   const viajes = MOCK_REWARDS.filter((r) => r.category === 'Viajes').length;
 
-  await user.press(screen.getByRole('button', { name: 'Filtrar por Viajes' }));
-  expect(await screen.findByText(`${viajes} recompensas`)).toBeTruthy();
-  expect(screen.queryByText('200 recompensas')).toBeNull();
+  await user.press(screen.getByRole('button', { name: 'Filter by Travel' }));
+  expect(await screen.findByText(`${viajes} rewards`)).toBeTruthy();
+  expect(screen.queryByText('200 rewards')).toBeNull();
 
-  await user.press(screen.getByRole('button', { name: 'Mostrar todas las categorías' }));
-  expect(await screen.findByText('200 recompensas')).toBeTruthy();
+  await user.press(screen.getByRole('button', { name: 'Show all categories' }));
+  expect(await screen.findByText('200 rewards')).toBeTruthy();
 });
 
 it('opens the detail screen when a row is pressed', async () => {
