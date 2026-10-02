@@ -15,10 +15,10 @@ it('lists reward rows and the total count', async () => {
 it('changes the count when a category chip is pressed, and clears it with All', async () => {
   const user = userEvent.setup();
   await renderScreen(CatalogScreen);
-  const viajes = MOCK_REWARDS.filter((r) => r.category === 'Viajes').length;
+  const travel = MOCK_REWARDS.filter((r) => r.category === 'travel').length;
 
   await user.press(screen.getByRole('button', { name: 'Filter by Travel' }));
-  expect(await screen.findByText(`${viajes} rewards`)).toBeTruthy();
+  expect(await screen.findByText(`${travel} rewards`)).toBeTruthy();
   expect(screen.queryByText('200 rewards')).toBeNull();
 
   await user.press(screen.getByRole('button', { name: 'Show all categories' }));

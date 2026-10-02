@@ -107,7 +107,7 @@ export class RewardsStore {
       id: `mv-redeem-${this.redeemCount}`,
       type: 'redeem',
       points: reward.costPoints,
-      description: `Canje: ${reward.title}`,
+      description: reward.title,
       date: now.toISOString(),
     };
     const remainingPoints = balance - reward.costPoints;

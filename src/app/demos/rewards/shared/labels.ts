@@ -5,28 +5,28 @@ import type { RewardCategory, TierName } from '../core/models/index.ts';
 
 export function tierLabel(name: TierName): string {
   switch (name) {
-    case 'Bronce':
+    case 'bronze':
       return $localize`:@@tier.bronze:Bronze`;
-    case 'Plata':
+    case 'silver':
       return $localize`:@@tier.silver:Silver`;
-    case 'Oro':
+    case 'gold':
       return $localize`:@@tier.gold:Gold`;
-    case 'Platino':
+    case 'platinum':
       return $localize`:@@tier.platinum:Platinum`;
   }
 }
 
 export function categoryLabel(category: RewardCategory): string {
   switch (category) {
-    case 'Viajes':
+    case 'travel':
       return $localize`:@@category.travel:Travel`;
-    case 'Gastronomía':
+    case 'dining':
       return $localize`:@@category.dining:Dining`;
-    case 'Tecnología':
+    case 'tech':
       return $localize`:@@category.tech:Tech`;
-    case 'Experiencias':
+    case 'experiences':
       return $localize`:@@category.experiences:Experiences`;
-    case 'Bienestar':
+    case 'wellness':
       return $localize`:@@category.wellness:Wellness`;
   }
 }

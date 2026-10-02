@@ -18,7 +18,7 @@ beforeAll(() => {
   loadTranslations(TRANSLATIONS['es']);
 });
 
-it('renders the wallet in Spanish, with Spanish number formatting', async () => {
+it('renders the wallet in Spanish: UI, numbers and the mock data that follows LOCALE_ID', async () => {
   await render(WalletScreen, {
     providers: [
       { provide: LOCALE_ID, useValue: 'es' },
@@ -33,5 +33,6 @@ it('renders the wallet in Spanish, with Spanish number formatting', async () => 
   expect(screen.getByText('Te faltan 680 pts para Oro')).toBeTruthy();
   expect(screen.getByText('12.480')).toBeTruthy();
   expect(screen.getByText('Movimientos recientes')).toBeTruthy();
+  expect(screen.getByText('Compra en supermercado')).toBeTruthy();
   expect(screen.getByRole('switch', { name: 'Modo oscuro' })).toBeTruthy();
 });

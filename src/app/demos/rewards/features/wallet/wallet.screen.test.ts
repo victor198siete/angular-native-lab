@@ -18,9 +18,9 @@ it('shows the 12,480 balance, the tier and the progress to the next one', async 
 it('lists the 5 most recent movements', async () => {
   await renderScreen(WalletScreen);
 
-  expect(screen.getByText('Compra en supermercado')).toBeTruthy();
-  expect(screen.getByText('Cena en restaurante')).toBeTruthy();
-  expect(screen.queryByText('Suscripción de streaming')).toBeNull();
+  expect(screen.getByText('Grocery store purchase')).toBeTruthy();
+  expect(screen.getByText('Dinner at a restaurant')).toBeTruthy();
+  expect(screen.queryByText('Streaming subscription')).toBeNull();
 });
 
 it('counts the balance up from zero when animations are on', async () => {

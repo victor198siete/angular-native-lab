@@ -71,19 +71,19 @@
 .grad-brand {
   background-image: linear-gradient(90deg, #ff3d6e, #ffb454);
 }
-.grad-viajes {
+.grad-travel {
   background-image: linear-gradient(135deg, #0ea5e9, #67e8f9);
 }
-.grad-gastronomia {
+.grad-dining {
   background-image: linear-gradient(135deg, #f97316, #fdba74);
 }
-.grad-tecnologia {
+.grad-tech {
   background-image: linear-gradient(135deg, #7c3aed, #c4b5fd);
 }
-.grad-experiencias {
+.grad-experiences {
   background-image: linear-gradient(135deg, #ec4899, #f9a8d4);
 }
-.grad-bienestar {
+.grad-wellness {
   background-image: linear-gradient(135deg, #10b981, #6ee7b7);
 }
 

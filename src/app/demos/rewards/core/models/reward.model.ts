@@ -1,10 +1,5 @@
-export const REWARD_CATEGORIES = [
-  'Viajes',
-  'Gastronomía',
-  'Tecnología',
-  'Experiencias',
-  'Bienestar',
-] as const;
+/** Stable ids; the displayed names come from shared/labels.ts in the active language. */
+export const REWARD_CATEGORIES = ['travel', 'dining', 'tech', 'experiences', 'wellness'] as const;
 
 export type RewardCategory = (typeof REWARD_CATEGORIES)[number];
 

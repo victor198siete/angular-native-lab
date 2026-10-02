@@ -51,7 +51,7 @@ export class MovementRow {
     const palette = this.earn() ? ICON_COLOR.gain : ICON_COLOR.brand;
     return this.theme.isDark() ? palette.dark : palette.light;
   });
-  protected readonly title = computed(() => this.movement().description.replace(/^Canje:\s*/, ''));
+  protected readonly title = computed(() => this.movement().description);
   protected readonly amount = computed(() =>
     formatSigned(this.movement().points, this.earn() ? '+' : '−', this.locale),
   );

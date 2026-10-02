@@ -13,9 +13,9 @@ function createStore(overrides: Partial<RewardsSnapshot> & { lifetime?: number; 
       lifetimePoints: overrides.lifetime ?? overrides.points ?? 1_000,
     },
     rewards: overrides.rewards ?? [
-      { id: 'a', title: 'A', partner: 'P', category: 'Viajes', costPoints: 400, description: '', icon: 'plane' },
-      { id: 'b', title: 'B', partner: 'P', category: 'Bienestar', costPoints: 5_000, description: '', icon: 'person-standing' },
-      { id: 'c', title: 'C', partner: 'P', category: 'Viajes', costPoints: 100, description: '', icon: 'palmtree', stock: 0 },
+      { id: 'a', title: 'A', partner: 'P', category: 'travel', costPoints: 400, description: '', icon: 'plane' },
+      { id: 'b', title: 'B', partner: 'P', category: 'wellness', costPoints: 5_000, description: '', icon: 'person-standing' },
+      { id: 'c', title: 'C', partner: 'P', category: 'travel', costPoints: 100, description: '', icon: 'palmtree', stock: 0 },
     ],
     movements: overrides.movements ?? [],
   };
@@ -37,26 +37,26 @@ describe('mock data', () => {
 
 describe('tiers', () => {
   it.each([
-    [0, 'Bronce'],
-    [4_999, 'Bronce'],
-    [5_000, 'Plata'],
-    [14_999, 'Plata'],
-    [15_000, 'Oro'],
-    [39_999, 'Oro'],
-    [40_000, 'Platino'],
-    [100_000, 'Platino'],
+    [0, 'bronze'],
+    [4_999, 'bronze'],
+    [5_000, 'silver'],
+    [14_999, 'silver'],
+    [15_000, 'gold'],
+    [39_999, 'gold'],
+    [40_000, 'platinum'],
+    [100_000, 'platinum'],
   ])('lifetime %i is %s', (lifetime, name) => {
     expect(createStore({ lifetime }).tier().name).toBe(name);
   });
 
   it('computes next tier, progress and remaining points', () => {
     const store = createStore({ lifetime: 10_000 });
-    expect(store.nextTier()?.name).toBe('Oro');
+    expect(store.nextTier()?.name).toBe('gold');
     expect(store.progressToNextTier()).toBeCloseTo(0.5);
     expect(store.pointsToNextTier()).toBe(5_000);
   });
 
-  it('is full progress with no next tier at Platino', () => {
+  it('is full progress with no next tier at platinum', () => {
     const store = createStore({ lifetime: 50_000 });
     expect(store.nextTier()).toBeNull();
     expect(store.progressToNextTier()).toBe(1);
@@ -67,12 +67,12 @@ describe('tiers', () => {
     expect(createStore({ lifetime: 5_000 }).progressToNextTier()).toBe(0);
   });
 
-  it('boots the default member as Plata with 12,480 points', () => {
+  it('boots the default member as silver with 12,480 points', () => {
     const injector = Injector.create({ providers: [{ provide: REWARDS_SOURCE, useValue: MOCK_SNAPSHOT }, RewardsStore] });
     const store = injector.get(RewardsStore);
     expect(store.member().name).toBe('Victor');
     expect(store.member().points).toBe(12_480);
-    expect(store.tier().name).toBe('Plata');
+    expect(store.tier().name).toBe('silver');
   });
 });
 
@@ -80,7 +80,7 @@ describe('filtering', () => {
   it('shows everything without a category and filters when one is selected', () => {
     const store = createStore();
     expect(store.filteredRewards()).toHaveLength(3);
-    store.selectCategory('Viajes');
+    store.selectCategory('travel');
     expect(store.filteredRewards().map((r) => r.id)).toEqual(['a', 'c']);
     store.selectCategory(null);
     expect(store.filteredRewards()).toHaveLength(3);
