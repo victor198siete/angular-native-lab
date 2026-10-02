@@ -3,11 +3,15 @@
 [ng-native/ng-native#357](https://github.com/ng-native/ng-native/issues/357) — *"tailwind: the
 --watch child never rebuilds the sheet after startup"*.
 
-> **Resumen en español:** Intentamos reproducir el #357 en este lab, con Tailwind 4 y con una copia
-> en Tailwind 3. **En nuestro entorno el watcher no se atoró**: cada clase nueva reescribió el CSS en
+> **Resumen en español:** Este lab usa **Tailwind 4.3.3**. Intentamos reproducir el #357 en el lab
+> tal como está (corrida A) y, como el issue es con Tailwind 3.4.19, también en una **copia temporal**
+> del lab con esa versión (corrida B), fuera del repo y ya descartada. **En nuestro entorno el watcher no se atoró**: cada clase nueva reescribió el CSS en
 > el mismo segundo y llegó al simulador. **Esto no descarta el bug**: probamos con **npm** (el issue
 > usa **pnpm**) y con **Node 22** (el issue usa **Node 24**), y sin el preset en TypeScript. Esas
 > diferencias quedan como sospechosas.
+
+**This lab runs Tailwind 4.3.3.** Run B used a throwaway copy on Tailwind 3.4.19 only because the
+issue reports 3.4.19; nothing in this repo was changed to Tailwind 3.
 
 **Date:** 2 Oct 2026. **Result:** not reproduced, in an environment that differs from the issue's
 in package manager, Node version and preset format (see [the caveat](#what-this-does-not-show)).
@@ -17,8 +21,8 @@ in package manager, Node version and preset format (see [the caveat](#what-this-
 | | This attempt | Issue #357 |
 |---|---|---|
 | `@ng-native/metro` / `@ng-native/tailwind` | 0.3.0 / 0.3.0 | 0.3.0 / 0.3.0 |
-| Tailwind | Run A: `tailwindcss` 4.3.3 + `@tailwindcss/cli` 4.3.3 · Run B: `tailwindcss` 3.4.19 | 3.4.19 |
-| Tailwind config | Run A: CSS-first (`@import`s, no `content`) · Run B: `tailwind.config.js`, `content` as an absolute glob | `content` as absolute globs, preset in TypeScript |
+| Tailwind — **this lab (Run A)** | **`tailwindcss` 4.3.3 + `@tailwindcss/cli` 4.3.3**, CSS-first (`@import`s, no `content`) | — |
+| Tailwind — throwaway copy (Run B) | `tailwindcss` 3.4.19, `tailwind.config.js` with `content` as an absolute glob | 3.4.19, `content` as absolute globs, preset in TypeScript |
 | **Package manager** | **npm** | **pnpm** (workspace) |
 | **Node** | **22.22.3** | **24** |
 | Expo | SDK 57 (`expo` 57.0.26) | SDK 57 |
@@ -50,10 +54,9 @@ From `node_modules/@ng-native/tailwind/config.cjs` (0.3.0), read only:
 4. Repeat in a second and a third file; the third after the child had run for 5 minutes.
 5. Revert each edit and check again.
 
-Nothing was changed in `node_modules` or in ng-native. Run B used a copy of this repo outside the
-repo (`$SCRATCH/lab-tw3`).
+Nothing was changed in `node_modules` or in ng-native. This repo stayed on Tailwind 4 throughout.
 
-## Run A — Tailwind 4.3.3 (this repo as it is)
+## Run A — this lab (Tailwind 4.3.3)
 
 Child command (`ps`):
 
@@ -72,9 +75,9 @@ node …/node_modules/@tailwindcss/cli/dist/index.mjs -i …/src/styles.css -o �
 The child stayed alive throughout (state `S`). No `[angular-native] the Tailwind watcher exited`
 message, no errors.
 
-## Run B — Tailwind 3.4.19 (copy of this repo)
+## Run B — throwaway copy on Tailwind 3.4.19, to match the issue
 
-Changes in the copy only: `tailwindcss@3.4.19` (exact), this `tailwind.config.js`, and
+A copy of this repo outside it (`$SCRATCH/lab-tw3`), deleted afterwards. Changes in the copy only: `tailwindcss@3.4.19` (exact), this `tailwind.config.js`, and
 `@tailwind base; @tailwind components; @tailwind utilities;` in place of the Tailwind 4 `@import`s
 (the v4-only `@theme` block removed, so the app's own colour tokens were missing — irrelevant to
 the watcher).
@@ -107,7 +110,7 @@ The child stayed alive throughout. No `watcher exited` message, no errors.
 
 | | Value |
 |---|---|
-| Versions | ng-native 0.3.0 · Tailwind 4.3.3 (A) and 3.4.19 (B) · Node 22.22.3 · npm · macOS 27.0 · Expo SDK 57 |
+| Versions | ng-native 0.3.0 · Tailwind 4.3.3 (this lab, A) and 3.4.19 (throwaway copy, B) · Node 22.22.3 · npm · macOS 27.0 · Expo SDK 57 |
 | Child command (`ps`) | See each run above |
 | Is the CSS rewritten on save? | **Yes**, every time a new class was added, in the same second, in both runs (6 of 6) |
 | Does the class reach the simulator? | **Yes** (5 checked visually; 1 not checked) |
