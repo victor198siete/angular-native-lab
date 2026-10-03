@@ -47,7 +47,7 @@ npm start          # or scan the QR code with Expo Go on your phone
 Checks that run in Node, with no simulator:
 
 ```sh
-npm test               # Vitest against ng-native's fake native layer (64 tests)
+npm test               # Vitest against ng-native's fake native layer (75 tests)
 npm run typecheck      # ngc with strict templates
 npm run i18n:check     # every translation matches the extracted messages
 npm run i18n:extract   # re-extract src/locale/messages.json from a Metro bundle
@@ -59,6 +59,7 @@ npm run i18n:extract   # re-extract src/locale/messages.json from a Metro bundle
 |---|---|---|
 | [Rewards](#rewards) | Signals + `computed()`, Router with native tabs, Tailwind v4 with `dark:`, a 200-item `<virtual-list>`, Lucide icons | ✅ iOS |
 | [i18n (EN/ES)](#i18n-enes) | Angular's own i18n at runtime, device language, an in-app switch, localized numbers, dates and mock data | ✅ iOS |
+| [Show at the counter](#show-at-the-counter-inside-rewards) | The voucher as a scannable QR at full brightness, screen kept on and out of screenshots, copy and share. Part of Rewards | ✅ iOS |
 | Forms | Signal Forms on native inputs | Planned |
 | Device | Theme, network, safe areas and location as signals | Planned |
 | [Vault](#vault-inside-rewards) | Face ID / fingerprint for the voucher codes and an opt-in lock on launch, with the preference in the keychain. Part of Rewards | ✅ iOS |
@@ -218,6 +219,63 @@ that does not match, cancelling, and unlocking. In Node: the same flows with a f
   `xcrun simctl spawn booted notifyutil -p com.apple.BiometricKit_Sim.pearl.match` (or
   `.nomatch`), after enrolling with `com.apple.BiometricKit.enrollmentChanged`. Taps sent from
   outside the Simulator window did not flip a native `UISwitch`; a person had to.
+
+### Show at the counter (inside Rewards)
+
+A redemption's code, ready for the partner to scan: **Show at the counter** on the success
+screen, or a code in **My codes**, opens the voucher as a QR. While it is open, the app raises
+its own brightness to full, keeps the screen on and keeps it out of screenshots; all three are
+put back when it closes. Copy and Share sit underneath, and a redemption ends with a success or
+error haptic.
+
+The QR needs no QR library for React Native: `qrcode-generator` (MIT, no dependencies) makes the
+matrix, each row's run of dark cells becomes one rectangle in a single `<path>`, and
+`<ng-icon [svg]>` from `@ng-native/icons` draws that markup as native react-native-svg shapes.
+
+**What was tested:** on the iOS simulator in Expo Go: the QR on screen, decoding it, Copy, Share,
+and the two ways in. In Node: every module faked through its `SOURCE` token, checking what the app
+asks the phone to do and that it is all undone on close.
+
+**What worked**
+
+- **The QR scans.** A simulator screenshot decoded with macOS's own Vision framework read
+  `LAB-52TY-ZEPC`, the code printed under it. A version-1 code is one `RNSVGPath`.
+- **Copy:** the simulator's pasteboard (`xcrun simctl pbpaste booted`) held the code, and the
+  button said "Copied".
+- **Share:** the system share sheet opened with the message in the active language.
+- All of it in Expo Go: `expo-brightness`, `expo-keep-awake`, `expo-screen-capture`,
+  `expo-haptics` and `expo-clipboard` needed no development build.
+- In Node, closing the screen calls `restore()`, releases the `voucher` keep-awake tag and
+  allows capture again for the `voucher` key.
+
+**What could not be checked here, so is not claimed**
+
+- **Brightness and haptics** have nothing to see or feel on a simulator; the tests only show the
+  calls.
+- **Screenshot prevention:** `xcrun simctl io booted screenshot` captured the voucher anyway. It
+  grabs the frame from outside iOS, so it says nothing about what the user's own screenshot
+  would do; that needs a phone. The "a screenshot was taken" warning is tested in Node only.
+- **Keep awake:** not observable in a short session.
+
+## Module coverage
+
+Every native module this lab uses, where it was tested and what it needed. ✅ worked, ⚠️ worked
+with a caveat, — not tested there.
+
+| Module | Package | Used for | iOS sim, Expo Go | Dev build needed | Tested on device | Notes |
+|---|---|---|---|---|---|---|
+| `Locale` | `@ng-native/expo/locale` (`expo-localization`) | Device language for i18n | ✅ | No | — | |
+| `SecureStorage` | `@ng-native/expo/secure-store` | Language choice, lock preference | ✅ | No | — | Reads synchronously, so guards see it on launch |
+| `Biometrics` | `@ng-native/expo/biometrics` (`expo-local-authentication`) | Vault | ⚠️ | No | — | First prompt once failed with `unknown: -1000`; Face ID usage string needed for dev builds |
+| `Brightness` | `@ng-native/expo/brightness` | Voucher | — | No | — | Calls verified in Node; nothing to see on a simulator |
+| `KeepAwake` | `@ng-native/expo/keep-awake` | Voucher | — | No | — | Calls verified in Node |
+| `ScreenCapture` | `@ng-native/expo/screen-capture` | Voucher | ⚠️ | No | — | `simctl` screenshots are not blocked (taken from outside iOS) |
+| `Haptics` | `@ng-native/expo/haptics` | Redeem, copy | — | No | — | No haptics on a simulator |
+| `Clipboard` | `@ng-native/expo/clipboard` | Copy the code | ✅ | No | — | |
+| `Sharing` | `@ng-native/device` | Share the code | ✅ | No | — | `true` means a target was chosen, not delivered |
+| `NgIcon` with `[svg]` | `@ng-native/icons` (`react-native-svg`) | Lucide icons, the QR | ✅ | No | — | Parser handles `svg`, `g`, `path`, `rect`… |
+| `ColorScheme` | `@ng-native/device` | Dark mode | ✅ | No | — | |
+| Router, native tabs and stack | `@ng-native/router` | All navigation | ✅ | No | — | |
 
 ## Not tested yet
 
