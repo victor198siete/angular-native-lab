@@ -47,7 +47,7 @@ npm start          # or scan the QR code with Expo Go on your phone
 Checks that run in Node, with no simulator:
 
 ```sh
-npm test               # Vitest against ng-native's fake native layer (56 tests)
+npm test               # Vitest against ng-native's fake native layer (64 tests)
 npm run typecheck      # ngc with strict templates
 npm run i18n:check     # every translation matches the extracted messages
 npm run i18n:extract   # re-extract src/locale/messages.json from a Metro bundle
@@ -61,7 +61,7 @@ npm run i18n:extract   # re-extract src/locale/messages.json from a Metro bundle
 | [i18n (EN/ES)](#i18n-enes) | Angular's own i18n at runtime, device language, an in-app switch, localized numbers, dates and mock data | ✅ iOS |
 | Forms | Signal Forms on native inputs | Planned |
 | Device | Theme, network, safe areas and location as signals | Planned |
-| Vault | Secure storage + Face ID / fingerprint | Planned |
+| [Vault](#vault-inside-rewards) | Face ID / fingerprint for the voucher codes and an opt-in lock on launch, with the preference in the keychain. Part of Rewards | ✅ iOS |
 | Lists | 200 vs 2,000 items | Planned |
 
 ### Rewards
@@ -163,9 +163,66 @@ and numbers, dates and mock data in both languages.
 - `$localize` at module level runs before the translations load and stays in English.
   Tier and category names are translated inside functions for that reason.
 
+### Vault (inside Rewards)
+
+Biometrics in the same app instead of a separate demo, so it maps onto a real product: the
+wallet's **My codes** hides the voucher codes of recent redemptions until Face ID passes, and a
+switch turns on **Face ID when the app opens**. Built on `Biometrics`
+(`@ng-native/expo/biometrics`, over `expo-local-authentication` 57.0.3) and `SecureStorage`
+(`@ng-native/expo/secure-store`).
+
+Design choices, kept the way a production app would have them:
+
+- The codes come from the redeem movements (an API in a real app). **Nothing about them is
+  stored on the device**; the keychain holds only the lock preference.
+- One authentication unlocks the session, for the codes and the app, until it restarts.
+- Turning the lock on asks for Face ID first, so it cannot be enabled on a phone that would
+  then fail to open it. With no usable sensor, the lock screen offers to turn the lock off (the
+  lab has no password to fall back to; a real app would ask the person to sign in again).
+
+**What was tested:** on the iOS simulator with Face ID enrolled, inside **Expo Go**: reading the
+sensor kind, revealing the codes, turning the lock on, relaunching into the lock screen, a face
+that does not match, cancelling, and unlocking. In Node: the same flows with a fake sensor
+(`Biometrics.SOURCE`) and an in-memory keychain (`new Store(native)` from
+`@ng-native/expo/store`).
+
+**What worked**
+
+- **Face ID works in Expo Go on the iOS simulator**; no development build was needed. `kinds()`
+  reported `face`, the system Face ID sheet appeared, and a matching face resolved
+  `{ success: true }`.
+- A non-matching face shows iOS's own "Face Not Recognized" dialog; cancelling it resolves
+  `user_cancel`, and the app says so in the active language.
+- `SecureStorage` reads synchronously, so the route guard sees the stored preference on the very
+  first navigation: the app opens straight on the lock screen, with no flash of the wallet.
+- Without a fake, in Node, `authenticate()` resolves `{ success: false, error: 'not_available' }`:
+  the lock fails closed, as ng-native's docs promise.
+- `<switch>` is controlled: when Face ID fails, the app keeps `false` and the switch flips back
+  by itself.
+
+**What failed or needed work**
+
+- The first reveal attempt failed with
+  ```
+  unknown: -1000, Authentication failure.
+  ```
+  and the second one passed. Our guess is the simulated face was sent too late, after the sheet
+  had given up; it was not confirmed. The app shows such errors verbatim inside a generic
+  sentence, since they come from the platform.
+- Importing `Biometrics` or `SecureStorage` in Vitest works (unlike `expo-secure-store` itself;
+  see i18n). Creating them with `Injector.create()` fails with `NG0201: No provider found for
+  InjectionToken angular-native.biometricsSource`: they need a root injector, as `render()` has.
+- In tests, `userEvent.press()` does not flip a `<switch>`; it listens for the native `change`
+  event: `fireEvent(node, 'change', { value: true })`.
+- Driving the simulator from scripts: the Face ID sheet waits for
+  `xcrun simctl spawn booted notifyutil -p com.apple.BiometricKit_Sim.pearl.match` (or
+  `.nomatch`), after enrolling with `com.apple.BiometricKit.enrollmentChanged`. Taps sent from
+  outside the Simulator window did not flip a native `UISwitch`; a person had to.
+
 ## Not tested yet
 
-Android, a release build, a physical device and any performance measurement. Nothing
+Android, a release build, a physical device (Face ID on a real phone included) and any
+performance measurement. Nothing
 in this README claims performance numbers.
 
 ## Project structure
