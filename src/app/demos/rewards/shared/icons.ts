@@ -9,7 +9,7 @@ import {
   lucidePopcorn, lucideSalad, lucideSandwich, lucideSearchX, lucideShieldCheck, lucideShip,
   lucideCroissant, lucideSpeaker, lucideStethoscope, lucideSun, lucideSunrise, lucideTablet,
   lucideTentTree, lucideThermometerSun, lucideUtensils, lucideWatch, lucideWaves, lucideWind,
-  lucideWine,
+  lucideWine, lucideLock, lucideScanFace, lucideEye, lucideTicket,
 } from '@ng-icons/lucide';
 import type { RewardIcon } from '../core/models/index.ts';
 
@@ -51,6 +51,7 @@ export const provideRewardIcons = () =>
 export const provideUiIcons = () =>
   provideIcons({
     lucideArrowDownLeft, lucideCheck, lucideGift, lucideHistory, lucideMoon, lucideSearchX, lucideSun,
+    lucideLock, lucideScanFace, lucideEye, lucideTicket,
   });
 
 /** Icon colours per scheme; the icon takes `color` as an input, not a CSS class. */

@@ -10,6 +10,7 @@ import { ICON_COLOR, REWARD_ICON_NAME, provideRewardIcons, provideUiIcons } from
 import { formatPoints } from '../../shared/format.ts';
 import { categoryLabel } from '../../shared/labels.ts';
 import { CATEGORY_GRADIENT } from '../../shared/tier-style.ts';
+import { voucherCode } from '../../shared/voucher-code.ts';
 import { RedeemSheet } from './redeem-sheet.ts';
 
 type Phase = 'idle' | 'confirming' | 'processing' | 'success';
@@ -18,18 +19,6 @@ type Failure = Exclude<RedeemResult['status'], 'ok'>;
 /** Simulated network time, so the "Processing…" state is visible. */
 const PROCESSING_MS = 700;
 
-/** Deterministic voucher code derived from the movement id: LAB-XXXX-XXXX. */
-function voucherCode(seed: string): string {
-  let hash = 7;
-  for (const char of seed) hash = (hash * 31 + char.charCodeAt(0)) >>> 0;
-  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-  let out = '';
-  for (let i = 0; i < 8; i++) {
-    out += chars[hash % chars.length];
-    hash = (Math.imul(hash, 1103515245) + 12345) >>> 0;
-  }
-  return `LAB-${out.slice(0, 4)}-${out.slice(4)}`;
-}
 
 @Component({
   selector: 'app-reward-detail-screen',

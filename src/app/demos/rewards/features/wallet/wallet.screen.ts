@@ -9,10 +9,11 @@ import { animatedNumber } from '../../shared/animated-number.ts';
 import { ICON_COLOR, provideUiIcons } from '../../shared/icons.ts';
 import { MovementRow } from '../../shared/ui/movement-row.ts';
 import { PointsHeroCard } from '../../shared/ui/points-hero-card.ts';
+import { VaultPanel } from '../../vault/vault-panel.ts';
 
 @Component({
   selector: 'app-wallet-screen',
-  imports: [MovementRow, NgIcon, Pressable, PointsHeroCard, SafeAreaView, ScrollView, Text, View],
+  imports: [MovementRow, NgIcon, Pressable, PointsHeroCard, SafeAreaView, ScrollView, Text, VaultPanel, View],
   providers: [provideUiIcons()],
   template: `
     <safe-area-view [edges]="['top']" class="flex-1 bg-canvas dark:bg-canvas-dk">
@@ -98,6 +99,8 @@ import { PointsHeroCard } from '../../shared/ui/points-hero-card.ts';
             }
           </view>
         </view>
+
+        <app-vault-panel />
       </scroll-view>
     </safe-area-view>
   `,
