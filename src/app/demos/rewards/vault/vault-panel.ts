@@ -1,4 +1,5 @@
 import { Component, LOCALE_ID, computed, inject } from '@angular/core';
+import { Router } from '@angular/router';
 import { Pressable, Switch, Text, View } from '@ng-native/components';
 import { NgIcon } from '@ng-native/icons';
 import { Theme } from '../../../core/theme.ts';
@@ -41,14 +42,21 @@ const SHOWN = 5;
       </view>
       <view class="overflow-hidden rounded-xl bg-surface dark:bg-surface-dk">
         @for (item of codes(); track item.id; let last = $last) {
-          <view class="h-16 flex-row items-center gap-3 px-5" [class]="last ? '' : 'border-b border-line dark:border-line-dk'">
+          <pressable
+            class="h-16 flex-row items-center gap-3 px-5"
+            [class]="last ? '' : 'border-b border-line dark:border-line-dk'"
+            accessibilityRole="button"
+            [accessibilityLabel]="revealed() ? openLabel(item.title) : item.title"
+            [accessibilityHint]="revealed() ? undefined : revealText()"
+            (press)="open(item.id)"
+          >
             <ng-icon name="lucideTicket" [size]="20" [color]="brand()" />
             <view class="flex-1 gap-0.5">
               <text class="text-body font-semibold text-ink dark:text-ink-dk" [numberOfLines]="1">{{ item.title }}</text>
               <text class="text-caption text-ink2 dark:text-ink2-dk">{{ item.day }}</text>
             </view>
             <text testID="vault-code" class="text-body font-bold tracking-widest tabular-nums text-ink dark:text-ink-dk">{{ revealed() ? item.code : mask }}</text>
-          </view>
+          </pressable>
         } @empty {
           <text class="px-5 py-4 text-body text-ink2 dark:text-ink2-dk" i18n="@@vault.codes.empty">Redeem a reward to get a code.</text>
         }
@@ -81,6 +89,7 @@ export class VaultPanel {
   private readonly store = inject(RewardsStore);
   private readonly theme = inject(Theme);
   private readonly locale = inject(LOCALE_ID);
+  private readonly router = inject(Router);
   protected readonly ink = computed(() => (this.theme.isDark() ? ICON_COLOR.ink.dark : ICON_COLOR.ink.light));
   protected readonly brand = computed(() => (this.theme.isDark() ? ICON_COLOR.brand.dark : ICON_COLOR.brand.light));
   protected readonly mask = MASK;
@@ -122,6 +131,19 @@ export class VaultPanel {
   protected async reveal(): Promise<void> {
     const reason = $localize`:@@vault.prompt.codes:Show your voucher codes`;
     await this.lock.authenticate(reason);
+  }
+
+  protected openLabel(title: string): string {
+    return $localize`:@@vault.codes.open.a11y:Show the code for ${title}:title: at the counter`;
+  }
+
+  /** Opens the code at the counter; while the codes are hidden, asks for biometrics first. */
+  protected async open(id: string): Promise<void> {
+    if (!this.revealed()) {
+      await this.reveal();
+      if (!this.revealed()) return;
+    }
+    void this.router.navigate(['/voucher', id]);
   }
 
   protected async toggleLock(on: boolean): Promise<void> {

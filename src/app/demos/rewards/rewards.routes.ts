@@ -24,6 +24,11 @@ export const rewardsRoutes: Routes = [
     loadComponent: () => import('./features/reward-detail/reward-detail.screen.ts').then((m) => m.RewardDetailScreen),
   },
   {
+    path: 'voucher/:id',
+    canActivate: [vaultGuard],
+    loadComponent: () => import('./features/voucher/voucher.screen.ts').then((m) => m.VoucherScreen),
+  },
+  {
     // The opt-in biometric lock on launch (see vault/). Outside the guard, or it would loop.
     path: 'locked',
     loadComponent: () => import('./vault/lock.screen.ts').then((m) => m.LockScreen),

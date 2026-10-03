@@ -2,6 +2,7 @@ import { Component, DestroyRef, LOCALE_ID, computed, inject, input, signal } fro
 import { Router } from '@angular/router';
 import { Pressable, SafeAreaView, ScrollView, Text, View } from '@ng-native/components';
 import { NgIcon } from '@ng-native/icons';
+import { Haptics } from '@ng-native/expo/haptics';
 import { NativeHeader, NativeNavigation } from '@ng-native/router';
 import { RewardsStore, type RedeemResult } from '../../core/rewards.store.ts';
 import { Theme } from '../../../../core/theme.ts';
@@ -51,6 +52,14 @@ const PROCESSING_MS = 700;
           <text testID="voucher-code" class="text-h2 font-bold tracking-widest tabular-nums text-ink dark:text-ink-dk">{{ code() }}</text>
         </view>
         <view class="items-center gap-2">
+          <pressable
+            testID="show-in-store"
+            class="grad-brand h-12 items-center justify-center rounded-full px-6 shadow-cta"
+            accessibilityRole="button"
+            (press)="showInStore()"
+          >
+            <text class="text-body font-bold text-white" i18n="@@detail.showInStore">Show at the counter</text>
+          </pressable>
           <pressable
             testID="back-to-catalog"
             class="h-12 items-center justify-center rounded-full bg-raised px-6 dark:bg-raised-dk hover:opacity-80"
@@ -156,6 +165,7 @@ export class RewardDetailScreen {
   private readonly store = inject(RewardsStore);
   private readonly router = inject(Router);
   private readonly navigation = inject(NativeNavigation);
+  private readonly haptics = inject(Haptics);
   private readonly theme = inject(Theme);
   private readonly locale = inject(LOCALE_ID);
   protected readonly backTitle = $localize`:@@tabs.catalog:Catalog`;
@@ -254,10 +264,12 @@ export class RewardDetailScreen {
   private finish(): void {
     const result = this.store.redeem(this.id());
     if (result.status === 'ok') {
+      this.haptics.notify('success');
       this.spent.set(result.movement.points);
       this.voucherSeed.set(result.movement.id);
       this.phase.set('success');
     } else {
+      this.haptics.notify('error');
       this.failure.set(result.status);
       this.phase.set('idle');
     }
@@ -276,6 +288,10 @@ export class RewardDetailScreen {
 
   protected back(): void {
     this.navigation.back();
+  }
+
+  protected showInStore(): void {
+    void this.router.navigate(['/voucher', this.voucherSeed()]);
   }
 
   protected goHistory(): void {
