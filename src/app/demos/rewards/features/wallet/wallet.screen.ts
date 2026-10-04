@@ -101,6 +101,15 @@ import { VaultPanel } from '../../vault/vault-panel.ts';
         </view>
 
         <app-vault-panel />
+
+        <pressable
+          testID="wallet-join"
+          class="min-h-11 items-center justify-center"
+          accessibilityRole="link"
+          (press)="go('/join')"
+        >
+          <text class="text-body font-semibold text-brand-text dark:text-brand-text-dk" i18n="@@wallet.join">Not a member yet? Join the program</text>
+        </pressable>
       </scroll-view>
     </safe-area-view>
   `,
