@@ -1,0 +1,46 @@
+# Join the program, end to end in Expo Go: maestro test -e APP_URL=exp://127.0.0.1:8081 .maestro/join.yaml
+# Turn the Face ID lock off first, or the app opens on the lock screen.
+appId: host.exp.Exponent
+---
+- openLink: ${APP_URL}/--/join
+- extendedWaitUntil:
+    visible:
+      id: join-submit
+    timeout: 30000
+- waitForAnimationToEnd
+# 1. Empty submit: every error at once
+- tapOn:
+    id: join-submit
+- extendedWaitUntil:
+    visible:
+      id: join-terms-error
+    timeout: 5000
+# 2. Fill it, with the email the mock already knows
+- tapOn:
+    id: join-name
+- inputText: "Ana López"
+- tapOn:
+    id: join-email
+- inputText: "taken@example.com"
+- hideKeyboard
+- tapOn:
+    id: join-terms
+- tapOn:
+    id: join-submit
+- extendedWaitUntil:
+    visible:
+      text: "Este correo ya está registrado."
+    timeout: 8000
+# 3. Fix the email and join
+- tapOn:
+    id: join-email
+- eraseText: 30
+- inputText: "ana@example.com"
+- hideKeyboard
+- tapOn:
+    id: join-submit
+- extendedWaitUntil:
+    visible:
+      id: join-success
+    timeout: 8000
+- waitForAnimationToEnd
