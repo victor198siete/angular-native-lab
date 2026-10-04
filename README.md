@@ -23,13 +23,13 @@ what breaks; it is not a production guide. Everything below was tested on **iOS 
 
 | | Version |
 |---|---|
-| `@ng-native/*` | 0.3.0 |
+| `@ng-native/*` | 0.4.0 (also ran on 0.3.0: tag [`ng-native-0.3.0`](https://github.com/victor198siete/angular-native-lab/tree/ng-native-0.3.0)) |
 | Angular | 22.2.1 |
 | Expo SDK | 57 (`expo` 57.0.26) |
 | React Native | 0.86.3 |
 | TypeScript / Vitest | 6.0.3 / 5.0.3 |
 | Node | 22.22.3 |
-| Device | iOS 27 simulator (iPhone 18 Pro), Xcode 27, Expo Go |
+| Device | iOS 27 simulator (iPhone 18 Pro), Xcode 27, Expo Go; Android 16 emulator (Pixel 9), Expo Go and a development build |
 
 ## Getting started
 
@@ -277,10 +277,36 @@ with a caveat, — not tested there.
 | `ColorScheme` | `@ng-native/device` | Dark mode | ✅ | No | — | |
 | Router, native tabs and stack | `@ng-native/router` | All navigation | ✅ | No | — | |
 
+## Upgrading to 0.4.0
+
+All ten `@ng-native/*` packages moved from 0.3.0 to 0.4.0 with **no code change**: typecheck clean,
+every test passing with no new warnings, and the iOS demos behaving as before (lock, wallet,
+catalog, a scannable voucher QR, deep links). `expo install --check` asked for nothing.
+
+## Android
+
+First run on the Android 16 emulator (Pixel 9, API 36), in Expo Go and in a development build.
+
+**What worked:** launch, the wallet, i18n, the balance animation and the tab bar.
+
+**What failed**
+
+- **Opening the catalog stops the app**, on 0.3.0 and 0.4.0, in Expo Go and in a development build:
+  ```
+  addViewAt: failed to insert view [1073742902] into parent [1073742906] at index 1
+  ScrollView can host only one direct child
+  ```
+  Narrowed down: any `<virtual-list>` with `listHeader` or `listFooter` content does it; one without
+  them, and `<scroll-view>` with several children, vertical or horizontal, do not. The catalog's
+  count is a `listFooter`. Being reported upstream; the lab keeps the footer so the result stays
+  reproducible.
+- **Tabs have no icons on Android.** Not a bug: ng-native warns that Android reads only `drawable`,
+  and the lab uses SF Symbols, which are iOS only.
+
 ## Not tested yet
 
-Android, a release build, a physical device (Face ID on a real phone included) and any
-performance measurement. Nothing
+Most of the app on Android (anything past the catalog), a release build, a physical device (Face ID
+on a real phone included) and any performance measurement. Nothing
 in this README claims performance numbers.
 
 ## Project structure

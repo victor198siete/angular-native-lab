@@ -13,6 +13,8 @@
 **This lab runs Tailwind 4.3.3.** Run B used a throwaway copy on Tailwind 3.4.19 only because the
 issue reports 3.4.19; nothing in this repo was changed to Tailwind 3.
 
+> **Update, 3 Oct 2026:** ng-native closed #357 and shipped the fix in **0.4.0**.
+
 **Date:** 2 Oct 2026. **Result:** not reproduced, in an environment that differs from the issue's
 in package manager, Node version and preset format (see [the caveat](#what-this-does-not-show)).
 
