@@ -47,10 +47,17 @@ npm start          # or scan the QR code with Expo Go on your phone
 Checks that run in Node, with no simulator:
 
 ```sh
-npm test               # Vitest against ng-native's fake native layer (75 tests)
+npm test               # Vitest against ng-native's fake native layer (86 tests)
 npm run typecheck      # ngc with strict templates
 npm run i18n:check     # every translation matches the extracted messages
 npm run i18n:extract   # re-extract src/locale/messages.json from a Metro bundle
+```
+
+End to end on the simulator, with [Maestro](https://maestro.dev) and Metro running (turn the
+launch lock off first):
+
+```sh
+maestro test -e APP_URL=exp://127.0.0.1:8081 .maestro/join.yaml
 ```
 
 ## Demos
@@ -60,7 +67,7 @@ npm run i18n:extract   # re-extract src/locale/messages.json from a Metro bundle
 | [Rewards](#rewards) | Signals + `computed()`, Router with native tabs, Tailwind v4 with `dark:`, a 200-item `<virtual-list>`, Lucide icons | ✅ iOS |
 | [i18n (EN/ES)](#i18n-enes) | Angular's own i18n at runtime, device language, an in-app switch, localized numbers, dates and mock data | ✅ iOS |
 | [Show at the counter](#show-at-the-counter-inside-rewards) | The voucher as a scannable QR at full brightness, screen kept on and out of screenshots, copy and share. Part of Rewards | ✅ iOS |
-| Forms | Signal Forms on native inputs | Planned |
+| [Join the program](#forms-join-the-program-inside-rewards) | Signal Forms on native inputs and switches, a mock sign-up that rejects a taken email, and what Reactive Forms and `ControlValueAccessor` do. Part of Rewards | ✅ iOS |
 | Device | Theme, network, safe areas and location as signals | Planned |
 | [Vault](#vault-inside-rewards) | Face ID / fingerprint for the voucher codes and an opt-in lock on launch, with the preference in the keychain. Part of Rewards | ✅ iOS |
 | Lists | 200 vs 2,000 items | Planned |
@@ -257,6 +264,80 @@ asks the phone to do and that it is all undone on close.
   would do; that needs a phone. The "a screenshot was taken" warning is tested in Node only.
 - **Keep awake:** not observable in a short session.
 
+### Forms: Join the program (inside Rewards)
+
+<img src="docs/join.gif" width="280" align="right" alt="Join the program: an empty submit shows every error, a taken email is rejected, then a valid sign-up" />
+
+A member sign-up, reached from the wallet ("Not a member yet? Join the program"): name, email,
+an optional phone, a promotions switch and a terms switch. It uses
+[Signal Forms](https://angular.dev/guide/forms/signals/overview) bound straight to the native
+controls, as [ng-native's forms guide](https://ng-native.com/guide/forms) describes:
+`<text-input>` takes `value` and `<switch>` takes `checked`, both models, with no adapter class.
+The sign-up is a mock that takes about a second and answers that `taken@example.com` is already
+registered.
+
+**What was tested:** on the iOS simulator in Expo Go, driven by Maestro
+([`.maestro/join.yaml`](.maestro/join.yaml), recorded in the GIF): an empty submit, the taken
+email, fixing it and joining. In Node: validation, the red border, the server error, success and
+the way in from the wallet, plus [a test](src/app/demos/rewards/features/join/forms-compatibility.test.ts)
+of every other Angular form pattern on a `<text-input>`.
+
+**What worked**
+
+- **Signal Forms is stable in Angular 22.** Everything used here (`form`, `FormField`,
+  `required`, `minLength`, `email`, `pattern`, `validate`, `submit`) is `@publicApi 22.0` in
+  `@angular/forms/signals`; only `provideExperimentalWebMcpForms` is still experimental.
+  `@angular/forms` has to be pinned to the exact `@angular/core` version (22.2.1).
+- `[formField]` on `<text-input>` and `<switch>` binds both ways with nothing else.
+- `submit()` marks every field touched, calls `onInvalid` (a warning haptic here) when something
+  is wrong, and only runs `action` on a valid form. While it runs, `submitting()` disables the
+  button and changes its label. The "already registered" answer comes back from `action` with
+  `fieldTree: f.email` and shows under the email like any validation error.
+- The invalid look is plain CSS in the component, compiled at build time:
+  `.field[data-invalid][data-touched] { border-color: ... }`, with a dark-mode colour.
+- Email and phone keyboards, autofill hints and accessibility labels are ordinary props.
+- Labels and messages come from the same i18n as the rest of the app.
+- 0.4.0's HTML elements, which need no import, draw the layout and copy: `section`, `h1`, `p`,
+  `label`, `div`.
+- **Reactive Forms and `ControlValueAccessor` work too**, on the simulator and in Node, even
+  though the guide says `ControlValueAccessor` is not supported. Checked on a temporary screen
+  with Maestro:
+
+  | Pattern | Result |
+  |---|---|
+  | `[formControl]` on `<text-input>` | Typing reaches the `FormControl`, `setValue()` reaches the field, leaving it marks it touched, `disable()` stops typing |
+  | `[(ngModel)]` on `<text-input>` | Both ways (Node) |
+  | A custom control with `ControlValueAccessor`, bound with `[formControl]` | Both ways |
+  | The same control bound with Signal Forms `[formField]` | Both ways |
+
+  The custom control keeps its value in a signal: the app is zoneless, so a plain field set from
+  `writeValue()` would not redraw. Not tried yet on Android or a phone.
+
+**What failed or needed work**
+
+- **`pattern()` lets an empty value through.** A 10-digit phone pattern does not make the phone
+  required, so the field is labelled optional; adding `required()` would be the fix if it were not.
+- **Forgetting `FormField` in `imports`** binds nothing: the field stays empty and typing never
+  reaches the form. The guide says this compiles and logs in development. The log is there:
+  ```
+  [angular-native] Can't bind to 'formField' on <text-input>: no directive in its template
+  takes it, so it binds nothing. Add FormField from '@angular/forms/signals' to the
+  component's `imports`.
+  ```
+  But `npm run typecheck` (ngc with strict templates) does not compile it, so it is caught
+  before running:
+  ```
+  NG8002: Can't bind to 'formField' since it isn't a known property of 'text-input'.
+  ```
+  Metro's build does not type-check, so the app still builds and runs with the mistake.
+- **`data-invalid` and `data-touched` are not native props.** They exist only for the CSS
+  selector, so a test cannot read them from the rendered view; the tests check the border colour
+  instead.
+- **HTML elements are views, not the web.** A `div` lays its children out in a column, as every
+  native view does. Angular drops text nodes that are only whitespace, so a space between two
+  pieces of text disappears; `&nbsp;` keeps it.
+- Only the iOS simulator. The keyboard covering the submit button was not looked at.
+
 ## Module coverage
 
 Every native module this lab uses, where it was tested and what it needed. ✅ worked, ⚠️ worked
@@ -270,12 +351,14 @@ with a caveat, — not tested there.
 | `Brightness` | `@ng-native/expo/brightness` | Voucher | — | No | — | Calls verified in Node; nothing to see on a simulator |
 | `KeepAwake` | `@ng-native/expo/keep-awake` | Voucher | — | No | — | Calls verified in Node |
 | `ScreenCapture` | `@ng-native/expo/screen-capture` | Voucher | ⚠️ | No | — | `simctl` screenshots are not blocked (taken from outside iOS) |
-| `Haptics` | `@ng-native/expo/haptics` | Redeem, copy | — | No | — | No haptics on a simulator |
+| `Haptics` | `@ng-native/expo/haptics` | Redeem, copy, join | — | No | — | No haptics on a simulator |
 | `Clipboard` | `@ng-native/expo/clipboard` | Copy the code | ✅ | No | — | |
 | `Sharing` | `@ng-native/device` | Share the code | ✅ | No | — | `true` means a target was chosen, not delivered |
 | `NgIcon` with `[svg]` | `@ng-native/icons` (`react-native-svg`) | Lucide icons, the QR | ✅ | No | — | Parser handles `svg`, `g`, `path`, `rect`… |
 | `ColorScheme` | `@ng-native/device` | Dark mode | ✅ | No | — | |
 | Router, native tabs and stack | `@ng-native/router` | All navigation | ✅ | No | — | |
+| Signal Forms on `<text-input>` and `<switch>` | `@angular/forms/signals` | Join the program | ✅ | No | — | `pattern()` lets an empty value through |
+| Reactive Forms, `ControlValueAccessor` | `@angular/forms` | Compatibility check only | ✅ | No | — | Works, though the guide says CVA is unsupported |
 
 ## Upgrading to 0.4.0
 
