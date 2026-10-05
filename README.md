@@ -398,12 +398,13 @@ catalog, a scannable voucher QR, deep links). `expo install --check` asked for n
 
 First run on the Android 16 emulator (Pixel 9, API 36), in Expo Go and in a development build.
 
-**What worked:** launch, the wallet, i18n, the balance animation, the tab bar and
-[Join the program](#forms-join-the-program-inside-rewards), forms compatibility included.
+**What worked:** launch, the wallet, i18n from the device language, the balance animation, the tab bar
+and [Join the program](#forms-join-the-program-inside-rewards), forms compatibility included (rechecked
+on 0.5.0).
 
 **What failed**
 
-- **Opening the catalog stops the app**, on 0.3.0 and 0.4.0, in Expo Go and in a development build
+- **Opening the catalog stops the app**, on 0.3.0, 0.4.0 and 0.5.0, in Expo Go and in a development build
   ([ng-native/ng-native#558](https://github.com/ng-native/ng-native/issues/558)):
   ```
   addViewAt: failed to insert view [1073742902] into parent [1073742906] at index 1
@@ -413,6 +414,11 @@ First run on the Android 16 emulator (Pixel 9, API 36), in Expo Go and in a deve
   them, and `<scroll-view>` with several children, vertical or horizontal, do not. The catalog's
   count is a `listFooter`. Reported upstream as [#558](https://github.com/ng-native/ng-native/issues/558); the lab keeps the footer so the result stays
   reproducible.
+- **The in-app language switch does not restart the app** (0.4.0 and 0.5.0, Expo Go). The choice is
+  saved, but `reloadAppAsync` never reloads: the button stays disabled, its accessibility state
+  reading "English, busy", until Expo Go is closed and opened again, which then starts in the new
+  language. The same button reloads straight away on the iOS simulator. ng-native's localization
+  guide says Android's behaviour here is unverified. Not reported yet.
 - **Tabs have no icons on Android.** Not a bug: ng-native warns that Android reads only `drawable`,
   and the lab uses SF Symbols, which are iOS only.
 
