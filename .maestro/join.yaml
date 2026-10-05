@@ -1,13 +1,30 @@
-# Join the program, end to end in Expo Go: maestro test -e APP_URL=exp://127.0.0.1:8081 .maestro/join.yaml
-# Turn the Face ID lock off first, or the app opens on the lock screen.
-appId: host.exp.Exponent
+# Join the program, end to end in Expo Go, on iOS or Android, in English or Spanish:
+#   iOS:     maestro test -e APP_ID=host.exp.Exponent -e APP_URL=exp://127.0.0.1:8081 .maestro/join.yaml
+#   Android: adb reverse tcp:8081 tcp:8081, then the same with APP_ID=host.exp.exponent
+# Turn the Face ID lock off first, or the app opens on the lock screen. No hideKeyboard: on
+# Android it presses back when no keyboard is up, which leaves Expo Go. Tapping the intro
+# text closes the keyboard on both platforms.
+appId: ${APP_ID}
 ---
 - openLink: ${APP_URL}/--/join
+- extendedWaitUntil:
+    visible: "Join the program|Únete al programa|Continue|Close"
+    timeout: 40000
+# Expo Go's developer menu can open on a fresh install
+- runFlow:
+    when:
+      visible: "Continue"
+    commands:
+      - tapOn: "Continue"
+- runFlow:
+    when:
+      visible: "Close"
+    commands:
+      - tapOn: "Close"
 - extendedWaitUntil:
     visible:
       id: join-submit
     timeout: 30000
-- waitForAnimationToEnd
 # 1. Empty submit: every error at once
 - tapOn:
     id: join-submit
@@ -18,29 +35,42 @@ appId: host.exp.Exponent
 # 2. Fill it, with the email the mock already knows
 - tapOn:
     id: join-name
-- inputText: "Ana López"
+- inputText: "Ana Lopez"
 - tapOn:
     id: join-email
 - inputText: "taken@example.com"
-- hideKeyboard
+- tapOn: "Earn points.*|Gana puntos.*"
+- scrollUntilVisible:
+    element:
+      id: join-terms
 - tapOn:
     id: join-terms
+- scrollUntilVisible:
+    element:
+      id: join-submit
 - tapOn:
     id: join-submit
+- scrollUntilVisible:
+    element:
+      id: join-email
+    direction: UP
 - extendedWaitUntil:
     visible:
-      text: "Este correo ya está registrado."
+      id: join-email-error
+      text: "This email is already registered.|Este correo ya está registrado."
     timeout: 8000
 # 3. Fix the email and join
 - tapOn:
     id: join-email
 - eraseText: 30
 - inputText: "ana@example.com"
-- hideKeyboard
+- tapOn: "Earn points.*|Gana puntos.*"
+- scrollUntilVisible:
+    element:
+      id: join-submit
 - tapOn:
     id: join-submit
 - extendedWaitUntil:
     visible:
       id: join-success
     timeout: 8000
-- waitForAnimationToEnd

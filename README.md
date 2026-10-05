@@ -11,7 +11,8 @@ uses mock data and documents what worked and **what failed**, with the literal e
 > el simulador de iOS en unos cinco minutos.
 
 ⚠️ Angular Native is in **alpha**. This repo is pinned to exact versions and documents
-what breaks; it is not a production guide. Everything below was tested on **iOS only**.
+what breaks; it is not a production guide. Everything below was tested on simulators and emulators, never on a phone; Android coverage is
+partial (see [Android](#android)).
 
 <p>
   <img src="docs/rewards.gif" width="280" alt="The Rewards demo switching from English to Spanish, then filtering the catalog" />
@@ -53,11 +54,12 @@ npm run i18n:check     # every translation matches the extracted messages
 npm run i18n:extract   # re-extract src/locale/messages.json from a Metro bundle
 ```
 
-End to end on the simulator, with [Maestro](https://maestro.dev) and Metro running (turn the
-launch lock off first):
+End to end with [Maestro](https://maestro.dev) and Metro running, on the iOS simulator or the
+Android emulator (turn the launch lock off first; on Android, run `adb reverse tcp:8081 tcp:8081`
+first, and use `APP_ID=host.exp.exponent`):
 
 ```sh
-maestro test -e APP_URL=exp://127.0.0.1:8081 .maestro/join.yaml
+maestro test -e APP_ID=host.exp.Exponent -e APP_URL=exp://127.0.0.1:8081 .maestro/join.yaml
 ```
 
 ## Demos
@@ -67,7 +69,7 @@ maestro test -e APP_URL=exp://127.0.0.1:8081 .maestro/join.yaml
 | [Rewards](#rewards) | Signals + `computed()`, Router with native tabs, Tailwind v4 with `dark:`, a 200-item `<virtual-list>`, Lucide icons | ✅ iOS |
 | [i18n (EN/ES)](#i18n-enes) | Angular's own i18n at runtime, device language, an in-app switch, localized numbers, dates and mock data | ✅ iOS |
 | [Show at the counter](#show-at-the-counter-inside-rewards) | The voucher as a scannable QR at full brightness, screen kept on and out of screenshots, copy and share. Part of Rewards | ✅ iOS |
-| [Join the program](#forms-join-the-program-inside-rewards) | Signal Forms on native inputs and switches, a mock sign-up that rejects a taken email, and what Reactive Forms and `ControlValueAccessor` do. Part of Rewards | ✅ iOS |
+| [Join the program](#forms-join-the-program-inside-rewards) | Signal Forms on native inputs and switches, a mock sign-up that rejects a taken email, and what Reactive Forms and `ControlValueAccessor` do. Part of Rewards | ✅ iOS, Android |
 | Device | Theme, network, safe areas and location as signals | Planned |
 | [Vault](#vault-inside-rewards) | Face ID / fingerprint for the voucher codes and an opt-in lock on launch, with the preference in the keychain. Part of Rewards | ✅ iOS |
 | Lists | 200 vs 2,000 items | Planned |
@@ -276,9 +278,9 @@ controls, as [ng-native's forms guide](https://ng-native.com/guide/forms) descri
 The sign-up is a mock that takes about a second and answers that `taken@example.com` is already
 registered.
 
-**What was tested:** on the iOS simulator in Expo Go, driven by Maestro
-([`.maestro/join.yaml`](.maestro/join.yaml), recorded in the GIF): an empty submit, the taken
-email, fixing it and joining. In Node: validation, the red border, the server error, success and
+**What was tested:** on the iOS simulator and the Android 16 emulator in Expo Go, driven by
+the same Maestro flow ([`.maestro/join.yaml`](.maestro/join.yaml), recorded in the GIF on iOS):
+an empty submit, the taken email, fixing it and joining. In Node: validation, the red border, the server error, success and
 the way in from the wallet, plus [a test](src/app/demos/rewards/features/join/forms-compatibility.test.ts)
 of every other Angular form pattern on a `<text-input>`.
 
@@ -300,11 +302,11 @@ of every other Angular form pattern on a `<text-input>`.
 - 0.4.0's HTML elements, which need no import, draw the layout and copy: `section`, `h1`, `p`,
   `label`, `div`.
 - **Reactive Forms and `ngModel` work too, and so does a control of your own with
-  `ControlValueAccessor`**, on the simulator and in Node. The guide is right that ng-native's
+  `ControlValueAccessor`**, on iOS, on Android and in Node. The guide is right that ng-native's
   components do not implement `ControlValueAccessor`; they do not need to. In `@angular/forms`
   22.2.1, when an element has no value accessor but has a `value` model, `[formControl]` and
   `ngModel` bind to that model directly, so they work on `<text-input>` as they are. Checked on a
-  temporary screen with Maestro:
+  temporary screen with Maestro, on both platforms:
 
   | Pattern | Result |
   |---|---|
@@ -314,7 +316,7 @@ of every other Angular form pattern on a `<text-input>`.
   | The same control bound with Signal Forms `[formField]` | Both ways |
 
   The custom control keeps its value in a signal: the app is zoneless, so a plain field set from
-  `writeValue()` would not redraw. Not tried yet on Android or a phone.
+  `writeValue()` would not redraw. Not tried on a phone.
 
 **What failed or needed work**
 
@@ -339,7 +341,13 @@ of every other Angular form pattern on a `<text-input>`.
 - **HTML elements are views, not the web.** A `div` lays its children out in a column, as every
   native view does. Angular drops text nodes that are only whitespace, so a space between two
   pieces of text disappears; `&nbsp;` keeps it.
-- Only the iOS simulator. The keyboard covering the submit button was not looked at.
+- **On the Android emulator, the keyboard and Maestro got in the way, not the app.** Gboard
+  stopped once with `Fatal signal 4 (SIGILL)` in its spell checker and then opened its stylus
+  tutorial over the form. Maestro's `hideKeyboard` presses back when no keyboard is up, which
+  leaves Expo Go, so the flow closes the keyboard by tapping the intro text instead. Expo Go also
+  keeps a screen's state when sent to the background: a rerun typed into fields that still held
+  the last run's text. Start each run from a closed Expo Go.
+- Simulators and emulators only. The keyboard covering the submit button was not looked at.
 
 ## Module coverage
 
@@ -360,8 +368,8 @@ with a caveat, — not tested there.
 | `NgIcon` with `[svg]` | `@ng-native/icons` (`react-native-svg`) | Lucide icons, the QR | ✅ | No | — | Parser handles `svg`, `g`, `path`, `rect`… |
 | `ColorScheme` | `@ng-native/device` | Dark mode | ✅ | No | — | |
 | Router, native tabs and stack | `@ng-native/router` | All navigation | ✅ | No | — | |
-| Signal Forms on `<text-input>` and `<switch>` | `@angular/forms/signals` | Join the program | ✅ | No | — | `pattern()` lets an empty value through |
-| Reactive Forms, `ControlValueAccessor` | `@angular/forms` | Compatibility check only | ✅ | No | — | Angular binds `[formControl]` and `ngModel` to the `value` model; no accessor needed |
+| Signal Forms on `<text-input>` and `<switch>` | `@angular/forms/signals` | Join the program | ✅ | No | — | `pattern()` lets an empty value through. Also ✅ on the Android emulator |
+| Reactive Forms, `ControlValueAccessor` | `@angular/forms` | Compatibility check only | ✅ | No | — | Angular binds `[formControl]` and `ngModel` to the `value` model; no accessor needed. Also ✅ on the Android emulator |
 
 ## Upgrading to 0.4.0
 
@@ -373,7 +381,8 @@ catalog, a scannable voucher QR, deep links). `expo install --check` asked for n
 
 First run on the Android 16 emulator (Pixel 9, API 36), in Expo Go and in a development build.
 
-**What worked:** launch, the wallet, i18n, the balance animation and the tab bar.
+**What worked:** launch, the wallet, i18n, the balance animation, the tab bar and
+[Join the program](#forms-join-the-program-inside-rewards), forms compatibility included.
 
 **What failed**
 
@@ -391,7 +400,8 @@ First run on the Android 16 emulator (Pixel 9, API 36), in Expo Go and in a deve
 
 ## Not tested yet
 
-Most of the app on Android (anything past the catalog), a release build, a physical device (Face ID
+On Android: the catalog (it stops the app), history, the reward detail, the vault and the voucher.
+Everywhere: a release build, a physical device (Face ID
 on a real phone included) and any performance measurement. Nothing
 in this README claims performance numbers.
 
