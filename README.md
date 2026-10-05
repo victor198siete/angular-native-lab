@@ -299,9 +299,12 @@ of every other Angular form pattern on a `<text-input>`.
 - Labels and messages come from the same i18n as the rest of the app.
 - 0.4.0's HTML elements, which need no import, draw the layout and copy: `section`, `h1`, `p`,
   `label`, `div`.
-- **Reactive Forms and `ControlValueAccessor` work too**, on the simulator and in Node, even
-  though the guide says `ControlValueAccessor` is not supported. Checked on a temporary screen
-  with Maestro:
+- **Reactive Forms and `ngModel` work too, and so does a control of your own with
+  `ControlValueAccessor`**, on the simulator and in Node. The guide is right that ng-native's
+  components do not implement `ControlValueAccessor`; they do not need to. In `@angular/forms`
+  22.2.1, when an element has no value accessor but has a `value` model, `[formControl]` and
+  `ngModel` bind to that model directly, so they work on `<text-input>` as they are. Checked on a
+  temporary screen with Maestro:
 
   | Pattern | Result |
   |---|---|
@@ -358,7 +361,7 @@ with a caveat, — not tested there.
 | `ColorScheme` | `@ng-native/device` | Dark mode | ✅ | No | — | |
 | Router, native tabs and stack | `@ng-native/router` | All navigation | ✅ | No | — | |
 | Signal Forms on `<text-input>` and `<switch>` | `@angular/forms/signals` | Join the program | ✅ | No | — | `pattern()` lets an empty value through |
-| Reactive Forms, `ControlValueAccessor` | `@angular/forms` | Compatibility check only | ✅ | No | — | Works, though the guide says CVA is unsupported |
+| Reactive Forms, `ControlValueAccessor` | `@angular/forms` | Compatibility check only | ✅ | No | — | Angular binds `[formControl]` and `ngModel` to the `value` model; no accessor needed |
 
 ## Upgrading to 0.4.0
 

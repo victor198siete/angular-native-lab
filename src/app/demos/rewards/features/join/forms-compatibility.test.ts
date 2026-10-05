@@ -14,8 +14,9 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 
 /**
  * Which Angular form patterns bind to a native <text-input>, in Node against the fake native
- * layer. Join uses Signal Forms; the rest is here because the ng-native forms guide says
- * ControlValueAccessor is not supported, and these pass. Device results are in the README.
+ * layer. Join uses Signal Forms. ng-native's components implement no ControlValueAccessor, and
+ * Reactive Forms and ngModel still work: Angular binds them to the element's value model. A
+ * control of the app's own with an accessor works as well. Device results are in the README.
  */
 
 const text = () => screen.getByTestId('field').props['text'];
