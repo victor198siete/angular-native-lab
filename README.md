@@ -24,7 +24,7 @@ partial (see [Android](#android)).
 
 | | Version |
 |---|---|
-| `@ng-native/*` | 0.4.0 (also ran on 0.3.0: tag [`ng-native-0.3.0`](https://github.com/victor198siete/angular-native-lab/tree/ng-native-0.3.0)) |
+| `@ng-native/*` | 0.5.0 (also ran on 0.4.0 and 0.3.0: tags [`ng-native-0.4.0`](https://github.com/victor198siete/angular-native-lab/tree/ng-native-0.4.0) and [`ng-native-0.3.0`](https://github.com/victor198siete/angular-native-lab/tree/ng-native-0.3.0)) |
 | Angular | 22.2.1 |
 | Expo SDK | 57 (`expo` 57.0.26) |
 | React Native | 0.86.3 |
@@ -371,6 +371,23 @@ with a caveat, — not tested there.
 | Signal Forms on `<text-input>` and `<switch>` | `@angular/forms/signals` | Join the program | ✅ | No | — | `pattern()` lets an empty value through. Also ✅ on the Android emulator |
 | Reactive Forms, `ControlValueAccessor` | `@angular/forms` | Compatibility check only | ✅ | No | — | Angular binds `[formControl]` and `ngModel` to the `value` model; no accessor needed. Also ✅ on the Android emulator |
 
+## Upgrading to 0.5.0
+
+0.5.0 came out on 5 October 2026. All ten `@ng-native/*` packages moved from 0.4.0 to 0.5.0 with **no
+change to the app**: typecheck clean, the 86 tests passing, `expo install --check` asking for
+nothing. On the iOS simulator, after restarting Metro with `--clear`: Join the program end to end
+(Maestro), the wallet, catalog, history, a redemption through to the voucher QR, Copy and Share.
+
+- The one breaking change, an `<ng-icon>` with no `size` now being `1em` instead of 24 points, does
+  not touch the lab: every icon here has a size.
+- The forms compatibility test passes as before (Reactive Forms, ngModel, `ControlValueAccessor`).
+  0.5.0 also fixes a custom form control under `[formField]` failing with `NG01914` after a hot
+  stylesheet swap ([#547](https://github.com/ng-native/ng-native/pull/547)), which the lab had not run into.
+- The only code change in this upgrade was the lab's own: an unused `View` import in the Join screen,
+  which the typecheck reports as `NG8113`.
+- Not in 0.5.0: the Android `<virtual-list>` crash below ([#558](https://github.com/ng-native/ng-native/issues/558)),
+  opened 12 minutes before the release.
+
 ## Upgrading to 0.4.0
 
 All ten `@ng-native/*` packages moved from 0.3.0 to 0.4.0 with **no code change**: typecheck clean,
@@ -386,14 +403,15 @@ First run on the Android 16 emulator (Pixel 9, API 36), in Expo Go and in a deve
 
 **What failed**
 
-- **Opening the catalog stops the app**, on 0.3.0 and 0.4.0, in Expo Go and in a development build:
+- **Opening the catalog stops the app**, on 0.3.0 and 0.4.0, in Expo Go and in a development build
+  ([ng-native/ng-native#558](https://github.com/ng-native/ng-native/issues/558)):
   ```
   addViewAt: failed to insert view [1073742902] into parent [1073742906] at index 1
   ScrollView can host only one direct child
   ```
   Narrowed down: any `<virtual-list>` with `listHeader` or `listFooter` content does it; one without
   them, and `<scroll-view>` with several children, vertical or horizontal, do not. The catalog's
-  count is a `listFooter`. Being reported upstream; the lab keeps the footer so the result stays
+  count is a `listFooter`. Reported upstream as [#558](https://github.com/ng-native/ng-native/issues/558); the lab keeps the footer so the result stays
   reproducible.
 - **Tabs have no icons on Android.** Not a bug: ng-native warns that Android reads only `drawable`,
   and the lab uses SF Symbols, which are iOS only.

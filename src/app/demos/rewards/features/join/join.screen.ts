@@ -1,6 +1,6 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { FormField, email, form, minLength, pattern, required, submit, validate } from '@angular/forms/signals';
-import { Pressable, SafeAreaView, ScrollView, Switch, Text, TextInput, View } from '@ng-native/components';
+import { Pressable, SafeAreaView, ScrollView, Switch, Text, TextInput } from '@ng-native/components';
 import { Haptics } from '@ng-native/expo/haptics';
 import { NativeHeader, NativeNavigation } from '@ng-native/router';
 import { MEMBERSHIP_API } from '../../core/membership.api.ts';
@@ -23,7 +23,7 @@ const EMPTY: JoinForm = { name: '', email: '', phone: '', promotions: false, ter
  */
 @Component({
   selector: 'app-join-screen',
-  imports: [FormField, NativeHeader, Pressable, SafeAreaView, ScrollView, Switch, Text, TextInput, View],
+  imports: [FormField, NativeHeader, Pressable, SafeAreaView, ScrollView, Switch, Text, TextInput],
   host: { style: 'flex: 1' },
   template: `
     <native-header [title]="title" />
