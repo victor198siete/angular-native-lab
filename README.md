@@ -26,7 +26,7 @@ partial (see [Android](#android)).
 |---|---|
 | `@ng-native/*` | 0.9.0 (also ran on 0.5.0, 0.4.0 and 0.3.0: tags [`ng-native-0.5.0`](https://github.com/victor198siete/angular-native-lab/tree/ng-native-0.5.0), [`ng-native-0.4.0`](https://github.com/victor198siete/angular-native-lab/tree/ng-native-0.4.0) and [`ng-native-0.3.0`](https://github.com/victor198siete/angular-native-lab/tree/ng-native-0.3.0)) |
 | Angular | 22.2.1 |
-| Expo SDK | 57 (`expo` 57.0.26) |
+| Expo SDK | 57 (`expo` 57.0.27) |
 | React Native | 0.86.3 |
 | TypeScript / Vitest | 6.0.3 / 5.0.3 |
 | Node | 22.22.3 |
@@ -48,7 +48,7 @@ npm start          # or scan the QR code with Expo Go on your phone
 Checks that run in Node, with no simulator:
 
 ```sh
-npm test               # Vitest against ng-native's fake native layer (88 tests)
+npm test               # Vitest against ng-native's fake native layer (113 tests)
 npm run typecheck      # ngc with strict templates
 npm run i18n:check     # every translation matches the extracted messages
 npm run i18n:extract   # re-extract src/locale/messages.json from a Metro bundle
@@ -60,6 +60,7 @@ first, and use `APP_ID=host.exp.exponent`):
 
 ```sh
 maestro test -e APP_ID=host.exp.Exponent -e APP_URL=exp://127.0.0.1:8081 .maestro/join.yaml
+maestro test -e APP_ID=host.exp.Exponent -e APP_URL=exp://127.0.0.1:8081 .maestro/login.yaml
 ```
 
 ## Demos
@@ -72,6 +73,7 @@ maestro test -e APP_ID=host.exp.Exponent -e APP_URL=exp://127.0.0.1:8081 .maestr
 | [Join the program](#forms-join-the-program-inside-rewards) | Signal Forms on native inputs and switches, a mock sign-up that rejects a taken email, and what Reactive Forms and `ControlValueAccessor` do. Part of Rewards | ✅ iOS, Android |
 | Device | Theme, network, safe areas and location as signals | Planned |
 | [Vault](#vault-inside-rewards) | Face ID / fingerprint for the voucher codes and an opt-in lock on launch, with the preference in the keychain. Part of Rewards | ✅ iOS |
+| [Login (JWT + Face ID)](#login-jwt-and-face-id) | Sign in against a mock API, tokens in the keychain, a guard, an interceptor that refreshes an expired token and retries, and Face ID to reopen the session | ✅ iOS, Android (no biometrics) |
 | Lists | 200 vs 2,000 items | Planned |
 
 ### Rewards
@@ -229,6 +231,90 @@ that does not match, cancelling, and unlocking. In Node: the same flows with a f
   `.nomatch`), after enrolling with `com.apple.BiometricKit.enrollmentChanged`. Taps sent from
   outside the Simulator window did not flip a native `UISwitch`; a person had to.
 
+### Login: JWT and Face ID
+
+A sign-in flow of the kind people search for as "Angular login with JWT", here on native views:
+email and password with Signal Forms, an access token and a refresh token kept in the keychain,
+a guarded account screen, an `HttpInterceptorFn` that refreshes an expired access token and sends
+the request again, and **Face ID instead of the password** when the app is opened again. It is a
+demo of its own, reached by deep link: `exp://127.0.0.1:8081/--/login` (the app still opens on
+Rewards).
+
+> ⚠️ **A mock JWT is not security.** The tokens are base64 JSON with the literal signature
+> `mock-signature`: nothing signs or checks them, and there is no server. The "API" is an
+> interceptor answering on `https://api.lab.invalid` (`.invalid` can never be a real host). The
+> test account lives only in `src/app/demos/login/core/mock-auth/seed.ts`.
+
+How it is put together (`src/app/demos/login/`):
+
+- **`core/mock-auth/`**: the mock server, last in the `HttpClient` chain, so the real client and
+  the real auth interceptor run in front of it. `/auth/login`, `/auth/refresh` (it rotates the
+  refresh token), `/me` (401 `token_expired` once the access token is old) and `/auth/logout`.
+  The access token lives **20 seconds** on purpose, so expiry fits in a video; change
+  `accessTtlSeconds` in `mock-auth.config.ts` or provide `MOCK_AUTH_CONFIG`.
+- **`core/session.ts`**: the token pair in `SecureStorage`. **The password is never stored**, and
+  the form is cleared after a sign-in. A session left in the keychain does not count as signed in
+  until the person proves it is them again, with the password or with Face ID.
+- **`core/auth.interceptor.ts`**: adds the Bearer token; on 401 `token_expired` refreshes once
+  (concurrent requests share the one refresh) and retries once; if the refresh is refused, ends
+  the session and goes to the sign-in screen.
+- **`core/auth.guard.ts`**: decides on the first navigation, with no loading screen.
+- `HttpClient` comes from `provideNativeHttpClient(withInterceptors([authInterceptor,
+  mockAuthServer]))` in `src/main.ts`.
+
+**What was tested:** on the iOS simulator (Expo Go, Face ID enrolled): a wrong password, signing
+in, waiting out the access token and calling the API, closing Expo Go and opening the demo again
+(Face ID is asked for by itself), Lock, a face that does not match, cancelling, and logging out
+then relaunching. Maestro (`.maestro/login.yaml`): wrong password, sign in, account, log out, on
+the iOS simulator and the Android emulator. On Android also the refresh and a relaunch with a
+session left behind. In Node, 25 new tests with a fake sensor (`Biometrics.SOURCE`), an
+in-memory keychain (`new Store(native)`) and an injectable clock instead of fake timers.
+
+**What worked**
+
+- **The guard needs no loading screen.** `SecureStorage` reads synchronously, so on a cold launch
+  the first navigation already knows whether a session was left in the keychain, and the sign-in
+  screen offers Face ID from its first frame.
+- **Face ID reopens the session in Expo Go**: a relaunch shows the system sheet by itself, and a
+  matching face refreshes the tokens and opens the account. A non-matching face shows iOS's
+  "Face Not Recognized"; cancelling it lands on the password form with "Cancelled. Try again when
+  you are ready."
+- **The refresh is invisible to the screen**: after the 20 seconds, "Call the API" answers as
+  before, and the activity log shows "Access token expired, refreshed, request retried". The same
+  on Android.
+- **Logging out leaves nothing**: an empty form, and after a relaunch no Face ID offer.
+- `provideNativeHttpClient()` takes Angular's own `withInterceptors()`, and Angular's
+  `HttpInterceptorFn` works unchanged; so does `provideHttpClientTesting()` in Node.
+- The demo is in English and Spanish like the rest; the Android emulator showed it in Spanish.
+
+**What failed or needed work**
+
+- **D4, the first Face ID prompt failing with `unknown: -1000`, did not come back on 0.9.0.**
+  Six matching faces on the iOS simulator, sent early, late (about 45 s after the sheet appeared),
+  right after re-enrolling Face ID and on cold launches: six passes on the first try. The two
+  guesses (a face sent too late, the first prompt after enrolling) are ruled out; the 0.5.0
+  failure stays unexplained. Trials, steps and a script in
+  [`repro/d4-face-id-1000/`](repro/d4-face-id-1000/README.md). No issue drafted: there is nothing
+  to reproduce.
+- Lock first sent the person back with `Router.navigateByUrl('/login', { replaceUrl: true })`, and
+  the sign-in screen did not ask for Face ID: navigating to a URL lower in the native stack goes
+  back to the screen already there (as ng-native documents), so no new screen was created and its
+  constructor did not run. The test timed out at 3 s. `NativeNavigation.reset()` creates a new
+  one.
+- One Node test failed once with `expected true to be false`: the keychain still held the tokens
+  just after the sign-in heading appeared, when a refused refresh ends the session. The app awaits
+  the removal before navigating; the test now polls for it.
+- Metro's two Tailwind warnings (`.visible`, `.table`) are still printed, as before this demo.
+- After a cold boot the simulator had Face ID **not enrolled**, and the Vault said "Not available
+  on this phone." It changed only after enrolling and relaunching Expo Go: `available()` is read
+  when the screen is created.
+- An Android emulator left running for 7 hours showed only black, even its home screen, and Expo
+  Go never asked Metro for a bundle. A cold boot resolved it.
+
+**Not tested:** biometrics on Android (the emulator has no fingerprint enrolled, so the screen
+offers only the password, as it should); a real server, real signing or token revocation; a
+release build; a phone.
+
 ### Show at the counter (inside Rewards)
 
 A redemption's code, ready for the partner to scan: **Show at the counter** on the success
@@ -357,8 +443,8 @@ with a caveat, — not tested there.
 | Module | Package | Used for | iOS sim, Expo Go | Dev build needed | Tested on device | Notes |
 |---|---|---|---|---|---|---|
 | `Locale` | `@ng-native/expo/locale` (`expo-localization`) | Device language for i18n | ✅ | No | — | |
-| `SecureStorage` | `@ng-native/expo/secure-store` | Language choice, lock preference | ✅ | No | — | Reads synchronously, so guards see it on launch |
-| `Biometrics` | `@ng-native/expo/biometrics` (`expo-local-authentication`) | Vault | ⚠️ | No | — | First prompt once failed with `unknown: -1000`; Face ID usage string needed for dev builds |
+| `SecureStorage` | `@ng-native/expo/secure-store` | Language choice, lock preference, login tokens | ✅ | No | — | Reads synchronously, so guards see it on launch |
+| `Biometrics` | `@ng-native/expo/biometrics` (`expo-local-authentication`) | Vault, Login | ✅ | No | — | `unknown: -1000` seen once on 0.5.0, not on 0.9.0 ([repro](repro/d4-face-id-1000/README.md)); Face ID usage string needed for dev builds |
 | `Brightness` | `@ng-native/expo/brightness` | Voucher | — | No | — | Calls verified in Node; nothing to see on a simulator |
 | `KeepAwake` | `@ng-native/expo/keep-awake` | Voucher | — | No | — | Calls verified in Node |
 | `ScreenCapture` | `@ng-native/expo/screen-capture` | Voucher | ⚠️ | No | — | `simctl` screenshots are not blocked (taken from outside iOS) |
@@ -370,6 +456,7 @@ with a caveat, — not tested there.
 | Router, native tabs and stack | `@ng-native/router` | All navigation | ✅ | No | — | |
 | Signal Forms on `<text-input>` and `<switch>` | `@angular/forms/signals` | Join the program | ✅ | No | — | `pattern()` lets an empty value through. Also ✅ on the Android emulator |
 | Reactive Forms, `ControlValueAccessor` | `@angular/forms` | Compatibility check only | ✅ | No | — | Angular binds `[formControl]` and `ngModel` to the `value` model; no accessor needed. Also ✅ on the Android emulator |
+| `HttpClient` with interceptors | `@ng-native/platform/http` (`provideNativeHttpClient`) | Login: auth interceptor, mock API | ✅ | No | — | Angular's `withInterceptors()` and `provideHttpClientTesting()` work unchanged. Also ✅ on the Android emulator |
 
 ## Upgrading to 0.9.0
 
@@ -460,7 +547,7 @@ First run on the Android 16 emulator (Pixel 9, API 36), in Expo Go and in a deve
 
 ## Not tested yet
 
-On Android: history, the reward detail, the vault and the voucher.
+On Android: history, the reward detail, the vault, the voucher and biometrics in the Login demo.
 Everywhere: a release build, a physical device (Face ID
 on a real phone included) and any performance measurement. Nothing
 in this README claims performance numbers.
@@ -472,9 +559,11 @@ src/
   main.ts                    mounts the app: router, Tailwind, localization
   locale/                    messages.json (extracted) and messages.es.json
   app/
-    app.routes.ts            the app opens straight into the Rewards demo for now
+    app.routes.ts            the app opens on Rewards; the Login demo is at /login
     core/                    shared by every demo: theme, i18n
     demos/rewards/           core (models, mocks, store), shared UI, features, shell
+    demos/login/             mock auth server, session, guard, interceptor, sign-in and account
+repro/                       one folder per duel looked for, with its steps and scripts
 ```
 
 ## Notes
