@@ -6,13 +6,17 @@ import '@angular/localize/init';
 import 'expo';
 import { AppRegistry, Image, Platform, processColor } from 'react-native';
 import { mount } from '@ng-native/platform';
+import { provideNativeHttpClient } from '@ng-native/platform/http';
 import { currentConditions, deviceTokens, watchConditions } from '@ng-native/device';
 import { getFabricUIManager, registerPlatformComponents } from '@ng-native/fabric';
+import { withInterceptors } from '@angular/common/http';
 import { withComponentInputBinding } from '@angular/router';
 import { provideNativeRouter, withHeaderDefaults, withTabDefaults } from '@ng-native/router';
 import tailwind from '../.angular-native/app.tailwind.js';
 import { provideLocalization } from './app/core/i18n/localization.ts';
 import { routes } from './app/app.routes.ts';
+import { authInterceptor } from './app/demos/login/core/auth.interceptor.ts';
+import { mockAuthServer } from './app/demos/login/core/mock-auth/mock-auth.server.ts';
 import { App } from './app/app.ts';
 
 registerPlatformComponents(Platform.OS);
@@ -25,6 +29,9 @@ AppRegistry.registerRunnable('main', ({ rootTag }: { rootTag: number | string })
     globalStyles: tailwind,
     providers: [
       provideLocalization(),
+      // HttpClient for the Login demo. The mock auth server is the last interceptor, so the request
+      // goes through the real client and the auth interceptor, and only the network hop is faked.
+      provideNativeHttpClient(withInterceptors([authInterceptor, mockAuthServer])),
       provideNativeRouter(
         routes,
         withComponentInputBinding(),

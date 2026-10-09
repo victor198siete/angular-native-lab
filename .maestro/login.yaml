@@ -1,0 +1,78 @@
+# Login demo, end to end in Expo Go, on iOS or Android, in English or Spanish:
+#   iOS:     maestro test -e APP_ID=host.exp.Exponent -e APP_URL=exp://127.0.0.1:8081 .maestro/login.yaml
+#   Android: adb reverse tcp:8081 tcp:8081, then the same with APP_ID=host.exp.exponent
+# The test account is the one in src/app/demos/login/core/mock-auth/seed.ts. The flow uses it by
+# default; pass -e LOGIN_EMAIL=... -e LOGIN_PASSWORD=... to use another. Face ID cannot be driven
+# from Maestro, so the Lock path is covered by the unit tests. Start from a signed-out app: with a
+# session left in the keychain the login screen also offers Face ID.
+appId: ${APP_ID}
+env:
+  LOGIN_EMAIL: ada@lab.test
+  LOGIN_PASSWORD: lab-password-1
+---
+- openLink: ${APP_URL}/--/login
+- extendedWaitUntil:
+    visible: "Sign in|Iniciar sesión|Continue|Close"
+    timeout: 40000
+# Expo Go's developer menu can open on a fresh install
+- runFlow:
+    when:
+      visible: "Continue"
+    commands:
+      - tapOn: "Continue"
+- runFlow:
+    when:
+      visible: "Close"
+    commands:
+      - tapOn: "Close"
+- extendedWaitUntil:
+    visible:
+      id: login-submit
+    timeout: 30000
+# 1. A wrong password stays on the form
+- tapOn:
+    id: login-email
+# A fresh Android emulator's keyboard (Gboard) opens a stylus tutorial on the first field
+# it focuses, and that tutorial takes the typing. Close it and focus the field again.
+- runFlow:
+    when:
+      visible: "Try out your stylus"
+    commands:
+      - tapOn: "Cancel"
+      - tapOn:
+          id: login-email
+- inputText: ${LOGIN_EMAIL}
+- tapOn:
+    id: login-password
+- inputText: "not-the-password"
+# Tapping the intro text closes the keyboard on both platforms (no hideKeyboard: on Android it
+# presses back when no keyboard is up, which leaves Expo Go).
+- tapOn: "Sign in to see your account.*|Inicia sesión para ver tu cuenta.*"
+- tapOn:
+    id: login-submit
+- extendedWaitUntil:
+    visible:
+      id: login-password-error
+      text: "Wrong email or password.|Correo o contraseña incorrectos."
+    timeout: 8000
+# 2. The right password opens the account
+- tapOn:
+    id: login-password
+- eraseText: 30
+- inputText: ${LOGIN_PASSWORD}
+- tapOn: "Sign in to see your account.*|Inicia sesión para ver tu cuenta.*"
+- tapOn:
+    id: login-submit
+- extendedWaitUntil:
+    visible:
+      id: account-name
+    timeout: 10000
+- assertVisible:
+    id: account-countdown
+# 3. Log out returns to an empty form
+- tapOn:
+    id: account-logout
+- extendedWaitUntil:
+    visible:
+      id: login-submit
+    timeout: 10000
