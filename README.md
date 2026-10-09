@@ -386,8 +386,11 @@ simulator and the Android emulator (Maestro), and a redemption through to the vo
 - Metro now prints a line for `@ng-icons/core`: since 0.6.0 every component library's CSS is compiled,
   and four of its declarations have no native equivalent (`::ng-deep` twice, `line-height`,
   `vertical-align`). Harmless.
-- `expo install --check` asks for two Expo patch releases (`expo` 57.0.27, `expo-screen-capture`
-  57.0.4). They are Expo's, not something 0.9.0 needs, and are left for a separate change.
+- `expo install --check` asked for two Expo patch releases, `expo` 57.0.27 and `expo-screen-capture`
+  57.0.4, which are Expo's and not something 0.9.0 needs. Applied in their own change with
+  `npx expo install --fix`: Join on both platforms, a redemption to the voucher on both (the code
+  pasted back from the clipboard on Android) and the language switch both ways on Android behave as
+  before.
 - On a fresh Android emulator Gboard opens a stylus tutorial on the first field it focuses, which
   takes the typing; the Join flow now closes it.
 
