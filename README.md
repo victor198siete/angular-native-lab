@@ -304,6 +304,10 @@ in-memory keychain (`new Store(native)`) and an injectable clock instead of fake
 - One Node test failed once with `expected true to be false`: the keychain still held the tokens
   just after the sign-in heading appeared, when a refused refresh ends the session. The app awaits
   the removal before navigating; the test now polls for it.
+- After a sign-in, **iOS itself offers "Save Password?"** for its Passwords app, over the account
+  screen. The app never stores the password; this is the system's AutoFill, and the person can say
+  Not Now. The dialog lives outside the app, so Maestro cannot find it by its text; a tap by
+  position declines it.
 - Metro's two Tailwind warnings (`.visible`, `.table`) are still printed, as before this demo.
 - After a cold boot the simulator had Face ID **not enrolled**, and the Vault said "Not available
   on this phone." It changed only after enrolling and relaunching Expo Go: `available()` is read
