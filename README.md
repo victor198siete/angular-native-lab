@@ -24,7 +24,7 @@ partial (see [Android](#android)).
 
 | | Version |
 |---|---|
-| `@ng-native/*` | 0.5.0 (also ran on 0.4.0 and 0.3.0: tags [`ng-native-0.4.0`](https://github.com/victor198siete/angular-native-lab/tree/ng-native-0.4.0) and [`ng-native-0.3.0`](https://github.com/victor198siete/angular-native-lab/tree/ng-native-0.3.0)) |
+| `@ng-native/*` | 0.9.0 (also ran on 0.5.0, 0.4.0 and 0.3.0: tags [`ng-native-0.5.0`](https://github.com/victor198siete/angular-native-lab/tree/ng-native-0.5.0), [`ng-native-0.4.0`](https://github.com/victor198siete/angular-native-lab/tree/ng-native-0.4.0) and [`ng-native-0.3.0`](https://github.com/victor198siete/angular-native-lab/tree/ng-native-0.3.0)) |
 | Angular | 22.2.1 |
 | Expo SDK | 57 (`expo` 57.0.26) |
 | React Native | 0.86.3 |
@@ -371,6 +371,26 @@ with a caveat, — not tested there.
 | Signal Forms on `<text-input>` and `<switch>` | `@angular/forms/signals` | Join the program | ✅ | No | — | `pattern()` lets an empty value through. Also ✅ on the Android emulator |
 | Reactive Forms, `ControlValueAccessor` | `@angular/forms` | Compatibility check only | ✅ | No | — | Angular binds `[formControl]` and `ngModel` to the `value` model; no accessor needed. Also ✅ on the Android emulator |
 
+## Upgrading to 0.9.0
+
+0.6.0 to 0.9.0 came out between 7 and 9 October 2026. The lab went from 0.5.0 straight to 0.9.0, all
+ten `@ng-native/*` packages, with **no change to the app**: typecheck clean, the 86 tests passing,
+translations matching. With Metro restarted with `--clear`: Join the program end to end on the iOS
+simulator and the Android emulator (Maestro), and a redemption through to the voucher QR on iOS.
+
+- **[#558](https://github.com/ng-native/ng-native/issues/558) is resolved (0.6.0):** the catalog opens and
+  scrolls on Android. It was the first issue reported from this lab.
+- **A new Android crash came with it:** scrolling the catalog quickly stops the app with a
+  `NullPointerException` in `react-native-svg`'s `SvgViewManager.setPointerEvents`. It is not on 0.5.0
+  (0 of 6 runs) and is on 0.6.0 (3 of 6) and 0.9.0. See [Android](#android).
+- Metro now prints a line for `@ng-icons/core`: since 0.6.0 every component library's CSS is compiled,
+  and four of its declarations have no native equivalent (`::ng-deep` twice, `line-height`,
+  `vertical-align`). Harmless.
+- `expo install --check` asks for two Expo patch releases (`expo` 57.0.27, `expo-screen-capture`
+  57.0.4). They are Expo's, not something 0.9.0 needs, and are left for a separate change.
+- On a fresh Android emulator Gboard opens a stylus tutorial on the first field it focuses, which
+  takes the typing; the Join flow now closes it.
+
 ## Upgrading to 0.5.0
 
 0.5.0 came out on 5 October 2026. All ten `@ng-native/*` packages moved from 0.4.0 to 0.5.0 with **no
@@ -398,23 +418,32 @@ catalog, a scannable voucher QR, deep links). `expo install --check` asked for n
 
 First run on the Android 16 emulator (Pixel 9, API 36), in Expo Go and in a development build.
 
-**What worked:** launch, the wallet, i18n from the device language, the balance animation, the tab bar
-and [Join the program](#forms-join-the-program-inside-rewards), forms compatibility included (rechecked
-on 0.5.0).
+**What worked:** launch, the wallet, i18n from the device language, the balance animation, the tab bar,
+[Join the program](#forms-join-the-program-inside-rewards) (rechecked on 0.9.0), forms compatibility
+(0.5.0), and from 0.6.0 the catalog, which opens and scrolls.
 
 **What failed**
 
-- **Opening the catalog stops the app**, on 0.3.0, 0.4.0 and 0.5.0, in Expo Go and in a development build
-  ([ng-native/ng-native#558](https://github.com/ng-native/ng-native/issues/558)):
+- **Scrolling the catalog quickly stops the app** (0.6.0 to 0.9.0, Expo Go; not on 0.5.0):
+  ```
+  java.lang.NullPointerException: Attempt to invoke virtual method 'java.lang.String java.lang.String.toUpperCase(java.util.Locale)' on a null object reference
+      at com.horcrux.svg.SvgViewManager.setPointerEvents
+  ```
+  `react-native-svg` (15.15.4) receives `pointerEvents` = `null` for an icon's root view and does not
+  guard against it. The lab's stylesheets set no `pointer-events` at all. It shows within a few quick
+  swipes on most launches (12 of 12 with a Maestro flow on 0.9.0) but no smaller screen we built
+  reproduced it: it depends on the catalog's layout, not on one element. Not reported yet.
+- **Resolved in 0.6.0 — opening the catalog stopped the app** on 0.3.0 to 0.5.0, in Expo Go and in a
+  development build ([ng-native/ng-native#558](https://github.com/ng-native/ng-native/issues/558)):
   ```
   addViewAt: failed to insert view [1073742902] into parent [1073742906] at index 1
   ScrollView can host only one direct child
   ```
   Narrowed down: any `<virtual-list>` with `listHeader` or `listFooter` content does it; one without
   them, and `<scroll-view>` with several children, vertical or horizontal, do not. The catalog's
-  count is a `listFooter`. Reported upstream as [#558](https://github.com/ng-native/ng-native/issues/558); the lab keeps the footer so the result stays
-  reproducible.
-- **The in-app language switch does not restart the app** (0.4.0 and 0.5.0, Expo Go). The choice is
+  count is a `listFooter`. Reported upstream as [#558](https://github.com/ng-native/ng-native/issues/558),
+  closed by Ashley Hunter the same day and resolved in 0.6.0.
+- **The in-app language switch does not restart the app** (0.4.0 to 0.9.0, Expo Go). The choice is
   saved, but `reloadAppAsync` never reloads: the button stays disabled, its accessibility state
   reading "English, busy", until Expo Go is closed and opened again, which then starts in the new
   language. The same button reloads straight away on the iOS simulator. ng-native's localization
@@ -424,7 +453,7 @@ on 0.5.0).
 
 ## Not tested yet
 
-On Android: the catalog (it stops the app), history, the reward detail, the vault and the voucher.
+On Android: history, the reward detail, the vault and the voucher.
 Everywhere: a release build, a physical device (Face ID
 on a real phone included) and any performance measurement. Nothing
 in this README claims performance numbers.

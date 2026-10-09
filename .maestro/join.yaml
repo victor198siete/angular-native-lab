@@ -35,6 +35,15 @@ appId: ${APP_ID}
 # 2. Fill it, with the email the mock already knows
 - tapOn:
     id: join-name
+# A fresh Android emulator's keyboard (Gboard) opens a stylus tutorial on the first field
+# it focuses, and that tutorial takes the typing. Close it and focus the field again.
+- runFlow:
+    when:
+      visible: "Try out your stylus"
+    commands:
+      - tapOn: "Cancel"
+      - tapOn:
+          id: join-name
 - inputText: "Ana Lopez"
 - tapOn:
     id: join-email
