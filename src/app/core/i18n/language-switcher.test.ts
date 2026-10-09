@@ -1,11 +1,11 @@
 import { LOCALE_ID } from '@angular/core';
 import { provideNativeRouter } from '@ng-native/router';
 import { render, screen, userEvent } from '@ng-native/testing';
-import { expect, it, vi } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { routes } from '../../app.routes.ts';
 import { ANIMATE_NUMBERS } from '../../demos/rewards/shared/animated-number.ts';
 import { WalletScreen } from '../../demos/rewards/features/wallet/wallet.screen.ts';
-import { LANGUAGE_RESTART } from './language-switcher.ts';
+import { LANGUAGE_RESTART, STILL_HERE_MS, reloadWithFallback } from './language-switcher.ts';
 
 async function renderWallet(localeId: string) {
   const restart = { save: vi.fn(async () => {}), reload: vi.fn(async () => {}) };
@@ -37,4 +37,28 @@ it('offers English from Spanish', async () => {
   await userEvent.setup().press(screen.getByRole('button', { name: 'English' }));
 
   expect(restart.save).toHaveBeenCalledWith('en');
+});
+
+describe('reloadWithFallback', () => {
+  afterEach(() => vi.useRealTimers());
+
+  it('reloads through Expo, and through React Native when the app is still running', async () => {
+    vi.useFakeTimers();
+    const expo = vi.fn(async () => {});
+    const reactNative = vi.fn();
+
+    await reloadWithFallback(expo, reactNative, 'why');
+    expect(expo).toHaveBeenCalledWith('why');
+    expect(reactNative).not.toHaveBeenCalled();
+
+    // Expo Go on Android: Expo's resolved and the runtime is still here
+    vi.advanceTimersByTime(STILL_HERE_MS);
+    expect(reactNative).toHaveBeenCalledWith('why');
+  });
+
+  it('reloads through React Native at once when Expo rejects', async () => {
+    const reactNative = vi.fn();
+    await reloadWithFallback(async () => Promise.reject(new Error('no')), reactNative, 'why');
+    expect(reactNative).toHaveBeenCalledWith('why');
+  });
 });

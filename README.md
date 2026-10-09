@@ -48,7 +48,7 @@ npm start          # or scan the QR code with Expo Go on your phone
 Checks that run in Node, with no simulator:
 
 ```sh
-npm test               # Vitest against ng-native's fake native layer (86 tests)
+npm test               # Vitest against ng-native's fake native layer (88 tests)
 npm run typecheck      # ngc with strict templates
 npm run i18n:check     # every translation matches the extracted messages
 npm run i18n:extract   # re-extract src/locale/messages.json from a Metro bundle
@@ -443,11 +443,15 @@ First run on the Android 16 emulator (Pixel 9, API 36), in Expo Go and in a deve
   them, and `<scroll-view>` with several children, vertical or horizontal, do not. The catalog's
   count is a `listFooter`. Reported upstream as [#558](https://github.com/ng-native/ng-native/issues/558),
   closed by Ashley Hunter the same day and resolved in 0.6.0.
-- **The in-app language switch does not restart the app** (0.4.0 to 0.9.0, Expo Go). The choice is
-  saved, but `reloadAppAsync` never reloads: the button stays disabled, its accessibility state
-  reading "English, busy", until Expo Go is closed and opened again, which then starts in the new
-  language. The same button reloads straight away on the iOS simulator. ng-native's localization
-  guide says Android's behaviour here is unverified. Not reported yet.
+- **The in-app language switch did not restart the app** (0.4.0 to 0.9.0, Expo Go), and now does.
+  In Expo Go on Android Expo's `reloadAppAsync` resolves and reloads nothing, so the button stayed
+  disabled ("English, busy") until Expo Go was relaunched. ng-native's localization guide calls
+  `reloadAppAsync` directly and says device behaviour is unverified; `@ng-native/platform` already
+  works around the same thing for its own reloads. The lab now does too (`reloadWithFallback` in
+  `src/app/core/i18n/language-switcher.ts`): Expo's reload first, React Native's when the app is
+  still running 2 s later. Checked on the Android emulator (EN → ES → EN, then a redemption to the
+  voucher with Copy, so Expo's native modules survive React Native's reload) and on the iOS simulator.
+  Not reported yet.
 - **Tabs have no icons on Android.** Not a bug: ng-native warns that Android reads only `drawable`,
   and the lab uses SF Symbols, which are iOS only.
 
