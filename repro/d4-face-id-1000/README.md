@@ -51,4 +51,6 @@ as it is. The app shows the platform's error verbatim inside its sentence.
 - Screenshots can lag a tap by a second or so: in trial 5 the Cancel tap looked ignored and had
   in fact gone through. Read the result a few seconds later. Whether the "Try Face ID Again" tap
   before it registered could not be told.
+- A face sent **before** the sheet is up (Expo Go still loading after a cold launch) is dropped
+  without an error: the sheet then waits for the next one. It does not produce `-1000` either.
 - No issue drafted: there is no reproduction to give.
