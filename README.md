@@ -63,6 +63,7 @@ maestro test -e APP_ID=host.exp.Exponent -e APP_URL=exp://127.0.0.1:8081 .maestr
 maestro test -e APP_ID=host.exp.Exponent -e APP_URL=exp://127.0.0.1:8081 .maestro/login.yaml
 maestro test -e APP_ID=host.exp.Exponent -e APP_URL=exp://127.0.0.1:8081 .maestro/device.yaml
 maestro test -e APP_ID=host.exp.Exponent -e APP_URL=exp://127.0.0.1:8081 .maestro/lists.yaml
+maestro test -e APP_ID=host.exp.Exponent -e APP_URL=exp://127.0.0.1:8081 .maestro/gestures.yaml
 ```
 
 ## Demos
@@ -77,6 +78,7 @@ maestro test -e APP_ID=host.exp.Exponent -e APP_URL=exp://127.0.0.1:8081 .maestr
 | [Vault](#vault-inside-rewards) | Face ID / fingerprint for the voucher codes and an opt-in lock on launch, with the preference in the keychain. Part of Rewards | ✅ iOS |
 | [Login (JWT + Face ID)](#login-jwt-and-face-id) | Sign in against a mock API, tokens in the keychain, a guard, an interceptor that refreshes an expired token and retries, and Face ID to reopen the session | ✅ iOS, Android (no biometrics) |
 | [Lists](#lists-virtual-list-vs-scroll-view) | `<virtual-list>` against `<scroll-view>` at 200 and 2,000 rows, with a live count of the row components actually mounted | ✅ iOS, Android |
+| [Gestures](#gestures-drag-pinch-swipe-and-three-ways-to-animate) | Drag that springs back, pinch and rotate, swipe-to-delete rows inside a scrolling list, and the same slide animated by CSS, `Animated`, a worklet and the JavaScript thread, with a button that blocks it | ✅ iOS, Android (pinch and rotate in Node only) |
 
 ### Rewards
 
@@ -434,6 +436,86 @@ both, the emulator in Spanish. In Node, 6 tests, including no rows left behind a
 **Not tested:** a real phone, a release build, rows of varying height (`estimatedItemHeight`),
 `endReached` paging, sticky headers.
 
+### Gestures: drag, pinch, swipe, and three ways to animate
+
+Four small demos on one screen, reached by deep link: `exp://127.0.0.1:8081/--/gestures`. The
+gestures are `react-native-gesture-handler`'s own (`Gesture.Pan()`, `Pinch()`, `Rotation()`),
+attached with `[gesture]`; the values they move are Reanimated shared values, turned into styles
+with `[workletStyle]`. The whole app sits inside one `<gesture-root>` in `src/app/app.ts`.
+
+How it is put together (`src/app/demos/gestures/`):
+
+- **Drag** (`drag-card.ts`): a pan writes `translationX/Y` into two shared values; on release
+  `withSpring(0)` runs inside the worklet and the card goes back to its place.
+- **Pinch and rotate** (`pinch-card.ts`): `Gesture.Simultaneous(Pinch, Rotation)`, scale and angle
+  in shared values, each released value saved so the next gesture starts from it. Reset springs
+  both back.
+- **Swipe to delete** (`swipe-row.ts`, `swipe-rows.ts`): eight fictional rows in the screen's
+  vertical `<scroll-view>`. Each row is a pan with `activeOffsetX(-12)`, `failOffsetX(12)` and
+  `failOffsetY([-10, 10])`, so only a leftward drag claims it and the scroll keeps working. Past
+  110 points the row slides out with `withTiming` and its callback hands the removal to the
+  JavaScript side with `scheduleOnRN`; the rows are a signal, and "Restore rows" refills it. The
+  row also declares a `delete` accessibility action, since a swipe has no screen-reader form.
+- **Four ways to animate** (`animate-compare.ts`): the same slide, set up as CSS `@keyframes`,
+  `AnimatedStyle` with `useNativeDriver: true`, a worklet (`withRepeat` on a shared value), and,
+  on purpose, `AnimatedStyle` with `useNativeDriver: false`, labelled "JavaScript thread". "Block
+  JS for 3 s" is a synchronous busy loop on the JavaScript thread. Each tile says how it is set up
+  to run; nothing is timed.
+- Gesture callbacks never read `this`: shared values go through locals first, as the docs ask.
+  The one JavaScript function a worklet needs (`remove`) is passed to `scheduleOnRN`.
+
+**What was tested:** iOS simulator and Android emulator (Expo Go), light and dark. Maestro
+(`.maestro/gestures.yaml`) drags the card, scrolls to the rows, swipes the first row left until it
+is gone, checks the counter reads 7 of 8, restores, and presses "Block JS". In Node, 9 tests plus
+one in Spanish: pans driven through `gestureOf(...)`, a swipe past the threshold deleting a row and
+a short one not, Restore, the empty state, pinch and rotate reaching the style, a second pinch
+starting from the first one's scale, Reset, and the Block JS button.
+
+With `<gesture-root>` around the whole app, the Login, Join, Device and Lists flows were re-run: all
+four pass on the Android emulator, and on the iOS simulator Join and Lists passed the first time.
+Login failed once on iOS at the wrong-password assertion and passed on an immediate rerun (not
+reproduced, cause not found); Device failed until the simulator's location was set again
+(`xcrun simctl location booted set 19.4270,-99.1677`, the same loss noted under 0.9.0), then passed.
+
+**What the JavaScript block showed** (iOS simulator, screenshots every ~0.4 s while the 3 s loop
+ran, dot positions compared between frames; the Android emulator, screenshots about every second,
+agreed): the CSS, native-driver and worklet squares kept moving; the "JavaScript thread" square
+stayed where it was for the whole block and resumed afterwards. The status line reads "Blocking the
+JavaScript thread..." while it runs. No timings were taken.
+
+**What failed or needed work**
+
+- **My first native-driver tile froze too.** It was `Animated.loop(Animated.sequence([to 1, to
+  0]))` with `useNativeDriver: true`, and during the block it stopped alongside the JavaScript
+  square. A loop of a sequence is restarted from JavaScript at each leg, so a busy JavaScript
+  thread stops it once the current leg ends. The tile is now one `Animated.timing` in a loop, with
+  the back-and-forth made by the interpolation (`[0, 0.5, 1]` to `[0, 84, 0]`), and it kept moving.
+  Only the second version should be read as "native-driven".
+- **`@ng-native/components/animations` has no Vitest stand-in.** The setup page lists stand-ins
+  for gestures, Reanimated and worklets only, and a test that renders a component importing
+  `AnimatedStyle` fails to load with `AggregateError: oxc transform error  Plugin: vite:define
+  File: .../node_modules/react-native/Libraries/Animated/nodes/AnimatedProps.js`. The tests use
+  `vi.mock('@ng-native/components/animations', () => import('./animations-fake.ts'))`, a small fake
+  of `Animated`, `Easing` and the directive, so the animation itself is not exercised in Node.
+- **A pan on a card claims vertical drags that start on it.** The drag card is a free pan on
+  purpose, so a swipe meant to scroll the page that starts on the card moves the card. The Maestro
+  flow scrolls from the left margin, outside every card. The rows do not have this problem
+  (`failOffsetY`).
+- **After a hot template swap the pans stopped responding on iOS** (the drag and the row swipe did
+  nothing, no events reached JavaScript until the app was reloaded). I saw it once while editing the
+  screen and did not isolate the cause; a fresh launch worked every time. Restart the app after
+  editing a gesture screen.
+- **Maestro's `tapOn` on iOS returns after the block ends** (it waits for the app to be idle), so
+  it cannot time a screenshot inside the block. The frames were taken in a loop around the tap.
+- The "Blocking..." text never showed with a 150 ms wait before the loop; the commit had not
+  reached native. It shows with 400 ms.
+- Android's `uiautomator dump` fails while the squares animate ("could not get idle state").
+- Pinch and rotate cannot be driven from Maestro; they are covered in Node only, and were not
+  tried with two real fingers.
+
+**Not tested:** a real phone, two-finger pinch or rotate on a device, a swipe inside a horizontal
+pager (`Gesture.Native()` plus `blocksExternalGesture`), animation under load beyond the 3 s block.
+
 ### Show at the counter (inside Rewards)
 
 A redemption's code, ready for the partner to scan: **Show at the counter** on the success
@@ -578,6 +660,10 @@ with a caveat, — not tested there.
 | Router, native tabs and stack | `@ng-native/router` | All navigation | ✅ | No | — | |
 | `<virtual-list>`, `<scroll-view>` | `@ng-native/components` | Rewards catalog and history, Lists | ✅ | No | — | 2,000 rows: 12–14 components mounted vs 2,000. Also ✅ on the Android emulator |
 | Signal Forms on `<text-input>` and `<switch>` | `@angular/forms/signals` | Join the program | ✅ | No | — | `pattern()` lets an empty value through. Also ✅ on the Android emulator |
+| `<gesture-root>`, `[gesture]` | `@ng-native/components/gestures` (`react-native-gesture-handler`) | Gestures: pan, pinch, rotation, simultaneous | ✅ | No | — | Expo Go includes it. Pinch and rotate checked in Node only. A pan on a card claims vertical drags that start on it |
+| `sharedValue`, `[workletStyle]` | `@ng-native/components/reanimated` (`react-native-reanimated`) | Gestures: drag, pinch, swipe, the worklet tile | ✅ | No | — | Springs and timings run in the worklet. Also ✅ on the Android emulator |
+| `scheduleOnRN` | `react-native-worklets` | Gestures: removing a swiped row | ✅ | No | — | A plain function passed from a worklet callback; no warning seen. Also ✅ on the Android emulator |
+| `[animatedStyle]` | `@ng-native/components/animations` | Gestures: the native-driver and JavaScript tiles | ✅ | No | — | A loop of an `Animated.sequence` is restarted from JavaScript; use one timing in a loop. No Vitest stand-in |
 | Reactive Forms, `ControlValueAccessor` | `@angular/forms` | Compatibility check only | ✅ | No | — | Angular binds `[formControl]` and `ngModel` to the `value` model; no accessor needed. Also ✅ on the Android emulator |
 | `HttpClient` with interceptors | `@ng-native/platform/http` (`provideNativeHttpClient`) | Login: auth interceptor, mock API | ✅ | No | — | Angular's `withInterceptors()` and `provideHttpClientTesting()` work unchanged. Also ✅ on the Android emulator |
 
@@ -700,12 +786,13 @@ src/
   main.ts                    mounts the app: router, Tailwind, localization
   locale/                    messages.json (extracted) and messages.es.json
   app/
-    app.routes.ts            the app opens on Rewards; Login, Device and Lists by deep link
+    app.routes.ts            the app opens on Rewards; Login, Device, Lists and Gestures by deep link
     core/                    shared by every demo: theme, i18n
     demos/rewards/           core (models, mocks, store), shared UI, features, shell
     demos/login/             mock auth server, session, guard, interceptor, sign-in and account
     demos/device/            theme, safe area, network and location cards, location tracking
     demos/lists/             virtual-list vs scroll-view with a mounted-row counter
+    demos/gestures/          drag, pinch and rotate, swipe-to-delete, and four ways to animate
 repro/                       one folder per duel looked for, with its steps and scripts
 ```
 
