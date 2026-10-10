@@ -62,6 +62,7 @@ first, and use `APP_ID=host.exp.exponent`):
 maestro test -e APP_ID=host.exp.Exponent -e APP_URL=exp://127.0.0.1:8081 .maestro/join.yaml
 maestro test -e APP_ID=host.exp.Exponent -e APP_URL=exp://127.0.0.1:8081 .maestro/login.yaml
 maestro test -e APP_ID=host.exp.Exponent -e APP_URL=exp://127.0.0.1:8081 .maestro/device.yaml
+maestro test -e APP_ID=host.exp.Exponent -e APP_URL=exp://127.0.0.1:8081 .maestro/lists.yaml
 ```
 
 ## Demos
@@ -75,7 +76,7 @@ maestro test -e APP_ID=host.exp.Exponent -e APP_URL=exp://127.0.0.1:8081 .maestr
 | [Device](#device-the-phone-as-signals) | Theme, screen, safe areas, network and live location with the address, each as a signal | ✅ iOS, Android (location needs Google's accuracy setting) |
 | [Vault](#vault-inside-rewards) | Face ID / fingerprint for the voucher codes and an opt-in lock on launch, with the preference in the keychain. Part of Rewards | ✅ iOS |
 | [Login (JWT + Face ID)](#login-jwt-and-face-id) | Sign in against a mock API, tokens in the keychain, a guard, an interceptor that refreshes an expired token and retries, and Face ID to reopen the session | ✅ iOS, Android (no biometrics) |
-| Lists | 200 vs 2,000 items | Planned |
+| [Lists](#lists-virtual-list-vs-scroll-view) | `<virtual-list>` against `<scroll-view>` at 200 and 2,000 rows, with a live count of the row components actually mounted | ✅ iOS, Android |
 
 ### Rewards
 
@@ -379,6 +380,57 @@ In Node, 17 tests with fake sources (`ColorScheme.SOURCE`, `Screen.SOURCE`, `Net
 on purpose); "Allow Once" expiring; a slow or captive network, where `reachable` should differ
 from `connected`.
 
+### Lists: virtual-list vs scroll-view
+
+The same rows, two ways: two toggles pick **200 or 2,000 rows** and **`<virtual-list>` or
+`<scroll-view>`**, and a strip shows how many row components are **mounted right now** and how
+many were **built** since the last change. Counts only: no timings, in keeping with the rest of
+this README. A demo of its own, reached by deep link: `exp://127.0.0.1:8081/--/lists`.
+
+How it is put together (`src/app/demos/lists/`):
+
+- **`core/mount-counter.ts`**: every row component calls it from its constructor and again from
+  `DestroyRef.onDestroy`, so "mounted" is exactly the number of Angular row components alive, not
+  an estimate from the list's window. Both renderers use the same `ListRow`, 64 points tall.
+- The virtual-list is `@for (row of list.window(); track row.slot)` with a fixed `itemHeight`, as
+  AGENTS.md says; the scroll-view is a plain `@for` over every row.
+- Each change of size or renderer builds a new list from the top, so the built count is that
+  list's own. The rows are deterministic mock data, in English and Spanish.
+
+**What was tested:** on the iOS simulator and the Android emulator (Expo Go): both renderers at
+both sizes, scrolling, and switching back and forth. Maestro (`.maestro/lists.yaml`) passes on
+both, the emulator in Spanish. In Node, 6 tests, including no rows left behind after switching.
+
+**What worked**
+
+| | `<virtual-list>` | `<scroll-view>` |
+|---|---|---|
+| 200 rows | 12 to 13 mounted | 200 mounted |
+| 2,000 rows | 12 to 14 mounted; 14 built after scrolling | 2,000 mounted |
+
+- **The window does not grow with the list**: 2,000 rows mount as many components as 200.
+- **Rows are recycled, not rebuilt**: scrolling the virtual-list kept the built count at the
+  mounted count.
+- **Nothing is left behind**: going from the 2,000-row scroll-view back to the virtual-list
+  brought the count down to 12 at once.
+
+**What failed or needed work**
+
+- **The 2,000-row scroll-view blocks the app for seconds** while it mounts every row, on the iOS
+  simulator and the Android emulator alike; taps in that time land late. Not measured, and not a
+  number to quote: it is the reason AGENTS.md keeps `<scroll-view>` for short content. The
+  Maestro flow waits up to 40 s for it.
+- The built count first reset on every toggle but the rows were kept across a size change, so it
+  read "1 row views built" with 14 mounted. A new list per change made the count honest, and the
+  text became "Row views built: N" so it needs no plural.
+- The row descriptions stayed in English on the Spanish emulator; they come from translated mocks
+  now, as Rewards does.
+- The Maestro flow matched only "of" in "12 of 200 mounted" and failed in Spanish ("12 de 200
+  montadas").
+
+**Not tested:** a real phone, a release build, rows of varying height (`estimatedItemHeight`),
+`endReached` paging, sticky headers.
+
 ### Show at the counter (inside Rewards)
 
 A redemption's code, ready for the partner to scan: **Show at the counter** on the success
@@ -521,6 +573,7 @@ with a caveat, — not tested there.
 | `Network` | `@ng-native/expo/network` (`expo-network`) | Device | ✅ | No | — | Offline and back verified on the Android emulator; the iOS simulator follows the Mac's network |
 | `Location` | `@ng-native/expo/location` (`expo-location`) | Device: tracking, reverse geocoding | ✅ | No | — | Android: declining Google's Location Accuracy prompt rejects the watcher. Usage text needed for dev builds |
 | Router, native tabs and stack | `@ng-native/router` | All navigation | ✅ | No | — | |
+| `<virtual-list>`, `<scroll-view>` | `@ng-native/components` | Rewards catalog and history, Lists | ✅ | No | — | 2,000 rows: 12–14 components mounted vs 2,000. Also ✅ on the Android emulator |
 | Signal Forms on `<text-input>` and `<switch>` | `@angular/forms/signals` | Join the program | ✅ | No | — | `pattern()` lets an empty value through. Also ✅ on the Android emulator |
 | Reactive Forms, `ControlValueAccessor` | `@angular/forms` | Compatibility check only | ✅ | No | — | Angular binds `[formControl]` and `ngModel` to the `value` model; no accessor needed. Also ✅ on the Android emulator |
 | `HttpClient` with interceptors | `@ng-native/platform/http` (`provideNativeHttpClient`) | Login: auth interceptor, mock API | ✅ | No | — | Angular's `withInterceptors()` and `provideHttpClientTesting()` work unchanged. Also ✅ on the Android emulator |
@@ -627,11 +680,12 @@ src/
   main.ts                    mounts the app: router, Tailwind, localization
   locale/                    messages.json (extracted) and messages.es.json
   app/
-    app.routes.ts            the app opens on Rewards; Login is at /login, Device at /device
+    app.routes.ts            the app opens on Rewards; Login, Device and Lists by deep link
     core/                    shared by every demo: theme, i18n
     demos/rewards/           core (models, mocks, store), shared UI, features, shell
     demos/login/             mock auth server, session, guard, interceptor, sign-in and account
     demos/device/            theme, safe area, network and location cards, location tracking
+    demos/lists/             virtual-list vs scroll-view with a mounted-row counter
 repro/                       one folder per duel looked for, with its steps and scripts
 ```
 

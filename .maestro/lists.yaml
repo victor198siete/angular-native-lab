@@ -1,0 +1,66 @@
+# Lists demo, end to end in Expo Go, on iOS or Android, in English or Spanish:
+#   iOS:     maestro test -e APP_ID=host.exp.Exponent -e APP_URL=exp://127.0.0.1:8081 .maestro/lists.yaml
+#   Android: adb reverse tcp:8081 tcp:8081, then the same with APP_ID=host.exp.exponent
+# Counts only: the stats strip must change with the size and the renderer, and the list must scroll.
+appId: ${APP_ID}
+---
+- openLink: ${APP_URL}/--/lists
+- extendedWaitUntil:
+    visible: "Lists|Listas|Continue|Close"
+    timeout: 40000
+# Expo Go's developer menu can open on a fresh install
+- runFlow:
+    when:
+      visible: "Continue"
+    commands:
+      - tapOn: "Continue"
+- runFlow:
+    when:
+      visible: "Close"
+    commands:
+      - tapOn: "Close"
+# The screen keeps its scroll position between runs, so look for the heading upwards
+- scrollUntilVisible:
+    element:
+      id: lists-heading
+    direction: UP
+    timeout: 30000
+# 1. A virtual-list of 200 rows: only a window is mounted
+- tapOn:
+    id: lists-size-200
+- tapOn:
+    id: lists-renderer-virtual
+- assertVisible: ".* (of|de) 200 (mounted|montadas)"
+- assertVisible: ".*(recycled|recicladas).*"
+# 2. 2,000 rows: the total changes
+- tapOn:
+    id: lists-size-2000
+- assertVisible: ".* (of|de) 2,000 (mounted|montadas)|.* de 2.000 montadas"
+# 3. A scroll-view mounts every row
+- tapOn:
+    id: lists-renderer-scroll
+# Mounting every row blocks the app for seconds (about 9 on the Android emulator), so wait for it
+- extendedWaitUntil:
+    visible: "2,000 (of|de) 2,000 (mounted|montadas)|2.000 de 2.000 montadas"
+    timeout: 40000
+- assertVisible: ".*(one per row|una por fila).*"
+- swipe:
+    direction: UP
+- swipe:
+    direction: UP
+# 4. Back to a virtual-list: the count falls again, and the list scrolls
+- tapOn:
+    id: lists-renderer-virtual
+- extendedWaitUntil:
+    notVisible: "2,000 (of|de) 2,000 (mounted|montadas)|2.000 de 2.000 montadas"
+    timeout: 40000
+- assertVisible: ".*(recycled|recicladas).*"
+- swipe:
+    direction: UP
+- swipe:
+    direction: UP
+- assertVisible: ".*(recycled|recicladas).*"
+# 5. 200 rows again
+- tapOn:
+    id: lists-size-200
+- assertVisible: ".* (of|de) 200 (mounted|montadas)"

@@ -222,6 +222,14 @@
     "device.network.other": "Otra",
     "device.network.none": "Ninguna",
     "device.network.unknown": "Desconocida",
-    "device.location.startFailed": "Los servicios de ubicación están apagados o limitados en este dispositivo. Actívalos y vuelve a intentarlo."
+    "device.location.startFailed": "Los servicios de ubicación están apagados o limitados en este dispositivo. Actívalos y vuelve a intentarlo.",
+    "lists.title": "Listas",
+    "lists.heading": "Listas largas, de dos formas",
+    "lists.intro": "Un scroll-view monta todas las filas. Un virtual-list monta solo las filas cercanas a la pantalla y las recicla al desplazarte.",
+    "lists.size.a11y": "Número de filas",
+    "lists.renderer.a11y": "Tipo de lista",
+    "lists.mounted": "{$mounted} de {$total} montadas",
+    "lists.views.virtual": "Vistas de fila creadas: {$created}, recicladas al desplazarte",
+    "lists.views.scroll": "Vistas de fila creadas: {$created}, una por fila"
   }
 }

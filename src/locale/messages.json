@@ -222,6 +222,14 @@
     "device.network.other": "Other",
     "device.network.none": "None",
     "device.network.unknown": "Unknown",
-    "device.location.startFailed": "Location services are off or limited on this device. Turn them on and try again."
+    "device.location.startFailed": "Location services are off or limited on this device. Turn them on and try again.",
+    "lists.title": "Lists",
+    "lists.heading": "Long lists, two ways",
+    "lists.intro": "A scroll-view mounts every row. A virtual-list mounts only the rows near the screen and recycles them as you scroll.",
+    "lists.size.a11y": "Number of rows",
+    "lists.renderer.a11y": "List renderer",
+    "lists.mounted": "{$mounted} of {$total} mounted",
+    "lists.views.virtual": "Row views built: {$created}, recycled as you scroll",
+    "lists.views.scroll": "Row views built: {$created}, one per row"
   }
 }
