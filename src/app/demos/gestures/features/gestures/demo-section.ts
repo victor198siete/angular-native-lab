@@ -11,7 +11,9 @@ import { Text, View } from '@ng-native/components';
         <text [testID]="testId()" accessibilityRole="header" class="text-h2 font-bold text-ink dark:text-ink-dk">{{ title() }}</text>
         <text class="text-body text-ink2 dark:text-ink2-dk">{{ hint() }}</text>
       </view>
-      <ng-content />
+      <view class="gap-3">
+        <ng-content />
+      </view>
     </view>
   `,
 })
