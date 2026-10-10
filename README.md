@@ -24,7 +24,7 @@ partial (see [Android](#android)).
 
 | | Version |
 |---|---|
-| `@ng-native/*` | 0.9.0 (also ran on 0.5.0, 0.4.0 and 0.3.0: tags [`ng-native-0.5.0`](https://github.com/victor198siete/angular-native-lab/tree/ng-native-0.5.0), [`ng-native-0.4.0`](https://github.com/victor198siete/angular-native-lab/tree/ng-native-0.4.0) and [`ng-native-0.3.0`](https://github.com/victor198siete/angular-native-lab/tree/ng-native-0.3.0)) |
+| `@ng-native/*` | 0.10.0 (also ran on 0.9.0, 0.5.0, 0.4.0 and 0.3.0: tags [`ng-native-0.9.0`](https://github.com/victor198siete/angular-native-lab/tree/ng-native-0.9.0), [`ng-native-0.5.0`](https://github.com/victor198siete/angular-native-lab/tree/ng-native-0.5.0), [`ng-native-0.4.0`](https://github.com/victor198siete/angular-native-lab/tree/ng-native-0.4.0) and [`ng-native-0.3.0`](https://github.com/victor198siete/angular-native-lab/tree/ng-native-0.3.0)) |
 | Angular | 22.2.1 |
 | Expo SDK | 57 (`expo` 57.0.27) |
 | React Native | 0.86.3 |
@@ -580,6 +580,23 @@ with a caveat, — not tested there.
 | Signal Forms on `<text-input>` and `<switch>` | `@angular/forms/signals` | Join the program | ✅ | No | — | `pattern()` lets an empty value through. Also ✅ on the Android emulator |
 | Reactive Forms, `ControlValueAccessor` | `@angular/forms` | Compatibility check only | ✅ | No | — | Angular binds `[formControl]` and `ngModel` to the `value` model; no accessor needed. Also ✅ on the Android emulator |
 | `HttpClient` with interceptors | `@ng-native/platform/http` (`provideNativeHttpClient`) | Login: auth interceptor, mock API | ✅ | No | — | Angular's `withInterceptors()` and `provideHttpClientTesting()` work unchanged. Also ✅ on the Android emulator |
+
+## Upgrading to 0.10.0
+
+0.10.0 came out on 10 October 2026, a day after 0.9.0. All ten `@ng-native/*` packages, with **no
+change to the app**: typecheck clean, the 138 tests passing, translations matching, and
+`expo install --check` asks for nothing. With Metro restarted with `--clear`, the four Maestro flows
+(Login, Join, Device, Lists) pass on the iOS simulator and the Android emulator.
+
+- **What its fixes touch here:** every border in the lab names its color, so a border now taking the
+  text color ([#752](https://github.com/ng-native/ng-native/pull/752)) changes nothing; dark mode
+  follows the system scheme (`ColorScheme.set`) and still switches with the class-based `dark:`
+  variant ([#707](https://github.com/ng-native/ng-native/pull/707)), checked on the Lists screen.
+- Metro no longer prints the `@ng-icons/core` line: `::ng-deep` with a selector before it is read now
+  ([#754](https://github.com/ng-native/ng-native/pull/754)).
+- The Device flow failed once on iOS with no position: the simulator had lost its simulated location.
+  Set again (`xcrun simctl location booted set 19.4270,-99.1677`), it passes. Not an ng-native change.
+- Not rechecked on 0.10.0: the fast-scroll SVG crash on Android (nothing in the release notes names it).
 
 ## Upgrading to 0.9.0
 
