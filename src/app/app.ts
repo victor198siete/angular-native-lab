@@ -1,14 +1,17 @@
 import { Component } from '@angular/core';
 import { SafeAreaProvider } from '@ng-native/components';
+import { GestureRoot } from '@ng-native/components/gestures';
 import { NativeStackOutlet } from '@ng-native/router';
 
 @Component({
-  imports: [NativeStackOutlet, SafeAreaProvider],
+  imports: [GestureRoot, NativeStackOutlet, SafeAreaProvider],
   selector: 'app-root',
   template: `
-    <safe-area-provider>
-      <native-stack-outlet />
-    </safe-area-provider>
+    <gesture-root>
+      <safe-area-provider>
+        <native-stack-outlet />
+      </safe-area-provider>
+    </gesture-root>
   `,
   styles: `
     :host {
