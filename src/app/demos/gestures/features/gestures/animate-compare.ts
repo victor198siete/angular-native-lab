@@ -39,9 +39,9 @@ const DURATION = 900;
           <view class="h-6 w-6 rounded-md bg-glow" [animatedStyle]="jsStyle"></view>
         </app-motion-tile>
       </view>
+      <app-action-button testId="gestures-block-js" [label]="blockLabel" (act)="block()" />
+      <text testID="gestures-block-status" class="text-caption text-ink2 dark:text-ink2-dk">{{ status() }}</text>
     </view>
-    <app-action-button testId="gestures-block-js" [label]="blockLabel" (act)="block()" />
-    <text testID="gestures-block-status" class="text-caption text-ink2 dark:text-ink2-dk">{{ status() }}</text>
   `,
   styles: `
     @keyframes slide {
@@ -79,13 +79,13 @@ export class AnimateCompare {
   // 2. Animated with the native driver.
   private readonly nativeProgress = new Animated.Value(0);
   protected readonly nativeStyle = {
-    transform: [{ translateX: this.nativeProgress.interpolate({ inputRange: [0, 1], outputRange: [0, TRAVEL] }) }],
+    transform: [{ translateX: this.nativeProgress.interpolate({ inputRange: [0, 0.5, 1], outputRange: [0, TRAVEL, 0] }) }],
   };
 
   // 4. Animated, driven from JavaScript on purpose.
   private readonly jsProgress = new Animated.Value(0);
   protected readonly jsStyle = {
-    transform: [{ translateX: this.jsProgress.interpolate({ inputRange: [0, 1], outputRange: [0, TRAVEL] }) }],
+    transform: [{ translateX: this.jsProgress.interpolate({ inputRange: [0, 0.5, 1], outputRange: [0, TRAVEL, 0] }) }],
   };
 
   // 3. A shared value repeated on the UI runtime.
@@ -112,10 +112,15 @@ export class AnimateCompare {
     });
   }
 
+  /**
+   * One timing in a loop, and a back-and-forth made by the interpolation (0, TRAVEL, 0). A loop of
+   * a single timing is repeated by the native driver itself; a loop of an `Animated.sequence` is
+   * restarted from JavaScript at each leg, and stops moving when that thread is busy.
+   */
   private pingPong(value: Animated.Value, useNativeDriver: boolean): Animated.CompositeAnimation {
-    const leg = (toValue: number) =>
-      Animated.timing(value, { toValue, duration: DURATION, easing: Easing.inOut(Easing.ease), useNativeDriver });
-    return Animated.loop(Animated.sequence([leg(1), leg(0)]));
+    return Animated.loop(
+      Animated.timing(value, { toValue: 1, duration: DURATION * 2, easing: Easing.linear, useNativeDriver }),
+    );
   }
 
   /** A synchronous busy loop on the JavaScript thread. The short wait lets the "Blocking" text commit first. */
@@ -130,6 +135,6 @@ export class AnimateCompare {
       this.blocks += 1;
       const n = this.blocks;
       this.status.set($localize`:@@gestures.anim.status.done:JavaScript was blocked. Blocks so far: ${n}:count:`);
-    }, 150);
+    }, 400);
   }
 }

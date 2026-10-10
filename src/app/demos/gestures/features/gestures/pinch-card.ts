@@ -15,6 +15,7 @@ import { ActionButton } from './action-button.ts';
   selector: 'app-pinch-card',
   imports: [ActionButton, NativeGesture, Text, View, WorkletStyle],
   template: `
+    <view class="gap-3">
     <view class="h-56 items-center justify-center overflow-hidden rounded-md bg-raised dark:bg-raised-dk">
       <view
         testID="gestures-pinch-card"
@@ -28,6 +29,7 @@ import { ActionButton } from './action-button.ts';
       </view>
     </view>
     <app-action-button testId="gestures-pinch-reset" [label]="resetLabel" (act)="reset()" />
+    </view>
   `,
 })
 export class PinchCard {

@@ -18,10 +18,9 @@ const timing = (_value: Value, config: { useNativeDriver: boolean }) => ({ ...an
 export const Animated = {
   Value,
   timing,
-  sequence: (steps: unknown[]) => ({ ...animation, steps }),
   loop: (inner: unknown) => ({ ...animation, inner }),
 };
-export const Easing = { inOut: (curve: unknown) => curve, ease: 'ease' };
+export const Easing = { linear: 'linear' };
 
 @Directive({ selector: '[animatedStyle]' })
 export class AnimatedStyle {

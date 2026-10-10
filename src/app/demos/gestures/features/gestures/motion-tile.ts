@@ -5,8 +5,9 @@ import { Text, View } from '@ng-native/components';
 @Component({
   selector: 'app-motion-tile',
   imports: [Text, View],
+  host: { style: 'flex: 1; min-width: 0' },
   template: `
-    <view class="flex-1 gap-2 rounded-md bg-raised p-3 dark:bg-raised-dk" [testID]="testId()">
+    <view class="flex-1 gap-2 overflow-hidden rounded-md bg-raised p-3 dark:bg-raised-dk" [testID]="testId()">
       <view class="h-8 justify-center">
         <ng-content />
       </view>

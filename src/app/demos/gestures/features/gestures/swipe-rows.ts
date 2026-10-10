@@ -12,6 +12,7 @@ const ROW_COUNT = 8;
   selector: 'app-swipe-rows',
   imports: [ActionButton, SwipeRow, Text, View],
   template: `
+    <view class="gap-3">
     <view class="overflow-hidden rounded-md border border-line dark:border-line-dk" testID="gestures-rows">
       @for (row of rows(); track row.id) {
         <app-swipe-row [row]="row" (removed)="remove($event)" />
@@ -23,6 +24,7 @@ const ROW_COUNT = 8;
     </view>
     <text testID="gestures-rows-count" class="text-caption tabular-nums text-ink2 dark:text-ink2-dk">{{ countText() }}</text>
     <app-action-button testId="gestures-restore" [label]="restoreLabel" (act)="restore()" />
+    </view>
   `,
 })
 export class SwipeRows {
