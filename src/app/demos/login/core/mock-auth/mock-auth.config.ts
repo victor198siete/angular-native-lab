@@ -10,6 +10,12 @@ export interface MockAuthConfig {
   readonly refreshTtlSeconds: number;
   /** Network-like delay added to every answer. */
   readonly latencyMs: number;
+  /**
+   * Lab only, for recording the session dying: the server refuses every refresh, and writes each
+   * error it answers into the account's activity log ("GET /me → 401 token_expired"). Off in the
+   * normal demo. Turned on by starting Metro with `EXPO_PUBLIC_LAB_NO_REFRESH=1`.
+   */
+  readonly refreshDisabled: boolean;
 }
 
 /** Edit `accessTtlSeconds` here for a longer or shorter demo, or provide this token with another value. */
@@ -17,6 +23,8 @@ export const DEFAULT_MOCK_AUTH_CONFIG: MockAuthConfig = {
   accessTtlSeconds: 20,
   refreshTtlSeconds: 7 * 24 * 60 * 60,
   latencyMs: 600,
+  // Expo inlines EXPO_PUBLIC_ variables into the bundle; it needs this exact dotted spelling.
+  refreshDisabled: process.env.EXPO_PUBLIC_LAB_NO_REFRESH === '1',
 };
 
 export const MOCK_AUTH_CONFIG = new InjectionToken<MockAuthConfig>('MOCK_AUTH_CONFIG', {

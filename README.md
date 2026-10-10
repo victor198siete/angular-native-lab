@@ -254,6 +254,9 @@ How it is put together (`src/app/demos/login/`):
   refresh token), `/me` (401 `token_expired` once the access token is old) and `/auth/logout`.
   The access token lives **20 seconds** on purpose, so expiry fits in a video; change
   `accessTtlSeconds` in `mock-auth.config.ts` or provide `MOCK_AUTH_CONFIG`.
+  Lab switch, for recording the session dying: `EXPO_PUBLIC_LAB_NO_REFRESH=1 npx expo start --go --clear`
+  makes the mock refuse every refresh and write each error it answers into the activity log
+  (`GET /me → 401 token_expired`), holding the refusal 3 s so it can be read. Off by default.
 - **`core/session.ts`**: the token pair in `SecureStorage`. **The password is never stored**, and
   the form is cleared after a sign-in. A session left in the keychain does not count as signed in
   until the person proves it is them again, with the password or with Face ID.

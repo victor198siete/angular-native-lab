@@ -7,6 +7,7 @@ import {
 } from '@angular/common/http';
 import { Service, inject } from '@angular/core';
 import { mergeMap, of, throwError, timer, type Observable } from 'rxjs';
+import { Session } from '../session.ts';
 import { decodeToken, encodeToken, type TokenClaims } from './fake-jwt.ts';
 import { API_BASE_URL, AUTH_CLOCK, MOCK_AUTH_CONFIG } from './mock-auth.config.ts';
 import { SEED_USER } from './seed.ts';
@@ -22,6 +23,9 @@ interface Reply {
 }
 
 const unauthorized = (error: string): Reply => ({ status: 401, body: { error } });
+
+/** With refresh disabled, the refusal is held this much longer, so the 401 before it can be read on screen. */
+const REFUSAL_HOLD_MS = 3000;
 
 /**
  * What the "server" remembers between calls: the refresh tokens it has retired. A refresh token
@@ -89,6 +93,7 @@ export const mockAuthServer: HttpInterceptorFn = (req, next) => {
           : unauthorized('invalid_credentials');
       }
       case 'POST /auth/refresh': {
+        if (config.refreshDisabled) return unauthorized('invalid_refresh_token');
         const claims = validRefresh(body['refreshToken']);
         if (!claims) return unauthorized('invalid_refresh_token');
         db.retired.add(claims.jti);
@@ -113,7 +118,20 @@ export const mockAuthServer: HttpInterceptorFn = (req, next) => {
     }
   };
 
-  return respond(req, config.latencyMs, answer);
+  if (!config.refreshDisabled) return respond(req, config.latencyMs, answer);
+
+  // Lab switch: every error the server answers is written, verbatim, where the account shows its activity.
+  const session = inject(Session);
+  const path = req.url.slice(API_BASE_URL.length);
+  const logged = (): Reply => {
+    const reply = answer();
+    const error = (reply.body as { error?: unknown } | null)?.error;
+    if (reply.status >= 400) session.note(`${req.method} ${path} → ${reply.status} ${String(error ?? '')}`.trim());
+    return reply;
+  };
+  // Held only when the mock simulates a network at all: tests run with no latency.
+  const hold = path === '/auth/refresh' && config.latencyMs > 0 ? REFUSAL_HOLD_MS : 0;
+  return respond(req, config.latencyMs + hold, logged);
 };
 
 function bearer(req: HttpRequest<unknown>): string | null {

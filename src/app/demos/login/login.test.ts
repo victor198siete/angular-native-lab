@@ -153,6 +153,34 @@ describe('expired access token', () => {
     await expect.poll(() => keychain.data.has(TOKENS_KEY)).toBe(false);
     expect(screen.queryByTestId('login-faceid')).toBeNull();
   });
+
+  it('with the lab switch that disables refresh, the 401 is written verbatim to the activity log and the session ends', async () => {
+    const backend = fakeBackend(undefined, { refreshDisabled: true });
+    const { user, session } = await open('login', { backend });
+    await screen.findByTestId('login-submit');
+    await signIn(user);
+    await screen.findByTestId('account-name');
+
+    backend.clock.advance(25);
+    await user.press(screen.getByTestId('account-call'));
+
+    expect(await screen.findByTestId('login-heading')).toBeTruthy();
+    expect(backend.requests.slice(-2)).toEqual(['GET /me', 'POST /auth/refresh']);
+    expect(session.activity().map((e) => e.text)).toEqual([
+      'Refresh refused, session closed',
+      'POST /auth/refresh → 401 invalid_refresh_token',
+      'GET /me → 401 token_expired',
+      'Signed in with email and password',
+    ]);
+  });
+
+  it('without the switch, no server reply is written to the log', async () => {
+    const { user, session, backend } = await signedIn();
+    backend.clock.advance(25);
+    await user.press(screen.getByTestId('account-call'));
+    await expect.poll(() => session.activity().length).toBe(2);
+    expect(session.activity().some((e) => e.text.includes('401'))).toBe(false);
+  });
 });
 
 describe('Face ID', () => {
