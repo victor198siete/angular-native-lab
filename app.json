@@ -20,7 +20,11 @@
         "backgroundImage": "./assets/android-icon-background.png",
         "monochromeImage": "./assets/android-icon-monochrome.png"
       },
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "permissions": [
+        "ACCESS_COARSE_LOCATION",
+        "ACCESS_FINE_LOCATION"
+      ]
     },
     "scheme": "angularnativelab",
     "extra": {
@@ -36,6 +40,14 @@
         "expo-local-authentication",
         {
           "faceIDPermission": "Unlock your rewards and show your voucher codes with Face ID."
+        }
+      ],
+      [
+        "expo-location",
+        {
+          "locationWhenInUsePermission": "Show where you are on the Device demo panel.",
+          "isAndroidBackgroundLocationEnabled": false,
+          "isIosBackgroundLocationEnabled": false
         }
       ]
     ]

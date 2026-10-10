@@ -28,6 +28,8 @@
     "expo-keep-awake": "~57.0.2",
     "expo-local-authentication": "~57.0.3",
     "expo-localization": "~57.0.2",
+    "expo-location": "~57.0.20",
+    "expo-network": "~57.0.2",
     "expo-screen-capture": "~57.0.4",
     "expo-secure-store": "~57.0.4",
     "expo-status-bar": "~57.0.1",

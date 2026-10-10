@@ -61,6 +61,7 @@ first, and use `APP_ID=host.exp.exponent`):
 ```sh
 maestro test -e APP_ID=host.exp.Exponent -e APP_URL=exp://127.0.0.1:8081 .maestro/join.yaml
 maestro test -e APP_ID=host.exp.Exponent -e APP_URL=exp://127.0.0.1:8081 .maestro/login.yaml
+maestro test -e APP_ID=host.exp.Exponent -e APP_URL=exp://127.0.0.1:8081 .maestro/device.yaml
 ```
 
 ## Demos
@@ -71,7 +72,7 @@ maestro test -e APP_ID=host.exp.Exponent -e APP_URL=exp://127.0.0.1:8081 .maestr
 | [i18n (EN/ES)](#i18n-enes) | Angular's own i18n at runtime, device language, an in-app switch, localized numbers, dates and mock data | ✅ iOS |
 | [Show at the counter](#show-at-the-counter-inside-rewards) | The voucher as a scannable QR at full brightness, screen kept on and out of screenshots, copy and share. Part of Rewards | ✅ iOS |
 | [Join the program](#forms-join-the-program-inside-rewards) | Signal Forms on native inputs and switches, a mock sign-up that rejects a taken email, and what Reactive Forms and `ControlValueAccessor` do. Part of Rewards | ✅ iOS, Android |
-| Device | Theme, network, safe areas and location as signals | Planned |
+| [Device](#device-the-phone-as-signals) | Theme, screen, safe areas, network and live location with the address, each as a signal | ✅ iOS, Android (location needs Google's accuracy setting) |
 | [Vault](#vault-inside-rewards) | Face ID / fingerprint for the voucher codes and an opt-in lock on launch, with the preference in the keychain. Part of Rewards | ✅ iOS |
 | [Login (JWT + Face ID)](#login-jwt-and-face-id) | Sign in against a mock API, tokens in the keychain, a guard, an interceptor that refreshes an expired token and retries, and Face ID to reopen the session | ✅ iOS, Android (no biometrics) |
 | Lists | 200 vs 2,000 items | Planned |
@@ -319,6 +320,65 @@ in-memory keychain (`new Store(native)`) and an injectable clock instead of fake
 offers only the password, as it should); a real server, real signing or token revocation; a
 release build; a phone.
 
+### Device: the phone as signals
+
+One screen, four cards, every value a signal that updates by itself: **theme and screen**
+(`ColorScheme`, `Screen`), **safe areas** (`SafeArea`), **network** (`Network`: connected, over
+what, internet reachable) and **location** (`Location`: the permission, live tracking, the
+position and its street address). A demo of its own, reached by deep link:
+`exp://127.0.0.1:8081/--/device`.
+
+How it is put together (`src/app/demos/device/`):
+
+- **`features/device/cards/`**: one component per card, each reading its service straight from
+  `@ng-native/device` or `@ng-native/expo`. No wrappers: the signals are the API.
+- **`core/location-tracking.ts`**: provided by the location card, so leaving the screen removes
+  the native watcher (also when the screen closes while `start()` is still pending). The address
+  is looked up on the first position and then only after moving 100 m, because the platform
+  geocoders are rate limited; an older answer arriving late is dropped.
+- `expo-network` and `expo-location` were added with `npx expo install`; `app.json` carries the
+  when-in-use location text and the Android permissions, which only a development build reads.
+
+**What was tested:** on the iOS simulator and the Android emulator (Expo Go): all four cards with
+real values, switching to dark mode with the screen open, the location dialog, tracking, and the
+position moved by hand (`simctl location set`, `adb emu geo fix`). On Android also the network
+going offline and back (`svc wifi`, `svc data`). Maestro (`.maestro/device.yaml`) passes on both.
+In Node, 17 tests with fake sources (`ColorScheme.SOURCE`, `Screen.SOURCE`, `Network.SOURCE`,
+`Location.SOURCE`).
+
+**What worked**
+
+- **Every value follows the phone with no code to refresh it**: dark mode applied while the screen
+  was open; turning wifi and data off showed "No / None / No" and coming back showed "Cellular".
+- **Live location on iOS**: after "Allow While Using App", the position and the address arrived
+  (Plaza de la Constitución, Mexico City) and moving the simulated location 3.7 km updated both
+  (Ángel de la Independencia).
+- The permission states read cleanly: not asked, granted, denied (the button stays), and blocked
+  (the card sends the person to Settings).
+- Safe areas are measured from the first frame: 62 / 34 points on the iPhone 18 Pro, 54 / 24 on
+  the Pixel 9.
+
+**What failed or needed work**
+
+- **On Android, tracking threw with nothing on screen.** Asking for `balanced` accuracy makes
+  Google Play services show its "Location Accuracy" prompt; declining it rejects
+  `watchPositionAsync` with "unsatisfied device settings", and the promise went uncaught. The card
+  now says location services are off or limited, and the button tries again. The lab declined the
+  prompt (it changes a system setting and shares data with Google), so **no position was seen on
+  Android**.
+- The intro said "rotate the phone", but `app.json` locks the app to portrait, so the orientation
+  never changes. The sentence is gone; rotation is covered by the Node tests.
+- Android reports fractional points (411.4 x 923.4); the cards now round to whole points.
+- The connection type came out raw (`wifi`, `none`); it is translated now.
+- The Maestro flow first waited for the heading, but Expo Go keeps the scroll position between
+  runs; it now scrolls up to find it.
+- The location dialog took a couple of seconds to appear on iOS, enough to look like the button
+  did nothing.
+
+**Not tested:** a real phone; location on Android past Google's prompt; background location (off
+on purpose); "Allow Once" expiring; a slow or captive network, where `reachable` should differ
+from `connected`.
+
 ### Show at the counter (inside Rewards)
 
 A redemption's code, ready for the partner to scan: **Show at the counter** on the success
@@ -456,7 +516,10 @@ with a caveat, — not tested there.
 | `Clipboard` | `@ng-native/expo/clipboard` | Copy the code | ✅ | No | — | |
 | `Sharing` | `@ng-native/device` | Share the code | ✅ | No | — | `true` means a target was chosen, not delivered |
 | `NgIcon` with `[svg]` | `@ng-native/icons` (`react-native-svg`) | Lucide icons, the QR | ✅ | No | — | Parser handles `svg`, `g`, `path`, `rect`… |
-| `ColorScheme` | `@ng-native/device` | Dark mode | ✅ | No | — | |
+| `ColorScheme` | `@ng-native/device` | Dark mode, Device | ✅ | No | — | Also ✅ on the Android emulator |
+| `Screen`, `SafeArea` | `@ng-native/device` | Device | ✅ | No | — | Android reports fractional points. Also ✅ on the Android emulator |
+| `Network` | `@ng-native/expo/network` (`expo-network`) | Device | ✅ | No | — | Offline and back verified on the Android emulator; the iOS simulator follows the Mac's network |
+| `Location` | `@ng-native/expo/location` (`expo-location`) | Device: tracking, reverse geocoding | ✅ | No | — | Android: declining Google's Location Accuracy prompt rejects the watcher. Usage text needed for dev builds |
 | Router, native tabs and stack | `@ng-native/router` | All navigation | ✅ | No | — | |
 | Signal Forms on `<text-input>` and `<switch>` | `@angular/forms/signals` | Join the program | ✅ | No | — | `pattern()` lets an empty value through. Also ✅ on the Android emulator |
 | Reactive Forms, `ControlValueAccessor` | `@angular/forms` | Compatibility check only | ✅ | No | — | Angular binds `[formControl]` and `ngModel` to the `value` model; no accessor needed. Also ✅ on the Android emulator |
@@ -551,7 +614,8 @@ First run on the Android 16 emulator (Pixel 9, API 36), in Expo Go and in a deve
 
 ## Not tested yet
 
-On Android: history, the reward detail, the vault, the voucher and biometrics in the Login demo.
+On Android: history, the reward detail, the vault, the voucher, biometrics in the Login demo and a
+position in the Device demo.
 Everywhere: a release build, a physical device (Face ID
 on a real phone included) and any performance measurement. Nothing
 in this README claims performance numbers.
@@ -563,10 +627,11 @@ src/
   main.ts                    mounts the app: router, Tailwind, localization
   locale/                    messages.json (extracted) and messages.es.json
   app/
-    app.routes.ts            the app opens on Rewards; the Login demo is at /login
+    app.routes.ts            the app opens on Rewards; Login is at /login, Device at /device
     core/                    shared by every demo: theme, i18n
     demos/rewards/           core (models, mocks, store), shared UI, features, shell
     demos/login/             mock auth server, session, guard, interceptor, sign-in and account
+    demos/device/            theme, safe area, network and location cards, location tracking
 repro/                       one folder per duel looked for, with its steps and scripts
 ```
 

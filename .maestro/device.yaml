@@ -1,0 +1,71 @@
+# Device demo, end to end in Expo Go, on iOS or Android, in English or Spanish:
+#   iOS:     maestro test -e APP_ID=host.exp.Exponent -e APP_URL=exp://127.0.0.1:8081 .maestro/device.yaml
+#   Android: adb reverse tcp:8081 tcp:8081, then the same with APP_ID=host.exp.exponent
+# The four cards must render. The location permission step is best effort: the system dialog's
+# wording and buttons differ by OS version and language, and a permission granted by an earlier run
+# skips it. The live values (rotation, theme, airplane mode) are covered by the unit tests.
+appId: ${APP_ID}
+---
+- openLink: ${APP_URL}/--/device
+- extendedWaitUntil:
+    visible: "Device|Dispositivo|Continue|Close"
+    timeout: 40000
+# Expo Go's developer menu can open on a fresh install
+- runFlow:
+    when:
+      visible: "Continue"
+    commands:
+      - tapOn: "Continue"
+- runFlow:
+    when:
+      visible: "Close"
+    commands:
+      - tapOn: "Close"
+# The screen keeps its scroll position between runs, so look for the heading upwards
+- scrollUntilVisible:
+    element:
+      id: device-heading
+    direction: UP
+    timeout: 30000
+# 1. The four cards render
+- assertVisible:
+    id: card-appearance
+- assertVisible:
+    id: appearance-scheme
+- scrollUntilVisible:
+    element:
+      id: card-safe-area
+- scrollUntilVisible:
+    element:
+      id: card-network
+- assertVisible:
+    id: network-connected
+- scrollUntilVisible:
+    element:
+      id: card-location
+# 2. Location permission, best effort
+- runFlow:
+    when:
+      visible:
+        id: location-allow
+    commands:
+      - tapOn:
+          id: location-allow
+      # iOS: "Allow While Using App"; Android: "While using the app" / "Only this time"
+      - runFlow:
+          when:
+            visible: "Allow While Using App|While using the app|Only this time|Mientras la app está en uso|Solo esta vez|Permitir al usar la app"
+          commands:
+            - tapOn: "Allow While Using App|While using the app|Only this time|Mientras la app está en uso|Solo esta vez|Permitir al usar la app"
+# 3. With the permission, tracking starts and a position shows up (a simulator needs a location set)
+- runFlow:
+    when:
+      visible:
+        id: location-toggle
+    commands:
+      - tapOn:
+          id: location-toggle
+      - extendedWaitUntil:
+          visible:
+            id: location-latitude
+          timeout: 20000
