@@ -25,7 +25,7 @@ const DURATION = 900;
     <view class="gap-3">
       <view class="flex-row gap-3">
         <app-motion-tile testId="gestures-tile-css" [title]="cssTitle" [how]="cssHow">
-          <view class="css-square h-6 w-6 rounded-md bg-brand"></view>
+          <view class="h-6 w-6 rounded-md bg-brand" [class.css-slide]="playing()"></view>
         </app-motion-tile>
         <app-motion-tile testId="gestures-tile-native" [title]="nativeTitle" [how]="nativeHow">
           <view class="h-6 w-6 rounded-md bg-brand" [animatedStyle]="nativeStyle"></view>
@@ -39,7 +39,10 @@ const DURATION = 900;
           <view class="h-6 w-6 rounded-md bg-glow" [animatedStyle]="jsStyle"></view>
         </app-motion-tile>
       </view>
-      <app-action-button testId="gestures-block-js" [label]="blockLabel" (act)="block()" />
+      <view class="flex-row flex-wrap gap-3">
+        <app-action-button testId="gestures-play" [label]="playing() ? stopLabel : playLabel" (act)="toggle()" />
+        <app-action-button testId="gestures-block-js" [label]="blockLabel" (act)="block()" />
+      </view>
       <text testID="gestures-block-status" class="text-caption text-ink2 dark:text-ink2-dk">{{ status() }}</text>
     </view>
   `,
@@ -52,7 +55,7 @@ const DURATION = 900;
         transform: translateX(84px);
       }
     }
-    .css-square {
+    .css-slide {
       animation: slide 900ms ease-in-out infinite alternate;
     }
   `,
@@ -69,8 +72,18 @@ export class AnimateCompare {
   protected readonly jsTitle = $localize`:@@gestures.anim.js.title:JavaScript thread`;
   protected readonly jsHow = $localize`:@@gestures.anim.js.how:AnimatedStyle with useNativeDriver: false`;
   protected readonly blockLabel = $localize`:@@gestures.anim.block:Block JS for 3 s`;
+  protected readonly playLabel = $localize`:@@gestures.anim.play:Animate`;
+  protected readonly stopLabel = $localize`:@@gestures.anim.stop:Stop`;
 
-  private readonly idleText = $localize`:@@gestures.anim.status.idle:Press the button and watch the four squares.`;
+  /**
+   * The squares start still and run only after "Animate": nothing moves on arrival, and an
+   * end-to-end flow can read the screen (Android's uiautomator cannot while views keep animating).
+   */
+  protected readonly playing = signal(false);
+  private readonly native: Animated.CompositeAnimation;
+  private readonly js: Animated.CompositeAnimation;
+
+  private readonly idleText = $localize`:@@gestures.anim.status.idle:Press Animate, then Block JS, and watch the four squares.`;
   private readonly blockingText = $localize`:@@gestures.anim.status.blocking:Blocking the JavaScript thread...`;
   protected readonly status = signal(this.idleText);
   private blocks = 0;
@@ -96,20 +109,35 @@ export class AnimateCompare {
   });
 
   constructor() {
-    const native = this.pingPong(this.nativeProgress, true);
-    const js = this.pingPong(this.jsProgress, false);
-    native.start();
-    js.start();
-
-    const slide = this.slide;
-    slide.value = withRepeat(withTiming(TRAVEL, { duration: DURATION }), -1, true);
-
+    this.native = this.pingPong(this.nativeProgress, true);
+    this.js = this.pingPong(this.jsProgress, false);
     inject(DestroyRef).onDestroy(() => {
-      native.stop();
-      js.stop();
-      cancelAnimation(slide);
+      this.stop();
       clearTimeout(this.timer);
     });
+  }
+
+  protected toggle(): void {
+    if (this.playing()) this.stop();
+    else this.start();
+  }
+
+  private start(): void {
+    this.playing.set(true);
+    this.native.start();
+    this.js.start();
+    this.slide.value = withRepeat(withTiming(TRAVEL, { duration: DURATION }), -1, true);
+  }
+
+  /** Stops all four and puts every square back at the start. */
+  private stop(): void {
+    this.playing.set(false);
+    this.native.stop();
+    this.js.stop();
+    this.nativeProgress.setValue(0);
+    this.jsProgress.setValue(0);
+    cancelAnimation(this.slide);
+    this.slide.value = 0;
   }
 
   /**

@@ -11,6 +11,9 @@ class Value {
   interpolate(): this {
     return this;
   }
+  setValue(value: number): void {
+    this.value = value;
+  }
 }
 const animation = { start: () => undefined, stop: () => undefined };
 const timing = (_value: Value, config: { useNativeDriver: boolean }) => ({ ...animation, config });

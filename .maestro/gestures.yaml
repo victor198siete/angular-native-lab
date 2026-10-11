@@ -80,20 +80,16 @@ appId: ${APP_ID}
           duration: 400
 - assertVisible:
     id: gestures-row-0
-# 4. Block the JavaScript thread; the app comes back and says so
-- repeat:
-    while:
-      notVisible:
-        id: gestures-block-js
-    times: 12
-    commands:
-      - swipe:
-          start: 4%, 75%
-          end: 4%, 25%
-          duration: 400
+# 4. Block the JavaScript thread; the app comes back and says so. The squares stay still: the flow
+# never presses Animate, since Android's uiautomator cannot read a screen whose views keep moving.
+- scrollUntilVisible:
+    element:
+      id: gestures-block-js
+    direction: DOWN
+    centerElement: true
+    timeout: 20000
 - tapOn:
     id: gestures-block-js
-- scrollUntilVisible:
-    element: ".*(JavaScript was blocked|JavaScript estuvo bloqueado).*"
-    direction: DOWN
+- extendedWaitUntil:
+    visible: ".*(JavaScript was blocked|JavaScript estuvo bloqueado).*"
     timeout: 20000

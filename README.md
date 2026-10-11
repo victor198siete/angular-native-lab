@@ -460,16 +460,21 @@ How it is put together (`src/app/demos/gestures/`):
   `AnimatedStyle` with `useNativeDriver: true`, a worklet (`withRepeat` on a shared value), and,
   on purpose, `AnimatedStyle` with `useNativeDriver: false`, labelled "JavaScript thread". "Block
   JS for 3 s" is a synchronous busy loop on the JavaScript thread. Each tile says how it is set up
-  to run; nothing is timed.
+  to run; nothing is timed. The squares start still and run after "Animate" ("Stop" puts them back):
+  nothing moves on arrival, and the Maestro flow can read the screen.
 - Gesture callbacks never read `this`: shared values go through locals first, as the docs ask.
   The one JavaScript function a worklet needs (`remove`) is passed to `scheduleOnRN`.
 
 **What was tested:** iOS simulator and Android emulator (Expo Go), light and dark. Maestro
 (`.maestro/gestures.yaml`) drags the card, scrolls to the rows, swipes the first row left until it
-is gone, checks the counter reads 7 of 8, restores, and presses "Block JS". In Node, 9 tests plus
+is gone, checks the counter reads 7 of 8, restores, and presses "Block JS" with the squares still
+(it centres each button before tapping it: iOS reports a button just under the bottom edge as
+visible, and the tap misses). It passed 3 of 3 on the iOS simulator; on the Android emulator, under
+load with the simulator and Metro running, 1 of 3, the two failures at the first step, with the demo
+on screen and unread by Maestro (the Lists flow failed 1 of 2 the same evening). In Node, 9 tests plus
 one in Spanish: pans driven through `gestureOf(...)`, a swipe past the threshold deleting a row and
 a short one not, Restore, the empty state, pinch and rotate reaching the style, a second pinch
-starting from the first one's scale, Reset, and the Block JS button.
+starting from the first one's scale, Reset, Animate and Stop, and the Block JS button.
 
 With `<gesture-root>` around the whole app, the Login, Join, Device and Lists flows were re-run: all
 four pass on the Android emulator, and on the iOS simulator Join and Lists passed the first time.
@@ -510,7 +515,9 @@ JavaScript thread..." while it runs. No timings were taken.
   it cannot time a screenshot inside the block. The frames were taken in a loop around the tap.
 - The "Blocking..." text never showed with a 150 ms wait before the loop; the commit had not
   reached native. It shows with 400 ms.
-- Android's `uiautomator dump` fails while the squares animate ("could not get idle state").
+- Android's `uiautomator dump` fails while the squares animate ("could not get idle state"). With
+  the squares running from arrival, the flow passed 0 of 3 on Android and 1 of 3 on iOS; that is why
+  they now wait for "Animate".
 - Pinch and rotate cannot be driven from Maestro. They are covered in Node, and on the iOS
   simulator with a two-finger touch path: the card scaled to about 2x and turned, and Reset brought
   it back. Not tried on Android or with real fingers on a phone.

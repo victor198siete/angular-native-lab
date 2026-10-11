@@ -94,6 +94,13 @@ describe('gestures screen', () => {
     const user = await open();
     for (const id of ['css', 'native', 'worklet', 'js']) expect(screen.getByTestId(`gestures-tile-${id}`)).toBeTruthy();
     expect(screen.getByText('JavaScript thread')).toBeTruthy();
+    const play = screen.getByTestId('gestures-play');
+    expect(play.props.accessibilityLabel).toBe('Animate');
+    await user.press(play);
+    await vi.waitFor(() => expect(screen.getByTestId('gestures-play').props.accessibilityLabel).toBe('Stop'));
+    await user.press(screen.getByTestId('gestures-play'));
+    await vi.waitFor(() => expect(screen.getByTestId('gestures-play').props.accessibilityLabel).toBe('Animate'));
+
     const block = screen.getByTestId('gestures-block-js');
     expect(block.props.accessibilityLabel).toBe('Block JS for 3 s');
     await user.press(block);

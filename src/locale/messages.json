@@ -251,7 +251,7 @@
     "gestures.anim.js.title": "JavaScript thread",
     "gestures.anim.js.how": "AnimatedStyle with useNativeDriver: false",
     "gestures.anim.block": "Block JS for 3 s",
-    "gestures.anim.status.idle": "Press the button and watch the four squares.",
+    "gestures.anim.status.idle": "Press Animate, then Block JS, and watch the four squares.",
     "gestures.anim.status.blocking": "Blocking the JavaScript thread...",
     "gestures.anim.status.done": "JavaScript was blocked. Blocks so far: {$count}",
     "gestures.drag.a11y": "Draggable card",
@@ -263,6 +263,8 @@
     "gestures.swipe.count": "Rows left: {$left} of {$total}",
     "gestures.swipe.empty": "All rows deleted",
     "gestures.swipe.delete.a11y": "Delete row",
-    "gestures.swipe.delete": "Delete"
+    "gestures.swipe.delete": "Delete",
+    "gestures.anim.play": "Animate",
+    "gestures.anim.stop": "Stop"
   }
 }

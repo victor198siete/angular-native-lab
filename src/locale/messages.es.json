@@ -251,7 +251,7 @@
     "gestures.anim.js.title": "Hilo de JavaScript",
     "gestures.anim.js.how": "AnimatedStyle con useNativeDriver: false",
     "gestures.anim.block": "Bloquear JS 3 s",
-    "gestures.anim.status.idle": "Pulsa el botón y mira los cuatro cuadrados.",
+    "gestures.anim.status.idle": "Pulsa Animar, luego Bloquear JS, y mira los cuatro cuadrados.",
     "gestures.anim.status.blocking": "Bloqueando el hilo de JavaScript...",
     "gestures.anim.status.done": "JavaScript estuvo bloqueado. Bloqueos hasta ahora: {$count}",
     "gestures.drag.a11y": "Tarjeta arrastrable",
@@ -263,6 +263,8 @@
     "gestures.swipe.count": "Filas restantes: {$left} de {$total}",
     "gestures.swipe.empty": "Todas las filas borradas",
     "gestures.swipe.delete.a11y": "Borrar fila",
-    "gestures.swipe.delete": "Borrar"
+    "gestures.swipe.delete": "Borrar",
+    "gestures.anim.play": "Animar",
+    "gestures.anim.stop": "Detener"
   }
 }
