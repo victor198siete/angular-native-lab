@@ -78,7 +78,7 @@ maestro test -e APP_ID=host.exp.Exponent -e APP_URL=exp://127.0.0.1:8081 .maestr
 | [Vault](#vault-inside-rewards) | Face ID / fingerprint for the voucher codes and an opt-in lock on launch, with the preference in the keychain. Part of Rewards | ✅ iOS |
 | [Login (JWT + Face ID)](#login-jwt-and-face-id) | Sign in against a mock API, tokens in the keychain, a guard, an interceptor that refreshes an expired token and retries, and Face ID to reopen the session | ✅ iOS, Android (no biometrics) |
 | [Lists](#lists-virtual-list-vs-scroll-view) | `<virtual-list>` against `<scroll-view>` at 200 and 2,000 rows, with a live count of the row components actually mounted | ✅ iOS, Android |
-| [Gestures](#gestures-drag-pinch-swipe-and-three-ways-to-animate) | Drag that springs back, pinch and rotate, swipe-to-delete rows inside a scrolling list, and the same slide animated by CSS, `Animated`, a worklet and the JavaScript thread, with a button that blocks it | ✅ iOS, Android (pinch and rotate in Node only) |
+| [Gestures](#gestures-drag-pinch-swipe-and-three-ways-to-animate) | Drag that springs back, pinch and rotate, swipe-to-delete rows inside a scrolling list, and the same slide animated by CSS, `Animated`, a worklet and the JavaScript thread, with a button that blocks it | ✅ iOS, Android (pinch and rotate: iOS simulator and Node) |
 
 ### Rewards
 
@@ -497,10 +497,11 @@ JavaScript thread..." while it runs. No timings were taken.
   File: .../node_modules/react-native/Libraries/Animated/nodes/AnimatedProps.js`. The tests use
   `vi.mock('@ng-native/components/animations', () => import('./animations-fake.ts'))`, a small fake
   of `Animated`, `Easing` and the directive, so the animation itself is not exercised in Node.
-- **A pan on a card claims vertical drags that start on it.** The drag card is a free pan on
-  purpose, so a swipe meant to scroll the page that starts on the card moves the card. The Maestro
-  flow scrolls from the left margin, outside every card. The rows do not have this problem
-  (`failOffsetY`).
+- **A free pan on a card takes vertical drags that start on it**, so a swipe meant to scroll the
+  page moved the card instead. The drag card now starts only on a sideways move
+  (`activeOffsetX([-10, 10])`, `failOffsetY([-10, 10])`) and follows the finger both ways once
+  started; a vertical swipe that begins on it scrolls the page (checked on the iOS simulator). The
+  rows use the same `failOffsetY`.
 - **After a hot template swap the pans stopped responding on iOS** (the drag and the row swipe did
   nothing, no events reached JavaScript until the app was reloaded). I saw it once while editing the
   screen and did not isolate the cause; a fresh launch worked every time. Restart the app after
@@ -510,8 +511,9 @@ JavaScript thread..." while it runs. No timings were taken.
 - The "Blocking..." text never showed with a 150 ms wait before the loop; the commit had not
   reached native. It shows with 400 ms.
 - Android's `uiautomator dump` fails while the squares animate ("could not get idle state").
-- Pinch and rotate cannot be driven from Maestro; they are covered in Node only, and were not
-  tried with two real fingers.
+- Pinch and rotate cannot be driven from Maestro. They are covered in Node, and on the iOS
+  simulator with a two-finger touch path: the card scaled to about 2x and turned, and Reset brought
+  it back. Not tried on Android or with real fingers on a phone.
 
 **Not tested:** a real phone, two-finger pinch or rotate on a device, a swipe inside a horizontal
 pager (`Gesture.Native()` plus `blocksExternalGesture`), animation under load beyond the 3 s block.
@@ -660,7 +662,7 @@ with a caveat, — not tested there.
 | Router, native tabs and stack | `@ng-native/router` | All navigation | ✅ | No | — | |
 | `<virtual-list>`, `<scroll-view>` | `@ng-native/components` | Rewards catalog and history, Lists | ✅ | No | — | 2,000 rows: 12–14 components mounted vs 2,000. Also ✅ on the Android emulator |
 | Signal Forms on `<text-input>` and `<switch>` | `@angular/forms/signals` | Join the program | ✅ | No | — | `pattern()` lets an empty value through. Also ✅ on the Android emulator |
-| `<gesture-root>`, `[gesture]` | `@ng-native/components/gestures` (`react-native-gesture-handler`) | Gestures: pan, pinch, rotation, simultaneous | ✅ | No | — | Expo Go includes it. Pinch and rotate checked in Node only. A pan on a card claims vertical drags that start on it |
+| `<gesture-root>`, `[gesture]` | `@ng-native/components/gestures` (`react-native-gesture-handler`) | Gestures: pan, pinch, rotation, simultaneous | ✅ | No | — | Expo Go includes it. Pinch and rotate checked with two fingers on the iOS simulator and in Node |
 | `sharedValue`, `[workletStyle]` | `@ng-native/components/reanimated` (`react-native-reanimated`) | Gestures: drag, pinch, swipe, the worklet tile | ✅ | No | — | Springs and timings run in the worklet. Also ✅ on the Android emulator |
 | `scheduleOnRN` | `react-native-worklets` | Gestures: removing a swiped row | ✅ | No | — | A plain function passed from a worklet callback; no warning seen. Also ✅ on the Android emulator |
 | `[animatedStyle]` | `@ng-native/components/animations` | Gestures: the native-driver and JavaScript tiles | ✅ | No | — | A loop of an `Animated.sequence` is restarted from JavaScript; use one timing in a loop. No Vitest stand-in |

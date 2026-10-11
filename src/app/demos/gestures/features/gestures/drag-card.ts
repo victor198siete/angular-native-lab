@@ -45,7 +45,11 @@ export class DragCard {
     // Gesture callbacks are worklets and must not read `this`: the shared values go through locals.
     const x = this.x;
     const y = this.y;
+    // A drag starts sideways; a vertical swipe that begins on the card fails the pan and scrolls the page.
+    // Once started, the card follows the finger both ways.
     this.pan = Gesture.Pan()
+      .activeOffsetX([-10, 10])
+      .failOffsetY([-10, 10])
       .onUpdate((event) => {
         'worklet';
         x.value = event.translationX;

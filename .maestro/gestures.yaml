@@ -35,8 +35,6 @@ appId: ${APP_ID}
     duration: 600
 - assertVisible:
     id: gestures-drag-card
-# The drag card takes vertical drags that start on it (it is a free pan), so scrolling swipes
-# start in the left margin, outside every card.
 # 2. Swipe a row left to delete it; the vertical scroll still works to get there
 - repeat:
     while:
@@ -57,17 +55,14 @@ appId: ${APP_ID}
     notVisible:
       id: gestures-row-0
     timeout: 10000
-# The counter sits below the rows: scroll to it
-- repeat:
-    while:
-      notVisible:
-        id: gestures-rows-count
-    times: 12
-    commands:
-      - swipe:
-          start: 4%, 75%
-          end: 4%, 25%
-          duration: 400
+# The counter and Restore sit below the rows: bring Restore to the middle of the screen, so a tap
+# reaches it (iOS reports an element just under the bottom edge as visible)
+- scrollUntilVisible:
+    element:
+      id: gestures-restore
+    direction: DOWN
+    centerElement: true
+    timeout: 20000
 - assertVisible: ".*: 7 (of|de) 8"
 # 3. Restore rows brings it back
 - tapOn:
@@ -98,6 +93,7 @@ appId: ${APP_ID}
           duration: 400
 - tapOn:
     id: gestures-block-js
-- extendedWaitUntil:
-    visible: ".*(JavaScript was blocked|JavaScript estuvo bloqueado).*"
+- scrollUntilVisible:
+    element: ".*(JavaScript was blocked|JavaScript estuvo bloqueado).*"
+    direction: DOWN
     timeout: 20000
