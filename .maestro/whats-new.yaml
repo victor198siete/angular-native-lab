@@ -1,0 +1,81 @@
+# What's new demo, end to end in Expo Go, on iOS or Android, in English or Spanish:
+#   iOS:     xcrun simctl terminate booted host.exp.Exponent, then
+#            maestro test -e APP_ID=host.exp.Exponent -e APP_URL=exp://127.0.0.1:8081 .maestro/whats-new.yaml
+#   Android: adb reverse tcp:8081 tcp:8081, then the same with APP_ID=host.exp.exponent
+# Start with Expo Go closed: a link to the screen already showing does nothing, and the deep-link
+# case below needs the app running when the second link arrives.
+# Covers the interactive 0.10 cases: Dialogs.choose (Cancel resolves null, Save an index), the dark
+# class on a root view, and a deep link pushed over the screen. The style cases (::ng-deep, border
+# colour, one word, z-index) are visual: their screenshots are the evidence, Maestro cannot read them.
+appId: ${APP_ID}
+---
+- openLink: ${APP_URL}/--/whats-new
+- extendedWaitUntil:
+    visible: "What's new|Novedades|Continue|Close"
+    timeout: 40000
+# Expo Go's developer menu can open on a fresh install
+- runFlow:
+    when:
+      visible: "Continue"
+    commands:
+      - tapOn: "Continue"
+- runFlow:
+    when:
+      visible: "Close"
+    commands:
+      - tapOn: "Close"
+# 1. The list of versions, and a row opens the 0.10 cases
+- assertVisible:
+    id: whats-new-heading
+- tapOn:
+    id: whats-new-version-0.10
+- extendedWaitUntil:
+    visible:
+      id: whats-new-version-heading
+    timeout: 20000
+- assertVisible:
+    id: whats-new-a10-1-status
+# 2. Dialogs.choose: Cancel resolves null, Save the index 0
+- scrollUntilVisible:
+    element:
+      id: whats-new-a10-1-open
+    centerElement: true
+- tapOn:
+    id: whats-new-a10-1-open
+- tapOn: "Cancel|Cancelar"
+- assertVisible: "Resolved: null|Resuelto: null"
+- tapOn:
+    id: whats-new-a10-1-open
+- tapOn: "Save|Guardar"
+- assertVisible: "Resolved: 0|Resuelto: 0"
+# 3. The dark class on the box itself
+- scrollUntilVisible:
+    element:
+      id: whats-new-a10-4-toggle
+    centerElement: true
+- assertVisible: "dark class: off.*|clase dark: inactiva.*"
+- tapOn:
+    id: whats-new-a10-4-toggle
+- assertVisible: "dark class: on.*|clase dark: activa.*"
+- tapOn:
+    id: whats-new-a10-4-toggle
+- assertVisible: "dark class: off.*|clase dark: inactiva.*"
+# 4. A link that arrives while the app runs is pushed over this screen; Back returns to it
+- openLink: ${APP_URL}/--/device
+- extendedWaitUntil:
+    visible: "Your device, live|Tu dispositivo, en vivo"
+    timeout: 30000
+- runFlow:
+    when:
+      platform: iOS
+    commands:
+      - tapOn: "Version 0.10|Versión 0.10"
+- runFlow:
+    when:
+      platform: Android
+    commands:
+      - back
+- extendedWaitUntil:
+    visible:
+      id: whats-new-a10-4-toggle
+    timeout: 20000
