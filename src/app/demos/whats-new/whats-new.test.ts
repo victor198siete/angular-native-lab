@@ -25,8 +25,11 @@ describe('what is new', () => {
   it('lists the versions that have cases, and a row opens that version', async () => {
     await renderApp('whats-new');
     await screen.findByTestId('whats-new-heading');
-    expect(RELEASES.map((release) => release.version)).toEqual(['0.10', '0.9']);
-    expect(textOf('whats-new-version-0.10')).toContain('7 cases');
+    // Every release in the data has its row with its case count, so a new version does not break this test.
+    expect(RELEASES.length).toBeGreaterThan(0);
+    for (const release of RELEASES) {
+      expect(textOf(`whats-new-version-${release.version}`)).toContain(`${release.cases().length} cases`);
+    }
     const user = userEvent.setup();
     await user.press(screen.getByTestId('whats-new-version-0.10'));
     expect(await screen.findByTestId('whats-new-version-heading')).toBeTruthy();
