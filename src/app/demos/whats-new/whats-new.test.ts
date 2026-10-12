@@ -25,7 +25,7 @@ describe('what is new', () => {
   it('lists the versions that have cases, and a row opens that version', async () => {
     await renderApp('whats-new');
     await screen.findByTestId('whats-new-heading');
-    expect(RELEASES.map((release) => release.version)).toEqual(['0.10']);
+    expect(RELEASES.map((release) => release.version)).toEqual(['0.10', '0.9']);
     expect(textOf('whats-new-version-0.10')).toContain('7 cases');
     const user = userEvent.setup();
     await user.press(screen.getByTestId('whats-new-version-0.10'));
