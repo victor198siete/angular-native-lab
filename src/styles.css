@@ -1,6 +1,7 @@
 @import 'tailwindcss/theme.css';
 @import 'tailwindcss/utilities.css';
 @import '@ng-native/tailwind/native.css';
+@import 'tw-animate-css';
 
 /*
  * Design tokens of the lab. `@theme` values are substituted at build time,
