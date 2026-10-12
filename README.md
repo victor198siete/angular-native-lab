@@ -64,6 +64,7 @@ maestro test -e APP_ID=host.exp.Exponent -e APP_URL=exp://127.0.0.1:8081 .maestr
 maestro test -e APP_ID=host.exp.Exponent -e APP_URL=exp://127.0.0.1:8081 .maestro/device.yaml
 maestro test -e APP_ID=host.exp.Exponent -e APP_URL=exp://127.0.0.1:8081 .maestro/lists.yaml
 maestro test -e APP_ID=host.exp.Exponent -e APP_URL=exp://127.0.0.1:8081 .maestro/gestures.yaml
+maestro test -e APP_ID=host.exp.Exponent -e APP_URL=exp://127.0.0.1:8081 .maestro/whats-new.yaml
 ```
 
 ## Demos
@@ -79,6 +80,7 @@ maestro test -e APP_ID=host.exp.Exponent -e APP_URL=exp://127.0.0.1:8081 .maestr
 | [Login (JWT + Face ID)](#login-jwt-and-face-id) | Sign in against a mock API, tokens in the keychain, a guard, an interceptor that refreshes an expired token and retries, and Face ID to reopen the session | ✅ iOS, Android (no biometrics) |
 | [Lists](#lists-virtual-list-vs-scroll-view) | `<virtual-list>` against `<scroll-view>` at 200 and 2,000 rows, with a live count of the row components actually mounted | ✅ iOS, Android |
 | [Gestures](#gestures-drag-pinch-swipe-and-three-ways-to-animate) | Drag that springs back, pinch and rotate, swipe-to-delete rows inside a scrolling list, and the same slide animated by CSS, `Animated`, a worklet and the JavaScript thread, with a button that blocks it | ✅ iOS, Android (pinch and rotate: iOS simulator and Node) |
+| [What's new](#whats-new-each-release-note-checked) | One screen per ng-native version, each case a line of the release notes run live, with a badge for what was seen on the iOS simulator and the Android emulator (0.10 so far) | ✅ iOS, Android |
 
 ### Rewards
 
@@ -525,6 +527,76 @@ JavaScript thread..." while it runs. No timings were taken.
 **Not tested:** a real phone, two-finger pinch or rotate on a device, a swipe inside a horizontal
 pager (`Gesture.Native()` plus `blocksExternalGesture`), animation under load beyond the 3 s block.
 
+### What's new: each release note, checked
+
+A demo that takes the lines of the ng-native release notes and runs them, so the notes can be
+confirmed or contradicted on a device. Reached by deep link: `exp://127.0.0.1:8081/--/whats-new`
+(a list of versions), and `exp://127.0.0.1:8081/--/whats-new/0.10` for one version's cases. Spanish:
+"Novedades".
+
+How it grows, one version at a time (`src/app/demos/whats-new/`):
+
+- A **release** is data: `core/releases.ts` lists them, newest first, and each has a
+  `cases-*.ts` file (`core/cases-0-10.ts`) with the case id, the PR numbers from the note, the title,
+  a one-line "the note says", and a **status**. A case's live demo is a small component in
+  `features/cases/`, picked by id in `features/version/version.screen.ts`.
+- Adding 0.9 means: a `cases-0-9.ts`, a row in `releases.ts`, the demo components, and their
+  `@case` lines in the version screen. The list screen and the route (`whats-new/:version`, bound
+  as an input) do not change.
+- Every card has test ids built from the case id (`whats-new-a10-1`, `-title`, `-prs`, `-status`),
+  so a case can be reached by `scrollUntilVisible` or a test.
+- The status is **set by hand from a run** and never from the note: `verified` (with the platforms),
+  `caveat`, `not-as-described` (each with a note) or `not-checked`. A case with no run stays
+  `not-checked`.
+
+**What was tested** (iOS simulator, iPhone 18 Pro iOS 27.0, and the Android emulator, Expo Go,
+light scheme, English): each case below on both. Screenshots were taken from Maestro's
+`takeScreenshot` and `simctl` / `screencap` and kept outside the repo.
+
+| Case | PR | iOS | Android | What was seen |
+|---|---|---|---|---|
+| `Dialogs.choose()` on Cancel | #729 | ✅ | ✅ (Cancel only) | iOS: Cancel gives `null`, Save gives `0`, a tap outside the sheet gives `null`. Android: Cancel gives `null`, Save `0`; a tap outside and the system Back key did not dismiss the dialog, so there is no dismissal to test there |
+| Deep link pushed over the screen | #715, #733 | ✅ | ✅ | With `whats-new/0.10` showing, `simctl openurl .../--/device` (Android: `am start -a VIEW -d`) opened Device over it; the iOS back button read "Version 0.10" and returned to the same scroll position |
+| `::ng-deep` after a selector | #754 | ✅ | ✅ | The text under `:host ::ng-deep .inner` is crimson; the one under a bare `::ng-deep .inner` stays gray |
+| `dark` class on the root view | #707 | ✅ | ✅ | The box that has the class itself goes near black with `dark:bg-zinc-950` and white again when toggled off |
+| Border with no color | #752 | ✅ | ✅ | The 3 pt border is crimson (the text color), and black where `border-color: black` is written |
+| One long word | #753 | ✅ | ✅ | "Supercalifragilistic" is one line cut at the 90 pt box edge, no ellipsis; "Three short words" is three lines |
+| z-index across plain views | #726 | ✅ | ✅ | A box with `z-index: 3` inside a plain view is above two later siblings with 2 and 1 |
+
+The Maestro flow (`.maestro/whats-new.yaml`) opens the list, opens 0.10, drives the dialog (Cancel
+reads `null`, Save reads `0`), toggles the dark class, and sends the `/--/device` link while the app
+runs and returns. It passed 3 of 3 on the iOS simulator and 3 of 3 on the Android emulator. The four
+style cases are visual: their screenshots are the evidence. In Node, 7 tests plus one in Spanish:
+the version list and its navigation, the seven cards with their PR numbers and badges, a stand-in
+`Dialogs.SOURCE` (`Dialogs.SOURCE` is the token the class gives for exactly this) answering the
+sheet with an index and with the cancel index, and the dark toggle.
+
+**The Q1 probe: is `@expo/ui` in Expo Go for SDK 57?** On a scratch branch, `npx expo install
+@expo/ui` added `@expo/ui ~57.0.22`; `registerExpoUiViews(Platform.OS)` in `main.ts` and a throwaway
+screen with `<ui-host><ui-text>Hello from SwiftUI</ui-text></ui-host>` and `<ui-host><ui-progress
+[value]="0.4" /></ui-host>`. On the iOS simulator in Expo Go (no new build) both rendered: the text,
+and a SwiftUI progress bar at 40 %. No error text. Not tried on the Android emulator (it was no
+longer running at the time) and not a Live Activity. The branch and the install were reverted
+(`package.json`, `package-lock.json` and `node_modules` as before), and the #757 case is not built
+yet. So the `@expo/ui` cases of the triage (B6-3, B7-1, B10-5) need no development build on iOS.
+
+**Caveats**
+
+- #729 is an iOS change. Android was run too, but on Android the choice dialog cannot be dismissed
+  by tapping outside or with Back, so the note's "or the sheet is dismissed" has nothing to show
+  there; its badge says iOS only.
+- The visual cases were looked at after the fact, not compared with 0.9: "before" is what the notes
+  say, not something this lab saw.
+- The `NgDeepBare` component keeps the bare `::ng-deep` rule on purpose, so Metro and Vitest print
+  "dropped a rule: '::ng-deep' with nothing before it..." on every build. That warning is the
+  note's "still dropped".
+- A text's `(textLayout)` event, which I tried for a "lines drawn" readout on the one-word case,
+  stayed at 0 lines on iOS with a line-count handler on `<text>`; it is not documented, so the case
+  has no readout and relies on the screenshot. Not investigated further.
+- A link to the screen already showing does nothing (Expo Go does not push the same url again), so
+  the Maestro flow needs Expo Go closed at the start.
+- Dark scheme of the device was not tried for the `dark` class case, only the class toggle in light.
+
 ### Show at the counter (inside Rewards)
 
 A redemption's code, ready for the partner to scan: **Show at the counter** on the success
@@ -795,13 +867,14 @@ src/
   main.ts                    mounts the app: router, Tailwind, localization
   locale/                    messages.json (extracted) and messages.es.json
   app/
-    app.routes.ts            the app opens on Rewards; Login, Device, Lists and Gestures by deep link
+    app.routes.ts            the app opens on Rewards; Login, Device, Lists, Gestures and What's new by deep link
     core/                    shared by every demo: theme, i18n
     demos/rewards/           core (models, mocks, store), shared UI, features, shell
     demos/login/             mock auth server, session, guard, interceptor, sign-in and account
     demos/device/            theme, safe area, network and location cards, location tracking
     demos/lists/             virtual-list vs scroll-view with a mounted-row counter
     demos/gestures/          drag, pinch and rotate, swipe-to-delete, and four ways to animate
+    demos/whats-new/         release-note cases per ng-native version, each with a status badge
 repro/                       one folder per duel looked for, with its steps and scripts
 ```
 
