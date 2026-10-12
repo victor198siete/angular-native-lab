@@ -13,6 +13,12 @@ import { KeyframesScopeCase } from '../cases/keyframes-scope-case.ts';
 import { NgDeepCase } from '../cases/ng-deep-case.ts';
 import { PanelHeightCase } from '../cases/panel-height-case.ts';
 import { OneWordCase } from '../cases/one-word-case.ts';
+import { GradientVarCase } from '../cases/gradient-var-case.ts';
+import { IconSizeCase } from '../cases/icon-size-case.ts';
+import { NotDarkCase } from '../cases/not-dark-case.ts';
+import { PermissionRecheckCase } from '../cases/permission-recheck-case.ts';
+import { SpacingTransitionCase } from '../cases/spacing-transition-case.ts';
+import { TransitionsBlockCase } from '../cases/transitions-block-case.ts';
 import { ZIndexCase } from '../cases/z-index-case.ts';
 import { CaseCard } from '../shared/case-card.ts';
 
@@ -23,9 +29,10 @@ import { CaseCard } from '../shared/case-card.ts';
 @Component({
   selector: 'app-whats-new-version-screen',
   imports: [
-    AnimateInCase, BorderColorCase, CaseCard, DarkClassCase, DeepLinkCase, DialogsCase, IcuCase,
-    InvisiblePressCase, KeyframesScopeCase, NativeHeader, NgDeepCase, OneWordCase, PanelHeightCase,
-    SafeAreaView, ScrollView, Text, ZIndexCase,
+    AnimateInCase, BorderColorCase, CaseCard, DarkClassCase, DeepLinkCase, DialogsCase, GradientVarCase,
+    IcuCase, IconSizeCase, InvisiblePressCase, KeyframesScopeCase, NativeHeader, NgDeepCase, NotDarkCase,
+    OneWordCase, PanelHeightCase, PermissionRecheckCase, SafeAreaView, ScrollView, SpacingTransitionCase,
+    Text, TransitionsBlockCase, ZIndexCase,
   ],
   host: { style: 'flex: 1' },
   template: `
@@ -48,6 +55,12 @@ import { CaseCard } from '../shared/case-card.ts';
               @case ('a9-3') { <app-panel-height-case /> }
               @case ('a9-4') { <app-invisible-press-case /> }
               @case ('a9-5') { <app-animate-in-case /> }
+              @case ('a8-1') { <app-permission-recheck-case /> }
+              @case ('a8-2') { <app-transitions-block-case /> }
+              @case ('a8-3') { <app-spacing-transition-case /> }
+              @case ('a8-4') { <app-gradient-var-case /> }
+              @case ('a8-5') { <app-icon-size-case /> }
+              @case ('a8-6') { <app-not-dark-case /> }
             }
           </app-case-card>
         } @empty {

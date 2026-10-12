@@ -86,6 +86,8 @@ One screen section per version. Within a version, ordered by video value. Tier B
 | B9-1 | #695 | A component whose `styleUrl` is in `../shared/fonts.css` declaring `url('./Inter.ttf')`. | Text draws in Inter and Metro resolves the file. Needs a font file in the repo. |
 | B9-2 | #685 | A `svg:not([class*='size-'])` rule on icons with and without a `size-6` class. | The icon with `size-` keeps its class size; before it was overridden. |
 
+**Status of A8-1 ... A8-6 (built in `feat/whats-new-0-8`, run on iOS and Android):** A8-1, A8-3, A8-4, A8-5 and A8-6 verified on both (A8-1 by a Settings round trip with the same process alive; A8-6's nested `@media` half, `md:max-lg:`, not tried on a phone). A8-2 not as described: the opacity and transform tile moves through Block JS, but the width and height tile, alone in its commit, stays still for the block and jumps after it; the pair tile was not run. See the README, "What's new".
+
 **Status of A9-1 ... A9-5 (built in `feat/whats-new-0-9`, run on iOS and Android):** A9-1 not as described (extraction works; on a device in development the ICU sample throws `must be an instance of a DOM Node but got #anchor`; Q3 answered), A9-2 and A9-3 verified on both, A9-4 verified on iOS, A9-5 caveat (fade and zoom seen; blur dropped on iOS). See the README, "What's new".
 
 ### 0.10.0

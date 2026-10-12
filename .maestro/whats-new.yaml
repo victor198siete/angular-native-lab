@@ -130,3 +130,46 @@ appId: ${APP_ID}
     visible:
       id: whats-new-a9-5-fast
     timeout: 20000
+# 6. The 0.8 cases, opened by another pushed link
+- openLink: ${APP_URL}/--/whats-new/0.8
+- extendedWaitUntil:
+    visible:
+      id: whats-new-a8-1-check
+    timeout: 30000
+# A8-1: the permission is read with no dialog (Expo Go on the simulator has it granted or not; the
+# Settings round trip needs simctl / adb and is in the README, not here)
+- tapOn:
+    id: whats-new-a8-1-check
+- assertVisible: "Permission: .*|Permiso: .*"
+# A8-2: the transitions are 10 s and are judged from a screen recording, not from this flow
+# A8-3: padding and margin end at 20 after Open (a 2 s transition)
+- scrollUntilVisible:
+    element:
+      id: whats-new-a8-3-toggle
+    centerElement: true
+- tapOn:
+    id: whats-new-a8-3-toggle
+- extendedWaitUntil:
+    visible: "Padding 20 / margin 20"
+    timeout: 20000
+# A8-4: the middle stop moves with the buttons
+- scrollUntilVisible:
+    element:
+      id: whats-new-a8-4-less
+    centerElement: true
+- tapOn:
+    id: whats-new-a8-4-less
+- tapOn:
+    id: whats-new-a8-4-less
+- assertVisible: "Middle stop at 10%|Parada intermedia en 10%"
+# A8-5: the four icons are drawn at 18, 24, 24 and 16 points
+- scrollUntilVisible:
+    element:
+      id: whats-new-a8-5-readout
+    centerElement: true
+- assertVisible: "Drawn: 18 / 24 / 24 / 16 points|Dibujados: 18 / 24 / 24 / 16 puntos"
+# A8-6: the swatch follows the scheme (the last card: no centring at the scroll's end)
+- scrollUntilVisible:
+    element:
+      id: whats-new-a8-6-readout
+- assertVisible: "Scheme: light.*|Esquema: claro.*"

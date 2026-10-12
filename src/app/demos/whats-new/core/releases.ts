@@ -1,5 +1,6 @@
 import type { Release } from './case.ts';
 import { cases010 } from './cases-0-10.ts';
+import { cases08 } from './cases-0-8.ts';
 import { cases09 } from './cases-0-9.ts';
 
 /**
@@ -9,6 +10,7 @@ import { cases09 } from './cases-0-9.ts';
 export const RELEASES: readonly Release[] = [
   { version: '0.10', cases: cases010 },
   { version: '0.9', cases: cases09 },
+  { version: '0.8', cases: cases08 },
 ];
 
 export const releaseOf = (version: string | undefined): Release | undefined =>

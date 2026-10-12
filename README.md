@@ -80,7 +80,7 @@ maestro test -e APP_ID=host.exp.Exponent -e APP_URL=exp://127.0.0.1:8081 .maestr
 | [Login (JWT + Face ID)](#login-jwt-and-face-id) | Sign in against a mock API, tokens in the keychain, a guard, an interceptor that refreshes an expired token and retries, and Face ID to reopen the session | ✅ iOS, Android (no biometrics) |
 | [Lists](#lists-virtual-list-vs-scroll-view) | `<virtual-list>` against `<scroll-view>` at 200 and 2,000 rows, with a live count of the row components actually mounted | ✅ iOS, Android |
 | [Gestures](#gestures-drag-pinch-swipe-and-three-ways-to-animate) | Drag that springs back, pinch and rotate, swipe-to-delete rows inside a scrolling list, and the same slide animated by CSS, `Animated`, a worklet and the JavaScript thread, with a button that blocks it | ✅ iOS, Android (pinch and rotate: iOS simulator and Node) |
-| [What's new](#whats-new-each-release-note-checked) | One screen per ng-native version, each case a line of the release notes run live, with a badge for what was seen on the iOS simulator and the Android emulator (0.10 and 0.9) | ✅ iOS, Android |
+| [What's new](#whats-new-each-release-note-checked) | One screen per ng-native version, each case a line of the release notes run live, with a badge for what was seen on the iOS simulator and the Android emulator (0.10, 0.9 and 0.8) | ✅ iOS, Android |
 
 ### Rewards
 
@@ -535,7 +535,7 @@ pager (`Gesture.Native()` plus `blocksExternalGesture`), animation under load be
 
 A demo that takes the lines of the ng-native release notes and runs them, so the notes can be
 confirmed or contradicted on a device. Reached by deep link: `exp://127.0.0.1:8081/--/whats-new`
-(a list of versions), and `exp://127.0.0.1:8081/--/whats-new/0.10` or `.../0.9` for one version's cases. Spanish:
+(a list of versions), and `exp://127.0.0.1:8081/--/whats-new/0.10`, `.../0.9` or `.../0.8` for one version's cases. Spanish:
 "Novedades".
 
 How it grows, one version at a time (`src/app/demos/whats-new/`):
@@ -593,6 +593,27 @@ simulator and 3 of 5 on the Android emulator: the two failures were the first st
 Expo Go to load after a cold start, before any case ran. In Node, 4 more tests (`whats-new-0-9.test.ts`,
 and one in Spanish): the 0.9 cards and badges, the plural at 0, 1 and 5, the select, the label, the
 press counter, and the cards of A9-5.
+
+**0.8 cases** (same devices; Android in Spanish). No new dependency. A8-1 reads the same
+`Location.permission` as the Device card (`@ng-native/expo/location`), without touching that demo.
+
+| Case | PR | iOS | Android | What was seen |
+|---|---|---|---|---|
+| `Permission.ensure()` after Settings | #682 | ✅ | ✅ | **iOS:** `simctl privacy revoke location host.exp.Exponent` did not kill the app; after a "Read the permission" press the card read `denied` / `blocked(): yes`, and "Ask with ensure()" answered `not granted` with no dialog. Then `simctl launch com.apple.Preferences` (the Settings app in front), `simctl privacy grant location host.exp.Exponent`, and `simctl launch host.exp.Exponent` to come back: with no press the card read `granted` / `blocked(): no` (same process id 35171 throughout), and `ensure()` answered `granted` with no dialog. A second run granted while the app stayed in front and pressed Ask: `ensure(): granted`, no dialog. `simctl openurl app-settings:` fails on this simulator (`LSApplicationWorkspaceErrorDomain error 115`), and the Settings toggle itself was not driven: the grant is `simctl privacy`. **Android:** `pm revoke` kills the app (process gone), so it was relaunched; "Ask with ensure()" showed the system dialog, "Don't allow" gave `denied` / `blocked(): yes`, and a second ask showed no dialog (`not granted`). Then `am start -a android.settings.APPLICATION_DETAILS_SETTINGS` (Settings in front), `pm grant` of both location permissions, and Back to the app: `granted` / `blocked(): no` by itself, same process id 32169, and `ensure()` then answered `granted` with no dialog. The Google "Location Accuracy" prompt never appeared (nothing starts tracking) |
+| Transitions through Block JS | #672, #676 | ❌ | ❌ | **Not as described, half.** 10 s linear transitions, "Block JS for 3 s" 100 ms after the press (video frames every 0.5 s). The opacity and transform tile (a square 32 pt, `translateX(200px)`, `opacity .2`) moved on every frame of the block on both platforms. The width and height tile, the only box resized in its commit, stayed at its starting width (about 40 pt) for the whole block and jumped ahead when the block ended. With the block started in the same commit as the toggle it did the same, which is the note's "text changes length" exception, so the block now starts 100 ms later; the result did not change. Not isolated: whether `height` together with `width`, or another box in the commit, is what sends it to JavaScript. The pair tile was not run |
+| Padding, margin, radius transitions | #670 | ✅ | ✅ | 2 s linear, nothing written at 0: padding read 0, 4, 7, 10, 14, 17, 20 at 0.33 s steps on iOS (margin the same), the green box's radius rounded in step; Android showed the red border and the radius growing over the same frames |
+| Gradient in a custom property | #664 | ✅ | ✅ | `[style.--x]` holding `linear-gradient(90deg, red 0%, gold N%, blue 100%)`: `background: var(--x)` draws it and the gold stop follows the buttons (50 %, 10 %, 90 %); `background-color: var(--x)` with the same value draws nothing, as the note says |
+| Icon `size` in px and rem | #668 | ✅ | ✅ | `18px`, `1.5rem`, `24` and an unreadable `big` read 18 / 24 / 24 / 16 points from `(layout)`; the last one is the text size (16 with no font size in scope) and looks smaller than the other three |
+| `not-dark:` in dark mode | #675 | ✅ | ✅ | The swatch is amber (`not-dark:bg-amber-200`) in light and zinc (`dark:bg-zinc-800`) in dark, with `simctl ui appearance dark` and `adb shell cmd uimode night yes`; both left on light. The `md:max-lg:` half of the note needs a width change and was not tried |
+
+The Maestro flow also drives the 0.8 cases: it reads the permission, runs Open on the padding box,
+moves the gradient stop, and reads the icon sizes and the scheme (A8-2 is judged from a recording,
+A8-1's Settings round trip needs `simctl` or `adb`). It passed 3 of 3 on the iOS simulator and 3 of 3
+on the Android emulator. In Node, 7 more tests (`whats-new-0-8.test.ts`): the six cards and badges,
+A8-1 with a fake location whose answer changes (a foreground event through `Permission.FOREGROUND`,
+and `ensure()` seeing the change with no foreground event), the transition tiles, the gradient
+buttons, the four icon sizes read from the drawn props (18 / 24 / 24 / 16) and the scheme toggle.
+`whats-new.test.ts` still asserts the versions `['0.10', '0.9']` and is red until it is updated.
 
 **The Q1 probe: is `@expo/ui` in Expo Go for SDK 57?** On a scratch branch, `npx expo install
 @expo/ui` added `@expo/ui ~57.0.22`; `registerExpoUiViews(Platform.OS)` in `main.ts` and a throwaway
