@@ -2,11 +2,16 @@ import { Component, computed, input } from '@angular/core';
 import { SafeAreaView, ScrollView, Text } from '@ng-native/components';
 import { NativeHeader } from '@ng-native/router';
 import { releaseOf } from '../../core/releases.ts';
+import { AnimateInCase } from '../cases/animate-in-case.ts';
 import { BorderColorCase } from '../cases/border-color-case.ts';
 import { DarkClassCase } from '../cases/dark-class-case.ts';
 import { DeepLinkCase } from '../cases/deep-link-case.ts';
 import { DialogsCase } from '../cases/dialogs-case.ts';
+import { IcuCase } from '../cases/icu-case.ts';
+import { InvisiblePressCase } from '../cases/invisible-press-case.ts';
+import { KeyframesScopeCase } from '../cases/keyframes-scope-case.ts';
 import { NgDeepCase } from '../cases/ng-deep-case.ts';
+import { PanelHeightCase } from '../cases/panel-height-case.ts';
 import { OneWordCase } from '../cases/one-word-case.ts';
 import { ZIndexCase } from '../cases/z-index-case.ts';
 import { CaseCard } from '../shared/case-card.ts';
@@ -18,8 +23,9 @@ import { CaseCard } from '../shared/case-card.ts';
 @Component({
   selector: 'app-whats-new-version-screen',
   imports: [
-    BorderColorCase, CaseCard, DarkClassCase, DeepLinkCase, DialogsCase, NativeHeader, NgDeepCase,
-    OneWordCase, SafeAreaView, ScrollView, Text, ZIndexCase,
+    AnimateInCase, BorderColorCase, CaseCard, DarkClassCase, DeepLinkCase, DialogsCase, IcuCase,
+    InvisiblePressCase, KeyframesScopeCase, NativeHeader, NgDeepCase, OneWordCase, PanelHeightCase,
+    SafeAreaView, ScrollView, Text, ZIndexCase,
   ],
   host: { style: 'flex: 1' },
   template: `
@@ -37,6 +43,11 @@ import { CaseCard } from '../shared/case-card.ts';
               @case ('a10-5') { <app-border-color-case /> }
               @case ('a10-6') { <app-one-word-case /> }
               @case ('a10-7') { <app-z-index-case /> }
+              @case ('a9-1') { <app-icu-case /> }
+              @case ('a9-2') { <app-keyframes-scope-case /> }
+              @case ('a9-3') { <app-panel-height-case /> }
+              @case ('a9-4') { <app-invisible-press-case /> }
+              @case ('a9-5') { <app-animate-in-case /> }
             }
           </app-case-card>
         } @empty {

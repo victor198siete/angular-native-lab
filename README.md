@@ -80,7 +80,7 @@ maestro test -e APP_ID=host.exp.Exponent -e APP_URL=exp://127.0.0.1:8081 .maestr
 | [Login (JWT + Face ID)](#login-jwt-and-face-id) | Sign in against a mock API, tokens in the keychain, a guard, an interceptor that refreshes an expired token and retries, and Face ID to reopen the session | ✅ iOS, Android (no biometrics) |
 | [Lists](#lists-virtual-list-vs-scroll-view) | `<virtual-list>` against `<scroll-view>` at 200 and 2,000 rows, with a live count of the row components actually mounted | ✅ iOS, Android |
 | [Gestures](#gestures-drag-pinch-swipe-and-three-ways-to-animate) | Drag that springs back, pinch and rotate, swipe-to-delete rows inside a scrolling list, and the same slide animated by CSS, `Animated`, a worklet and the JavaScript thread, with a button that blocks it | ✅ iOS, Android (pinch and rotate: iOS simulator and Node) |
-| [What's new](#whats-new-each-release-note-checked) | One screen per ng-native version, each case a line of the release notes run live, with a badge for what was seen on the iOS simulator and the Android emulator (0.10 so far) | ✅ iOS, Android |
+| [What's new](#whats-new-each-release-note-checked) | One screen per ng-native version, each case a line of the release notes run live, with a badge for what was seen on the iOS simulator and the Android emulator (0.10 and 0.9) | ✅ iOS, Android |
 
 ### Rewards
 
@@ -176,8 +176,12 @@ and numbers, dates and mock data in both languages.
   ```
   That is Angular, not ng-native: a root token needs a root injector. The check moved to
   a component test.
-- **Not tested, avoided by design:** ICU plurals and selects, and `i18n-` attributes.
-  The guide documents both as broken, so this app uses `$localize` strings instead.
+- **ICU plurals and selects, and `i18n-` attributes, tested in the What's new demo (0.9 case A9-1):**
+  the extraction works (`npm run i18n:extract` writes `{VAR_PLURAL, plural, =0 {...} one {{INTERPOLATION} ...} other {...}}`,
+  `{VAR_SELECT, select, ...}` and the `i18n-accessibilityLabel` text), and the Vitest tests render them
+  in English and Spanish. On a device they fail: in Expo Go in development, on the iOS simulator and
+  the Android emulator, mounting one logs `ASSERTION ERROR: The provided value must be an instance of
+  a DOM Node but got #anchor` and the sample is left undrawn. This app still uses `$localize` strings.
 - `$localize` at module level runs before the translations load and stays in English.
   Tier and category names are translated inside functions for that reason.
 
@@ -531,7 +535,7 @@ pager (`Gesture.Native()` plus `blocksExternalGesture`), animation under load be
 
 A demo that takes the lines of the ng-native release notes and runs them, so the notes can be
 confirmed or contradicted on a device. Reached by deep link: `exp://127.0.0.1:8081/--/whats-new`
-(a list of versions), and `exp://127.0.0.1:8081/--/whats-new/0.10` for one version's cases. Spanish:
+(a list of versions), and `exp://127.0.0.1:8081/--/whats-new/0.10` or `.../0.9` for one version's cases. Spanish:
 "Novedades".
 
 How it grows, one version at a time (`src/app/demos/whats-new/`):
@@ -540,9 +544,9 @@ How it grows, one version at a time (`src/app/demos/whats-new/`):
   `cases-*.ts` file (`core/cases-0-10.ts`) with the case id, the PR numbers from the note, the title,
   a one-line "the note says", and a **status**. A case's live demo is a small component in
   `features/cases/`, picked by id in `features/version/version.screen.ts`.
-- Adding 0.9 means: a `cases-0-9.ts`, a row in `releases.ts`, the demo components, and their
-  `@case` lines in the version screen. The list screen and the route (`whats-new/:version`, bound
-  as an input) do not change.
+- Adding a release (0.9 was added this way) means: a `cases-*.ts`, a row in `releases.ts`, the demo
+  components, and their `@case` lines in the version screen. The list screen and the route
+  (`whats-new/:version`, bound as an input) do not change.
 - Every card has test ids built from the case id (`whats-new-a10-1`, `-title`, `-prs`, `-status`),
   so a case can be reached by `scrollUntilVisible` or a test.
 - The status is **set by hand from a run** and never from the note: `verified` (with the platforms),
@@ -570,6 +574,25 @@ style cases are visual: their screenshots are the evidence. In Node, 7 tests plu
 the version list and its navigation, the seven cards with their PR numbers and badges, a stand-in
 `Dialogs.SOURCE` (`Dialogs.SOURCE` is the token the class gives for exactly this) answering the
 sheet with an index and with the cancel index, and the dark toggle.
+
+**0.9 cases** (same devices, Spanish on the emulator). `tw-animate-css` 1.4.0 is a dependency, imported in
+`src/styles.css` for A9-5. Animations start from a button and are finite, so Android's uiautomator can
+read the screen. The panel case reads each panel's height from `(layout)`.
+
+| Case | PR | iOS | Android | What was seen |
+|---|---|---|---|---|
+| ICU plurals, selects, `i18n-` attributes | #687 | ❌ | ❌ | **Not as described.** `npm run i18n:extract` extracts them correctly (`{VAR_PLURAL, plural, =0 {No rewards} one {{INTERPOLATION} reward} other {{INTERPOLATION} rewards}}`, `{VAR_SELECT, select, gold {...} silver {...} other {...}}`, and the `i18n-accessibilityLabel` text), and Vitest renders them in EN and ES (0, 1 and 5; the label). On a device, in Expo Go in development, mounting the sample logs `ASSERTION ERROR: The provided value must be an instance of a DOM Node but got #anchor` (twice per mount) and nothing of it is drawn but empty buttons. Angular's own `assertDomNode(anchorRNode)`, which runs only when `ngDevMode` is on. A production-mode bundle (`expo start --no-dev`) does not load in Expo Go here (`Unable to determine the production URL ... "location" is not defined`), so a release build is untested. The sample mounts on a press so the other cases stay on screen |
+| Same-named `@keyframes` | #694 | ✅ | ✅ | Two components with `@keyframes pulse`: the blue square scales to 1.6, the green one slides 80 pt, each its own |
+| `var()` and `em` in keyframes | #696, #697 | ✅ | ✅ | Panels with `--panel-height` 40px, 96px and `4em` open to 40 / 96 / 64 pt, read from `(layout)` (iOS mid-frames: 5/11/7, 13/30/20, 26/63/42) |
+| Press on a view faded to `opacity: 0` | #690 | ✅ | ✅ (also counts) | After the fade ends the counter still goes to 1 on a tap of the invisible button. The badge claims iOS only, as the note does |
+| `tw-animate-css` `animate-in` | #700 | ⚠️ | ⚠️ | `fade-in-0 zoom-in-95` fades and shrinks in (pale and narrower, then full) on the 1.5 s card; the 200 ms card is too fast to catch mid-frame. The Tailwind build prints `@keyframes enter (Tailwind): dropped 'filter': filter: blur() is not drawn on iOS` |
+
+The Maestro flow also drives the 0.9 cases (it does not assert A9-1, which does not render on a device):
+the two squares, the panel readout, the invisible button and the cards. It passed 3 of 3 on the iOS
+simulator and 3 of 5 on the Android emulator: the two failures were the first step, the 40 s wait for
+Expo Go to load after a cold start, before any case ran. In Node, 4 more tests (`whats-new-0-9.test.ts`,
+and one in Spanish): the 0.9 cards and badges, the plural at 0, 1 and 5, the select, the label, the
+press counter, and the cards of A9-5.
 
 **The Q1 probe: is `@expo/ui` in Expo Go for SDK 57?** On a scratch branch, `npx expo install
 @expo/ui` added `@expo/ui ~57.0.22`; `registerExpoUiViews(Platform.OS)` in `main.ts` and a throwaway

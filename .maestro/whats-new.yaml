@@ -79,3 +79,54 @@ appId: ${APP_ID}
     visible:
       id: whats-new-a10-4-toggle
     timeout: 20000
+# 5. The 0.9 cases, opened by a link pushed over this screen (a link to the screen already showing does nothing)
+- openLink: ${APP_URL}/--/whats-new/0.9
+- extendedWaitUntil:
+    visible:
+      id: whats-new-a9-1-show
+    timeout: 30000
+# A9-1: the ICU sample is mounted on a press and, in Expo Go in development, throws while it renders:
+# its texts never appear, so this flow does not assert them (the Vitest tests do).
+# A9-2: both squares start from a press and stop at their own last frame
+- scrollUntilVisible:
+    element:
+      id: whats-new-a9-2-toggle
+    centerElement: true
+- tapOn:
+    id: whats-new-a9-2-toggle
+- extendedWaitUntil:
+    visible: "Reset|Reiniciar"
+    timeout: 20000
+# A9-3: each panel opens to the height set on it: 40, 96 and 64 points
+- scrollUntilVisible:
+    element:
+      id: whats-new-a9-3-toggle
+    centerElement: true
+- tapOn:
+    id: whats-new-a9-3-toggle
+- extendedWaitUntil:
+    visible: "Measured: 40 / 96 / 64|Medido: 40 / 96 / 64"
+    timeout: 20000
+# A9-4: after the fade, a press on the button still counts (iOS)
+- scrollUntilVisible:
+    element:
+      id: whats-new-a9-4-count
+    centerElement: true
+- tapOn:
+    id: whats-new-a9-4-fade
+- extendedWaitUntil:
+    visible: "Presses heard: 0 .faded.|Pulsaciones oídas: 0 .desvanecido."
+    timeout: 20000
+- tapOn:
+    id: whats-new-a9-4-target
+- assertVisible: "Presses heard: 1 .faded.|Pulsaciones oídas: 1 .desvanecido."
+# A9-5: the cards mount through an @if (the last card: its button cannot be centred at the scroll's end)
+- scrollUntilVisible:
+    element:
+      id: whats-new-a9-5-toggle
+- tapOn:
+    id: whats-new-a9-5-toggle
+- extendedWaitUntil:
+    visible:
+      id: whats-new-a9-5-fast
+    timeout: 20000
