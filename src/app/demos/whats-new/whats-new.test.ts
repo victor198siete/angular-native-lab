@@ -39,8 +39,13 @@ describe('what is new', () => {
     for (const item of cases) {
       expect(screen.getByTestId(`whats-new-${item.id}-title`)).toBeTruthy();
       expect(textOf(`whats-new-${item.id}-prs`)).toBe(item.prs.join(' · '));
-      expect(textOf(`whats-new-${item.id}-status`).length).toBeGreaterThan(0);
+      expect(textOf(`whats-new-${item.id}-status`)).toBe(
+        item.status.kind === 'verified' ? `Verified · ${item.status.platforms.join(' · ')}` : 'Not checked',
+      );
     }
+    // #729 is an iOS change, so only iOS is claimed for it.
+    expect(textOf('whats-new-a10-1-status')).toBe('Verified · iOS');
+    expect(textOf('whats-new-a10-7-status')).toBe('Verified · iOS · Android');
   });
 
   it('every verified status names the platforms it was seen on', () => {

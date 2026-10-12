@@ -14,7 +14,7 @@ type Answer = undefined | number | null;
     <view class="gap-2">
       <app-wn-button testId="whats-new-a10-1-open" [label]="openLabel" (act)="open()" />
       <text testID="whats-new-a10-1-result" class="text-body font-semibold text-ink dark:text-ink-dk">{{ readout() }}</text>
-      <text class="text-caption text-ink2 dark:text-ink2-dk" i18n="@@whatsNew.a10_1.hint">Pick Save or Discard to see an index. Pick Cancel, or tap outside the sheet, to see null.</text>
+      <text class="text-caption text-ink2 dark:text-ink2-dk" i18n="@@whatsNew.a10_1.hint">Pick Save or Discard to see an index. Pick Cancel to see null; on iOS, tapping outside the sheet does too.</text>
     </view>
   `,
 })
