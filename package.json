@@ -21,7 +21,7 @@
     "@ng-native/router": "0.13.0",
     "@ng-native/tailwind": "0.13.0",
     "@tailwindcss/cli": "^4.3.3",
-    "expo": "~57.0.28",
+    "expo": "~57.0.29",
     "expo-brightness": "~57.0.2",
     "expo-clipboard": "~57.0.2",
     "expo-haptics": "~57.0.3",
