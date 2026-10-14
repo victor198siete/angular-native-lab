@@ -642,7 +642,7 @@ The Maestro flow now ends with the 0.13 and 0.11 cases (readouts, the loader, th
 Android, the Search guard, the org switch). It passed 3 of 3 on the iOS simulator and 3 of 3 on the Android
 emulator; an earlier Android start failed at the first step (Expo Go still loading after a cold start,
 before any case ran), so the runs were made with the app already open on the list. A11-1 leaves the app and
-the drawings (A13-1, A13-7) are screenshots, not asserted. In Node, 11 more tests
+the drawings (A13-1, A13-7) are screenshots, not asserted. In Node, 15 more tests
 (`whats-new-0-11-0-13.test.ts` and `whats-new-0-13.es.test.ts`): the cards and badges of both versions,
 `openSettings` through a fake `DeepLinkSource` (with and without the method), the lab and its org switch,
 and each icon case read from the committed props (mask, clip path and use, colour from the token, config,
