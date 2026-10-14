@@ -26,7 +26,7 @@ partial (see [Android](#android)).
 |---|---|
 | `@ng-native/*` | 0.13.0 (also ran on 0.10.0, 0.9.0, 0.5.0, 0.4.0 and 0.3.0: tags [`ng-native-0.10.0`](https://github.com/victor198siete/angular-native-lab/tree/ng-native-0.10.0), [`ng-native-0.9.0`](https://github.com/victor198siete/angular-native-lab/tree/ng-native-0.9.0), [`ng-native-0.5.0`](https://github.com/victor198siete/angular-native-lab/tree/ng-native-0.5.0), [`ng-native-0.4.0`](https://github.com/victor198siete/angular-native-lab/tree/ng-native-0.4.0) and [`ng-native-0.3.0`](https://github.com/victor198siete/angular-native-lab/tree/ng-native-0.3.0)) |
 | Angular | 22.2.1 |
-| Expo SDK | 57 (`expo` 57.0.27) |
+| Expo SDK | 57 (`expo` 57.0.28) |
 | React Native | 0.86.3 |
 | TypeScript / Vitest | 6.0.3 / 5.0.3 |
 | Node | 22.22.3 |
@@ -820,7 +820,8 @@ What each release brings that touches the lab, read before the upgrade (each ent
   `preventNativeDismiss` ([#783](https://github.com/ng-native/ng-native/pull/783)).
 
 `expo install --check` asked for an Expo patch release, `expo-location` 57.0.21, which 0.13.0 does not
-need; applied in its own change.
+need. Applied in its own change with `npx expo install --fix`, which also moved `expo` to 57.0.28; the
+166 tests and the Device and Login flows pass on both platforms after it.
 
 ## Upgrading to 0.10.0
 
