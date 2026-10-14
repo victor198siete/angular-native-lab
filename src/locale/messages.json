@@ -439,6 +439,10 @@
     "whatsNew.a11_1.open": "Open this app's Settings",
     "whatsNew.a11_1.readout": "openSettings() called: {$count} times",
     "whatsNew.a11_1.hint": "Expected: the system Settings open on this app's own page. Come back with the app switcher or Back; the app keeps running.",
-    "whatsNew.tabsLab.open": "Open the tabs lab"
+    "whatsNew.tabsLab.open": "Open the tabs lab",
+    "repro.v3": "{VAR_PLURAL, plural, =0 {none} one {one} other {many}}",
+    "repro.v3i": "{VAR_PLURAL, plural, =0 {none} one {{INTERPOLATION} one} other {{INTERPOLATION} many}}",
+    "repro.v4": "{VAR_PLURAL, plural, =0 {none} one {{INTERPOLATION} one} other {{INTERPOLATION} many}}",
+    "repro.v4.label": "Count"
   }
 }

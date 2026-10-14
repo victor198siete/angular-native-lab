@@ -11,4 +11,7 @@ import { rewardsRoutes } from './demos/rewards/rewards.routes.ts';
  * Device, Lists, Gestures and What's new demos are reached by deep link (`/--/login`, `/--/device`, `/--/lists`, `/--/gestures`, `/--/whats-new`); when the demos get a home,
  * each becomes a tab of the lab and these routes move under it.
  */
-export const routes: Routes = [...rewardsRoutes, ...loginRoutes, ...deviceRoutes, ...listsRoutes, ...gesturesRoutes, ...whatsNewRoutes];
+export const routes: Routes = [
+  // Temporary ICU reproduction (branch repro/icu-anchor).
+  { path: 'repro/icu', loadComponent: () => import('./repro/icu/icu-repro.screen.ts').then((m) => m.IcuReproScreen) },
+  ...rewardsRoutes, ...loginRoutes, ...deviceRoutes, ...listsRoutes, ...gesturesRoutes, ...whatsNewRoutes];

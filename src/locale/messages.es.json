@@ -439,6 +439,10 @@
     "whatsNew.a11_1.open": "Abrir los Ajustes de esta app",
     "whatsNew.a11_1.readout": "openSettings() llamado: {$count} veces",
     "whatsNew.a11_1.hint": "Esperado: los Ajustes del sistema se abren en la página de esta app. Vuelve con el selector de apps o Atrás; la app sigue en marcha.",
-    "whatsNew.tabsLab.open": "Abrir el laboratorio de pestañas"
+    "whatsNew.tabsLab.open": "Abrir el laboratorio de pestañas",
+    "repro.v3": "{VAR_PLURAL, plural, =0 {ninguno} one {uno} other {varios}}",
+    "repro.v3i": "{VAR_PLURAL, plural, =0 {ninguno} one {{INTERPOLATION} uno} other {{INTERPOLATION} varios}}",
+    "repro.v4": "{VAR_PLURAL, plural, =0 {ninguno} one {{INTERPOLATION} uno} other {{INTERPOLATION} varios}}",
+    "repro.v4.label": "Cuenta"
   }
 }
