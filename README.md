@@ -24,7 +24,7 @@ partial (see [Android](#android)).
 
 | | Version |
 |---|---|
-| `@ng-native/*` | 0.10.0 (also ran on 0.9.0, 0.5.0, 0.4.0 and 0.3.0: tags [`ng-native-0.9.0`](https://github.com/victor198siete/angular-native-lab/tree/ng-native-0.9.0), [`ng-native-0.5.0`](https://github.com/victor198siete/angular-native-lab/tree/ng-native-0.5.0), [`ng-native-0.4.0`](https://github.com/victor198siete/angular-native-lab/tree/ng-native-0.4.0) and [`ng-native-0.3.0`](https://github.com/victor198siete/angular-native-lab/tree/ng-native-0.3.0)) |
+| `@ng-native/*` | 0.13.0 (also ran on 0.10.0, 0.9.0, 0.5.0, 0.4.0 and 0.3.0: tags [`ng-native-0.10.0`](https://github.com/victor198siete/angular-native-lab/tree/ng-native-0.10.0), [`ng-native-0.9.0`](https://github.com/victor198siete/angular-native-lab/tree/ng-native-0.9.0), [`ng-native-0.5.0`](https://github.com/victor198siete/angular-native-lab/tree/ng-native-0.5.0), [`ng-native-0.4.0`](https://github.com/victor198siete/angular-native-lab/tree/ng-native-0.4.0) and [`ng-native-0.3.0`](https://github.com/victor198siete/angular-native-lab/tree/ng-native-0.3.0)) |
 | Angular | 22.2.1 |
 | Expo SDK | 57 (`expo` 57.0.27) |
 | React Native | 0.86.3 |
@@ -791,6 +791,36 @@ with a caveat, — not tested there.
 | `[animatedStyle]` | `@ng-native/components/animations` | Gestures: the native-driver and JavaScript tiles | ✅ | No | — | A loop of an `Animated.sequence` is restarted from JavaScript; use one timing in a loop. No Vitest stand-in |
 | Reactive Forms, `ControlValueAccessor` | `@angular/forms` | Compatibility check only | ✅ | No | — | Angular binds `[formControl]` and `ngModel` to the `value` model; no accessor needed. Also ✅ on the Android emulator |
 | `HttpClient` with interceptors | `@ng-native/platform/http` (`provideNativeHttpClient`) | Login: auth interceptor, mock API | ✅ | No | — | Angular's `withInterceptors()` and `provideHttpClientTesting()` work unchanged. Also ✅ on the Android emulator |
+
+## Upgrading to 0.13.0
+
+0.11.0, 0.12.0 and 0.13.0 all came out on 12 October 2026: 19 entries, all fixes, none breaking. The
+lab went from 0.10.0 straight to 0.13.0, all ten `@ng-native/*` packages, with **no change to the
+app**: typecheck clean, the 166 tests passing, translations matching. With Metro restarted with
+`--clear`, the six Maestro flows (Login, Join, Device, Lists, Gestures, What's new) pass on the iOS
+simulator and the Android emulator (Login on iOS on a second run: the first timed out opening the app
+on a simulator booted a minute before).
+
+What each release brings that touches the lab, read before the upgrade (each entry is classified in
+`docs/whats-new-triage.md`):
+
+- **0.11.0** - [#773](https://github.com/ng-native/ng-native/pull/773) fixes `must be an instance of a
+  DOM Node` for ICU plurals and selects **on the web host**, and says iOS and Android already pass that
+  check. The lab saw the same assertion on iOS and Android on 0.10.0 (What's new, case A9-1); it is
+  re-run on 0.13.0 before the draft issue goes anywhere. `DeepLinks.openSettings()`
+  ([#776](https://github.com/ng-native/ng-native/pull/776)) opens the app's page in the system settings,
+  the step after a permission's `blocked()`. The rest is Live Activities and widgets (development build),
+  tabs kept with `reuseScreen`, and Tailwind 3 `hsl()` rounding.
+- **0.12.0** - DOM components (storage on Android, fonts in a release build) and `registerViewName`'s
+  `looseText`. Nothing the lab uses.
+- **0.13.0** - `NgIcon` draws `<mask>`, `<clipPath>` and `<use>`, takes `provideNgIconsConfig`,
+  `provideNgIconLoader`, `color="var(--x)"` and `aria-label`
+  ([#785](https://github.com/ng-native/ng-native/pull/785)); the lab's icons (Lucide, the QR) look the
+  same in the flows. A page presented from another tab refuses Android's Back while it sets
+  `preventNativeDismiss` ([#783](https://github.com/ng-native/ng-native/pull/783)).
+
+`expo install --check` asked for an Expo patch release, `expo-location` 57.0.21, which 0.13.0 does not
+need; applied in its own change.
 
 ## Upgrading to 0.10.0
 
