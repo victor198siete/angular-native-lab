@@ -406,3 +406,5 @@ Columns as above.
 |---|---|---|---|
 | 0.11 | #766, #767, #765, #768 | Live Activity `bannerSmall`, `staleDate`, `pushToStartToken`, widget `timeline` | Live Activity / widget extension, native modules |
 | 0.12 | #779, #781 | DOM component storage on Android, `url()` assets in a release build | Needs `@ng-native/web` + `@angular/platform-browser` (not in the lab); #781 is a release export |
+
+**Status of A11-1 ... A11-3 and A13-1 ... A13-8 (built in `feat/whats-new-0-11-0-13`, run on iOS and Android):** A11-2, A13-1 to A13-7 verified on both; A13-8 verified on Android (Back is Android only). A11-1 caveat (Android opens Expo Go's App info; the iOS simulator opens the top-level Settings list, not an Expo Go page). A11-3 caveat (the url goes to org 2's first page, but the Library tab drew org 1's stale Album x page together with the Library page). 0.12.0 has no section. See the README, "What's new".

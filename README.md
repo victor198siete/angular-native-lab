@@ -80,7 +80,7 @@ maestro test -e APP_ID=host.exp.Exponent -e APP_URL=exp://127.0.0.1:8081 .maestr
 | [Login (JWT + Face ID)](#login-jwt-and-face-id) | Sign in against a mock API, tokens in the keychain, a guard, an interceptor that refreshes an expired token and retries, and Face ID to reopen the session | ✅ iOS, Android (no biometrics) |
 | [Lists](#lists-virtual-list-vs-scroll-view) | `<virtual-list>` against `<scroll-view>` at 200 and 2,000 rows, with a live count of the row components actually mounted | ✅ iOS, Android |
 | [Gestures](#gestures-drag-pinch-swipe-and-three-ways-to-animate) | Drag that springs back, pinch and rotate, swipe-to-delete rows inside a scrolling list, and the same slide animated by CSS, `Animated`, a worklet and the JavaScript thread, with a button that blocks it | ✅ iOS, Android (pinch and rotate: iOS simulator and Node) |
-| [What's new](#whats-new-each-release-note-checked) | One screen per ng-native version, each case a line of the release notes run live, with a badge for what was seen on the iOS simulator and the Android emulator (0.10, 0.9 and 0.8) | ✅ iOS, Android |
+| [What's new](#whats-new-each-release-note-checked) | One screen per ng-native version, each case a line of the release notes run live, with a badge for what was seen on the iOS simulator and the Android emulator (0.13, 0.11, 0.10, 0.9 and 0.8) | ✅ iOS, Android |
 
 ### Rewards
 
@@ -535,7 +535,7 @@ pager (`Gesture.Native()` plus `blocksExternalGesture`), animation under load be
 
 A demo that takes the lines of the ng-native release notes and runs them, so the notes can be
 confirmed or contradicted on a device. Reached by deep link: `exp://127.0.0.1:8081/--/whats-new`
-(a list of versions), and `exp://127.0.0.1:8081/--/whats-new/0.10`, `.../0.9` or `.../0.8` for one version's cases. Spanish:
+(a list of versions), and `exp://127.0.0.1:8081/--/whats-new/0.10`, `.../0.13`, `.../0.11`, `.../0.9` or `.../0.8` for one version's cases. Spanish:
 "Novedades".
 
 How it grows, one version at a time (`src/app/demos/whats-new/`):
@@ -614,6 +614,39 @@ A8-1 with a fake location whose answer changes (a foreground event through `Perm
 and `ensure()` seeing the change with no foreground event), the transition tiles, the gradient
 buttons, the four icon sizes read from the drawn props (18 / 24 / 24 / 16) and the scheme toggle.
 `whats-new.test.ts` still asserts the versions `['0.10', '0.9']` and is red until it is updated.
+
+**0.13 and 0.11 cases** (same devices; Android in Spanish). No new dependency: `react-native-svg` was already
+there, and the `<mask>`, `<clipPath>` and `<use>` drawings are markup written by hand and passed through
+`[svg]`, the path an `@ng-icons/*` string takes, so no icon set was installed. **0.12.0 has no section:**
+all three of its entries are DOM components (they need `@ng-native/web` and `@angular/platform-browser`,
+which this lab does not have) or `registerViewName`, so they stay in `docs/whats-new-triage.md` as LIST and SKIP.
+The three tab cases (#761, #774, #783) run in a small **tabs lab** of their own, a tab bar under
+`whats-new/tabs/:org` (Home, Search behind a 4 s guard, Library with a stack, a guarded page presented
+over Home), pushed from the case card; the Rewards tabs are not touched.
+
+| Case | PR | iOS | Android | What was seen |
+|---|---|---|---|---|
+| `DeepLinks.openSettings()` | #776 | ⚠️ | ✅ | **Caveat.** Android: the button opens Expo Go's *App info* page (Notifications, Permissions, Storage...). iOS simulator: it opens the Settings app at its top-level list (Apple Account, General, Accessibility...), not a page of Expo Go; no error, and `simctl launch host.exp.Exponent` returned to the same screen. The earlier `simctl openurl app-settings:` error 115 did not show up through the button. Node: a fake `DeepLinkSource` gets one `openSettings()` per press, and a source without one opens nothing |
+| Back to the front tab while another loads | #761 | ✅ | ✅ | Search tapped, then Home about a second later (Maestro): 7 s later Home is still the tab in front and its url reads `/whats-new/tabs/1/home`. Control: Search alone opens after the 4 s guard. The "before" was not seen |
+| Tab bar under `org/:org` with `reuseScreen` | #774 | ⚠️ | ⚠️ | **Caveat.** Library, Open album x (`/1/library/x`), Home, Go to org 2, Library: the url is `/whats-new/tabs/2/library`, org 2's first page, not `/1/library/x`. But the Library tab then drew org 1's Album x page and the Library page together, one above the other (see `ios-a11-3-library-org2.png`), and stayed so after 1 s and after a later capture. Not investigated: it may come from how the lab nests a stack under a reused screen |
+| `NgIcon` mask, clipPath, use | #785 | ✅ | ✅ | A square with a round hole, a circle with a stripe that stays inside the circle, two stars. Node: the committed tree has `RNSVGMask`, `RNSVGClipPath` and two `RNSVGUse` |
+| Colour from `var(--accent)` | #785 | ✅ | ✅ | The pin is `#be123c`, then `#0369a1` and `#15803d` as the button moves `--accent` on the view around it |
+| `provideNgIconsConfig` | #785 | ✅ | ✅ | The bare icon is 28 points, blue, thick line; the one with `size` 44 keeps 44 (`Drawn: 28 / 44 points`, from `(layout)`) |
+| `provideNgIconLoader` + `withCaching()` | #785 | ✅ | ✅ | Two pins (a string) and a ring (a promise, 200 ms) are drawn; `Loader asked 2 times: loaded-pin, loaded-ring`. Clear and Draw again: still 2 |
+| Static `aria-label` | #785 | ✅ | ✅ | Maestro finds "Pin on the map" on both platforms (the accessibility tree); Node: the labelled icon is `accessible`, role `image` |
+| `--ng-icon__size` | #785 | ✅ | ✅ | `Drawn: 32 / 16 points`: 32 inside a view that sets `--ng-icon__size: 32px`, 16 with nothing around it |
+| `stroke-dasharray="none"`, `opacity="50%"` | #785 | ✅ | ✅ | The `none` lines are solid under a dashed one; the 50% bar is the same pale tone as the 0.5 bar |
+| `preventNativeDismiss`, page from another tab | #783 | n/a | ✅ | Android: Present a Library page from Home (url `/whats-new/tabs/2/home(presented:whats-new/tabs/2/library/guarded)`), system Back: the sheet stays and `Back refused: 1`. iOS has no Back button: the sheet opens and Close leaves; the badge says Android only |
+
+The Maestro flow now ends with the 0.13 and 0.11 cases (readouts, the loader, the aria-label, Back refused on
+Android, the Search guard, the org switch). It passed 3 of 3 on the iOS simulator and 3 of 3 on the Android
+emulator; an earlier Android start failed at the first step (Expo Go still loading after a cold start,
+before any case ran), so the runs were made with the app already open on the list. A11-1 leaves the app and
+the drawings (A13-1, A13-7) are screenshots, not asserted. In Node, 11 more tests
+(`whats-new-0-11-0-13.test.ts` and `whats-new-0-13.es.test.ts`): the cards and badges of both versions,
+`openSettings` through a fake `DeepLinkSource` (with and without the method), the lab and its org switch,
+and each icon case read from the committed props (mask, clip path and use, colour from the token, config,
+loader and cache, aria-label, `--ng-icon__size`, dash and opacity), plus the Spanish render.
 
 **The Q1 probe: is `@expo/ui` in Expo Go for SDK 57?** On a scratch branch, `npx expo install
 @expo/ui` added `@expo/ui ~57.0.22`; `registerExpoUiViews(Platform.OS)` in `main.ts` and a throwaway
