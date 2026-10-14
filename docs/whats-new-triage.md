@@ -320,3 +320,89 @@ Columns: version, PR/issue, one-line description, area, Expo Go, how it would be
 - **Q8 (#724, #704 and web entries).** Android formSheet fix is visible only as a transient animation; treated as B tier. Web-only entries (#701, #703, #704) are SKIP because the lab has no `@ng-native/web` build; say so if you want a "browser" badge in the list.
 - **Q9 (#574 / #690).** Both fixes are "iOS sends no touch to alpha under 0.01"; the Android column of the badge may read "same as before" rather than "verified", so the case should say iOS only.
 - **Q10 (Gestures 0.6/0.8 cases).** A6-6 and A8-2 add tiles to the existing "Block JS" comparison. The README reports pans stopped responding on iOS after a hot template swap (restart the app after editing gesture screens), so those cases should be checked on a fresh launch.
+
+## Addendum: ng-native 0.11.0, 0.12.0 and 0.13.0
+
+Date: 2026-10-14. The lab is on 0.13.0 (upgraded from 0.10.0 in `6e92a62`). Same method as above: the three release notes
+read against the lab's `src/` and the PRs (`gh pr view <n> -R ng-native/ng-native`), nothing run yet; every "observable proof" is what the
+note claims. The legend above applies. A note's sub-bullets count as rows (`#785` has seven), so the totals are rows, not PR numbers: 21 rows
+from 15 entries (10 in 0.11, 3 in 0.12, 2 in 0.13).
+
+| Version | Rows | PICK | TEST-ONLY | LIST | SKIP | Cases |
+|---|---|---|---|---|---|---|
+| 0.11.0 | 10 | 3 | 0 | 4 | 3 | 3 |
+| 0.12.0 | 3 | 0 | 0 | 2 | 1 | 0 (no section) |
+| 0.13.0 | 8 | 8 | 0 | 0 | 0 | 8 |
+| Total | 21 | 11 | 0 | 6 | 4 | 11 |
+
+Facts about the lab that shape this addendum:
+- `react-native-svg` 15.15.4 is already installed (the Icons package needs it), so every `NgIcon` case runs in Expo Go with no new package.
+  `<mask>`, `<clipPath>` and `<use>` are exercised with markup written by hand through `[svg]`, which is the same path a lets-icons or
+  flag-icons string takes; no `@ng-icons/*` set was installed.
+- 0.12.0 is all DOM components and `registerViewName`. The lab has no `@ng-native/web` and AGENTS.md rules out `@angular/platform-browser`,
+  so nothing in 0.12.0 can be shown without adding three packages: it has no section in the demo (S4).
+- The tab cases (#761, #774, #783) need a tab bar of their own. They live in a small separate route tree under `whats-new/` (the "tabs lab"),
+  so the Rewards tabs are not touched.
+
+### Proposed cases (PICK)
+
+| Id | Entries | Demo sketch | Observable proof |
+|---|---|---|---|
+| A11-1 | #776 (#775) | A button calling `DeepLinks.openSettings()`, beside the platform and a readout of what the button did. | The app's own page in the system Settings opens (iOS: Expo Go's; Android: Expo Go's "App info"). Before: `open()` had no url for it on Android. Observe what the button really does on each platform. |
+| A11-2 | #761 | Tabs lab: the Search tab sits behind a guard that waits 4 s; press Search, then Home at once. | After the guard finishes, Home is still the tab in front and Search never opens. Before: Search opened when it finished loading. |
+| A11-3 | #774 | Tabs lab under `org/:org` with `reuseScreen`: open Library in org 1, go to org 2, press Library. | The tab opens at org 2's first page, not at org 1's remembered url. |
+| A13-1 | #785 (mask, clipPath, use) | Three `[svg]` drawings: a duotone-style icon with `<mask>`, a flag clipped by `<clipPath>`, a star drawn twice by `<use>`. | The mask keeps its line instead of a solid square, the clipped artwork stays inside its edge, both `<use>` stars are drawn. |
+| A13-2 | #785 (`color="var(--accent)"`) | An icon whose colour is `var(--accent)`, with `--accent` set on the view around it and changed by a button. | The icon is the accent colour and follows the token; before it was sent to native as the text `var(--accent)`. |
+| A13-3 | #785 (`provideNgIconsConfig`) | Icons under `provideNgIconsConfig({ size: 28, color, strokeWidth })`: one with no inputs, one with its own `size`. | The bare icon draws at 28 points in the config colour; the other keeps its own size (layout readout). |
+| A13-4 | #785 (`provideNgIconLoader`, `withCaching()`) | Icons whose name no `provideIcons` has, answered by a loader (string, promise); a counter of loader calls. | The loader draws them; two icons of one name ask once with `withCaching()`. |
+| A13-5 | #785 (`aria-label`) | `<ng-icon aria-label="...">` beside a decorative icon. | The labelled icon is an accessibility element with that label; the other is not. |
+| A13-6 | #785 (`--ng-icon__size`) | An icon with no `size` in a view that sets `--ng-icon__size: 32px`, and one with none around it. | The first draws at 32 points, the second at the text size (layout readout). |
+| A13-7 | #785 (`stroke-dasharray="none"`, `opacity="50%"`) | Raw markup with a dashed line, a line with `stroke-dasharray="none"`, and shapes at `opacity="0.5"` and `"50%"`. | The `none` line is solid; the 50% shape is as pale as the 0.5 one. |
+| A13-8 | #783, Android | Tabs lab: from Home, `present('/library/7', { as: 'formSheet' })` of a page that sets `preventNativeDismiss`; press Back. | The sheet stays up and the page counts the attempt. Android only. |
+
+### Full table per version
+
+Columns as above.
+
+### 0.11.0 (10 rows)
+
+| Ver | PR | What | Area | Expo Go | Shown | Lab touches | Verdict |
+|---|---|---|---|---|---|---|---|
+| 0.11 | #766 | Live Activity layout takes a `bannerSmall` slot (Smart Stack, CarPlay) | expo module | dev build | not demonstrable | no | LIST |
+| 0.11 | #764 | Tailwind 3 theme `hsl()` colour rounds a half channel as a browser does | tailwind (build) | n/o | not demonstrable | no: the lab is on Tailwind 4 | SKIP |
+| 0.11 | #772 | Web host: a template plural follows `LOCALE_ID` | i18n (web host) | n/o (web) | not demonstrable | no | SKIP |
+| 0.11 | #773 | Web host: ICU plural/select renders in a development build (`instanceof Node`) | i18n (web host) | n/o (web) | not demonstrable | A9-1 failed on a device with the same assertion, but the note is about the web host only | SKIP |
+| 0.11 | #774 | Tab bar kept as one screen with `reuseScreen` under `org/:org` opens a tab in the account in front | router | yes | on screen (tabs lab) | no | PICK A11-3 |
+| 0.11 | #761 | Back to the tab in front while another tab loads stays on it | router | yes | on screen (tabs lab) | Rewards tabs, not touched | PICK A11-2 |
+| 0.11 | #776 (#775) | `DeepLinks.openSettings()` opens the app's own page in Settings; `DeepLinkSource.openSettings` optional | expo module / device | yes | on screen + Vitest (fake source) | yes: A8-1 (not modified) | PICK A11-1 |
+| 0.11 | #767 | `liveActivity()` takes `staleDate`; layout reads `environment().isStale` | expo module | dev build | not demonstrable | no | LIST |
+| 0.11 | #765 | `pushToStartToken()` for starting a Live Activity over APNs | expo module | dev build (iOS 17.2) | not demonstrable | no | LIST |
+| 0.11 | #768 | `widget()` takes a `timeline`; taps collected from every entry | expo module | dev build | not demonstrable | no | LIST |
+
+### 0.12.0 (3 rows)
+
+| Ver | PR | What | Area | Expo Go | Shown | Lab touches | Verdict |
+|---|---|---|---|---|---|---|---|
+| 0.12 | #779 (#778) | DOM component page has in-memory `localStorage`/`sessionStorage` on Android | DOM components | yes, but needs `@ng-native/web` and `@angular/platform-browser` (not in the lab) | on screen if the lab had a DOM component | no | LIST |
+| 0.12 | #781 (#777) | A font or image in a DOM component's stylesheet `url()` ships in a release build | DOM components (build) | n/o (release export) | not demonstrable | no | LIST |
+| 0.12 | #780 | `registerViewName` takes `looseText` (an element for text written into a native view) | renderer | yes | not demonstrable: the lab registers no view | no | SKIP |
+
+### 0.13.0 (8 rows)
+
+| Ver | PR | What | Area | Expo Go | Shown | Lab touches | Verdict |
+|---|---|---|---|---|---|---|---|
+| 0.13 | #783 | A page presented from another tab refuses Android's Back while it sets `preventNativeDismiss` | router | yes (Android) | on screen (tabs lab, emulator) | no | PICK A13-8 |
+| 0.13 | #785 | `NgIcon` draws `<mask>`, `<clipPath>`, `<use>` | icons | yes | on screen | A8-5 uses `NgIcon` sizes (not modified) | PICK A13-1 |
+| 0.13 | #785 | `provideNgIconsConfig({ size, color, strokeWidth })` sets defaults; the input wins | icons | yes | on screen + Vitest | no | PICK A13-3 |
+| 0.13 | #785 | `provideNgIconLoader` for a name no `provideIcons` has; string, promise or observable; `withCaching()` | icons | yes | on screen + Vitest | no | PICK A13-4 |
+| 0.13 | #785 | `color="var(--accent)"` resolves against the tokens in scope | icons | yes | on screen + Vitest | no | PICK A13-2 |
+| 0.13 | #785 | A static `aria-label` labels the icon | icons / a11y | yes | Vitest + screen reader tree | no | PICK A13-5 |
+| 0.13 | #785 | With no `size`, an icon takes `--ng-icon__size` | icons | yes | on screen (layout) | no | PICK A13-6 |
+| 0.13 | #785 | `stroke-dasharray="none"` is a solid line; `opacity="50%"` reads as a fraction | icons | yes | on screen | no | PICK A13-7 |
+
+### Needs a development build (added)
+
+| Ver | PR | Entry | Why Expo Go cannot |
+|---|---|---|---|
+| 0.11 | #766, #767, #765, #768 | Live Activity `bannerSmall`, `staleDate`, `pushToStartToken`, widget `timeline` | Live Activity / widget extension, native modules |
+| 0.12 | #779, #781 | DOM component storage on Android, `url()` assets in a release build | Needs `@ng-native/web` + `@angular/platform-browser` (not in the lab); #781 is a release export |
