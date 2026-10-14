@@ -7,6 +7,9 @@
 # Covers the interactive 0.10 cases: Dialogs.choose (Cancel resolves null, Save an index), the dark
 # class on a root view, and a deep link pushed over the screen. The style cases (::ng-deep, border
 # colour, one word, z-index) are visual: their screenshots are the evidence, Maestro cannot read them.
+# The end of the file covers 0.13 (the icon readouts, the loader, the aria-label, and Back refused on a
+# presented page on Android) and 0.11 (the two tab cases, in the tabs lab: Search behind a 4 s guard, and a
+# tab bar moved from org 1 to org 2). The 0.13 and 0.11 drawings, and A11-1 (it leaves the app), are screenshots.
 appId: ${APP_ID}
 ---
 - openLink: ${APP_URL}/--/whats-new
@@ -173,3 +176,128 @@ appId: ${APP_ID}
     element:
       id: whats-new-a8-6-readout
 - assertVisible: "Scheme: light.*|Esquema: claro.*"
+# 7. The 0.13 cases, opened by another pushed link
+- openLink: ${APP_URL}/--/whats-new/0.13
+- extendedWaitUntil:
+    visible:
+      id: whats-new-a13-2-next
+    timeout: 30000
+# A13-2: the pin follows --accent
+- scrollUntilVisible:
+    element:
+      id: whats-new-a13-2-next
+    centerElement: true
+- tapOn:
+    id: whats-new-a13-2-next
+- assertVisible: "--accent is #0369a1|--accent es #0369a1"
+# A13-3: the config gives 28 points, the icon's own size 44
+- scrollUntilVisible:
+    element:
+      id: whats-new-a13-3-readout
+    centerElement: true
+- assertVisible: "Drawn: 28 / 44 points|Dibujados: 28 / 44 puntos"
+# A13-4: the loader is asked once per name, and not again on a second draw
+- scrollUntilVisible:
+    element:
+      id: whats-new-a13-4-draw
+    centerElement: true
+- tapOn:
+    id: whats-new-a13-4-draw
+- extendedWaitUntil:
+    visible: "Loader asked 2 times: loaded-pin, loaded-ring|Cargador consultado 2 veces: loaded-pin, loaded-ring"
+    timeout: 20000
+- tapOn:
+    id: whats-new-a13-4-clear
+- tapOn:
+    id: whats-new-a13-4-draw
+- assertVisible: "Loader asked 2 times: loaded-pin, loaded-ring|Cargador consultado 2 veces: loaded-pin, loaded-ring"
+# A13-5: the static aria-label is what a screen reader (and Maestro) finds
+- scrollUntilVisible:
+    element:
+      id: whats-new-a13-5-labelled
+    centerElement: true
+- assertVisible: "Pin on the map"
+# A13-6: 32 points from --ng-icon__size, 16 from the text
+- scrollUntilVisible:
+    element:
+      id: whats-new-a13-6-readout
+    centerElement: true
+- assertVisible: "Drawn: 32 / 16 points|Dibujados: 32 / 16 puntos"
+# A13-1 and A13-7 are drawings: their screenshots are the evidence
+# A13-8: the lab is a pushed tab bar; on Android Back is refused on the presented page (the last card: no centring)
+- scrollUntilVisible:
+    element:
+      id: whats-new-a13-8-open
+- tapOn:
+    id: whats-new-a13-8-open
+- extendedWaitUntil:
+    visible:
+      id: whats-new-lab-present
+    timeout: 20000
+- tapOn:
+    id: whats-new-lab-present
+- extendedWaitUntil:
+    visible: "Album guarded"
+    timeout: 20000
+- runFlow:
+    when:
+      platform: Android
+    commands:
+      - back
+      - assertVisible: "Back refused: 1"
+- tapOn:
+    id: whats-new-lab-album-close
+- extendedWaitUntil:
+    visible:
+      id: whats-new-lab-leave
+    timeout: 20000
+- tapOn:
+    id: whats-new-lab-leave
+- extendedWaitUntil:
+    visible:
+      id: whats-new-a13-8-open
+    timeout: 20000
+# 8. The 0.11 cases: the two tab cases run in the lab
+- openLink: ${APP_URL}/--/whats-new/0.11
+- extendedWaitUntil:
+    visible:
+      id: whats-new-a11-1-open
+    timeout: 30000
+# A11-1 opens the system Settings and leaves the app: the Vitest test and the README cover it
+- scrollUntilVisible:
+    element:
+      id: whats-new-a11-2-open
+    centerElement: true
+- tapOn:
+    id: whats-new-a11-2-open
+- extendedWaitUntil:
+    visible:
+      id: whats-new-lab-home-title
+    timeout: 20000
+# A11-2: Search waits 4 s behind a guard; a tap on Home at once keeps Home in front
+- tapOn: "Search"
+- tapOn: "Home"
+- extendedWaitUntil:
+    visible: "Tabs lab: Search"
+    timeout: 6500
+    optional: true
+- assertNotVisible: "Tabs lab: Search"
+- assertVisible: "url: /whats-new/tabs/1/home"
+# A11-3: the url of a tab goes to the account in front (the page left behind in the stack is the caveat)
+- tapOn: "Library"
+- tapOn:
+    id: whats-new-lab-open-x
+- extendedWaitUntil:
+    visible:
+      id: whats-new-lab-album-title
+    timeout: 10000
+- tapOn: "Home"
+- tapOn:
+    id: whats-new-lab-org
+- extendedWaitUntil:
+    visible: "org: 2"
+    timeout: 10000
+- tapOn: "Library"
+- extendedWaitUntil:
+    visible: "url: /whats-new/tabs/2/library"
+    timeout: 10000

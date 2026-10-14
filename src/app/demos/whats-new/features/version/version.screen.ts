@@ -20,6 +20,15 @@ import { PermissionRecheckCase } from '../cases/permission-recheck-case.ts';
 import { SpacingTransitionCase } from '../cases/spacing-transition-case.ts';
 import { TransitionsBlockCase } from '../cases/transitions-block-case.ts';
 import { ZIndexCase } from '../cases/z-index-case.ts';
+import { IconColorVarCase } from '../cases/icon-color-var-case.ts';
+import { IconConfigCase } from '../cases/icon-config-case.ts';
+import { IconLabelCase } from '../cases/icon-label-case.ts';
+import { IconLoaderCase } from '../cases/icon-loader-case.ts';
+import { IconShapesCase } from '../cases/icon-shapes-case.ts';
+import { IconSizeTokenCase } from '../cases/icon-size-token-case.ts';
+import { IconValuesCase } from '../cases/icon-values-case.ts';
+import { OpenSettingsCase } from '../cases/open-settings-case.ts';
+import { TabsLabCase } from '../cases/tabs-lab-case.ts';
 import { CaseCard } from '../shared/case-card.ts';
 
 /**
@@ -30,9 +39,10 @@ import { CaseCard } from '../shared/case-card.ts';
   selector: 'app-whats-new-version-screen',
   imports: [
     AnimateInCase, BorderColorCase, CaseCard, DarkClassCase, DeepLinkCase, DialogsCase, GradientVarCase,
-    IcuCase, IconSizeCase, InvisiblePressCase, KeyframesScopeCase, NativeHeader, NgDeepCase, NotDarkCase,
-    OneWordCase, PanelHeightCase, PermissionRecheckCase, SafeAreaView, ScrollView, SpacingTransitionCase,
-    Text, TransitionsBlockCase, ZIndexCase,
+    IcuCase, IconColorVarCase, IconConfigCase, IconLabelCase, IconLoaderCase, IconShapesCase, IconSizeCase,
+    IconSizeTokenCase, IconValuesCase, InvisiblePressCase, KeyframesScopeCase, NativeHeader, NgDeepCase,
+    NotDarkCase, OneWordCase, OpenSettingsCase, PanelHeightCase, PermissionRecheckCase, SafeAreaView,
+    ScrollView, SpacingTransitionCase, TabsLabCase, Text, TransitionsBlockCase, ZIndexCase,
   ],
   host: { style: 'flex: 1' },
   template: `
@@ -43,6 +53,17 @@ import { CaseCard } from '../shared/case-card.ts';
         @for (item of cases(); track item.id) {
           <app-case-card [item]="item">
             @switch (item.id) {
+              @case ('a13-1') { <app-icon-shapes-case /> }
+              @case ('a13-2') { <app-icon-color-var-case /> }
+              @case ('a13-3') { <app-icon-config-case /> }
+              @case ('a13-4') { <app-icon-loader-case /> }
+              @case ('a13-5') { <app-icon-label-case /> }
+              @case ('a13-6') { <app-icon-size-token-case /> }
+              @case ('a13-7') { <app-icon-values-case /> }
+              @case ('a13-8') { <app-tabs-lab-case caseId="a13-8" [steps]="steps813" [expected]="expected813" /> }
+              @case ('a11-1') { <app-open-settings-case /> }
+              @case ('a11-2') { <app-tabs-lab-case caseId="a11-2" [steps]="steps112" [expected]="expected112" /> }
+              @case ('a11-3') { <app-tabs-lab-case caseId="a11-3" [steps]="steps113" [expected]="expected113" /> }
               @case ('a10-1') { <app-dialogs-case /> }
               @case ('a10-2') { <app-deep-link-case /> }
               @case ('a10-3') { <app-ng-deep-case /> }
@@ -74,5 +95,11 @@ export class VersionScreen {
   /** The `:version` route parameter, bound as an input. */
   readonly version = input<string>();
   protected readonly cases = computed(() => releaseOf(this.version())?.cases() ?? []);
+  protected readonly steps112 = $localize`:@@whatsNew.a11_2.steps:Open the lab. Press Search, whose route waits 4 seconds behind a guard, then press Home at once.`;
+  protected readonly expected112 = $localize`:@@whatsNew.a11_2.expected:Expected: when the 4 seconds pass, Home is still in front and Search never opens. Before: Search opened when it finished.`;
+  protected readonly steps113 = $localize`:@@whatsNew.a11_3.steps:Open the lab (org 1). In Library press Open album x, then in Home press Go to org 2, then press Library.`;
+  protected readonly expected113 = $localize`:@@whatsNew.a11_3.expected:Expected: Library opens at org 2's first page, not at org 1's album x. Before: it went back to org 1's url.`;
+  protected readonly steps813 = $localize`:@@whatsNew.a13_8.steps:Android. Open the lab. On Home press Present a Library page, then press the system Back button.`;
+  protected readonly expected813 = $localize`:@@whatsNew.a13_8.expected:Expected: the sheet stays up and Back refused goes to 1; Close leaves. Before: Back closed the sheet.`;
   protected readonly title = computed(() => $localize`:@@whatsNew.versionTitle:Version ${this.version()}:version:`);
 }
