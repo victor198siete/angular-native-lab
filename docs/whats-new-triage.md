@@ -400,11 +400,84 @@ Columns as above.
 | 0.13 | #785 | With no `size`, an icon takes `--ng-icon__size` | icons | yes | on screen (layout) | no | PICK A13-6 |
 | 0.13 | #785 | `stroke-dasharray="none"` is a solid line; `opacity="50%"` reads as a fraction | icons | yes | on screen | no | PICK A13-7 |
 
+### 0.14.0 (64 rows)
+
+Source: the 0.14.0 release note (`gh pr view <n>` for #786, #803, #819, #820, #840 to #846). Nothing below was run when it was written; the "Shown" column is what the demo will do. PICK A14-n is a case built in `src/app/demos/whats-new/` (ids A14-1 to A14-12); "PICK B" is a reserve case that is demoable in Expo Go but was not built in this round. Verdicts: PICK 28 (13 rows in cases A14-1 to A14-12, 15 PICK B reserve), TEST-ONLY 9, LIST 9, SKIP 18. Entries with several PRs, or one PR with several lines, take one row per line.
+
+| Ver | PR | What | Area | Expo Go | Shown | Lab touches | Verdict |
+|---|---|---|---|---|---|---|---|
+| 0.14 | #801 | A push to a tab-bar page from a screen over the bar goes back to the bar, to that tab, with the page pushed | router | yes | on screen (tabs lab, needs a screen over the bar) | Rewards tabs, not touched | PICK B |
+| 0.14 | #818 (#814) | `<native-tab>` icon as SVG markup, `[icon]="{ svg }"`, with `withSvgIcons(SvgImages)` | router / icons | yes (react-native-svg is in Expo Go) | on screen (needs a tab bar of its own) | Rewards tabs, not touched | PICK B |
+| 0.14 | #803 | Unitless `line-height` in a `style` is a multiple of the font size (was points); negative dropped | styles | yes | on screen + Vitest | no | PICK A14-12 |
+| 0.14 | #803 | `padding`, `margin`, `inset`, `gap` with a value per side in a `style` set each side; too many values dropped | styles | yes | on screen + Vitest | no | PICK A14-12 |
+| 0.14 | #809 | Engine node's element tag is `tag`, not `name` (`EngineNode`, `StyleTarget`, ...) | renderer API | n/o | not demonstrable | no | SKIP |
+| 0.14 | #807 | `<ui-picker>` works on Android (segmented row, dropdown menu) | expo ui | dev build (`@expo/ui` is not in the lab) | not demonstrable | no | LIST |
+| 0.14 | #823 | `<native-tab role="search" automaticallyActivatesSearch>` makes the search tab on iOS 26.1+ | router | no: needs react-native-screens 4.29, the lab has 4.26 | not demonstrable | Rewards tabs, not touched | LIST |
+| 0.14 | #821 (#813) | `<search-field>` from `@ng-native/expo/search-field` (UISearchBar / SearchView) | expo module | dev build (note: "Expo Go draws nothing for it") | not demonstrable | no | LIST |
+| 0.14 | #835 | `StatusBar` `backgroundColor`/`translucent` and the `status/navigationBar*` options deprecated; a warning, no iOS warning | status bar | yes | warning in the console only | no | SKIP |
+| 0.14 | #819 | A border given its width or style after its colour is drawn in that colour on Android (was black) | styles | yes (Android) | on screen | A10-5 is the same area (not modified) | PICK A14-3 |
+| 0.14 | #802 | A node that leaves the tree focused or pressed is not styled that way when it returns; `inherit` follows a bound parent style | engine | yes | on screen (field removed with the keyboard up) | no | TEST-ONLY |
+| 0.14 | #802 | A focused field hidden by a rule is shown again once hiding it has taken its focus | engine | yes | on screen (keyboard) | no | TEST-ONLY |
+| 0.14 | #836 | A commit asks nothing about transitions until one is declared (faster restyling) | engine perf | n/o | not demonstrable | no | SKIP |
+| 0.14 | #804 | `DeepLinks` reads `/--/` as a prefix only in a url's path | device | yes | Vitest (fake source) | A10-2 deep link (not modified) | TEST-ONLY |
+| 0.14 | #807 | `<ui-date-picker [displayedComponents]>` works on Android | expo ui | dev build | not demonstrable | no | LIST |
+| 0.14 | #805 | A shorthand the build drops is dropped whole (`padding: 8px calc(50% - 10px)`) | build | n/o (build warning) | not demonstrable | no | SKIP |
+| 0.14 | #839 | A commit steps over each unchanged child (a fade among rows takes half the time) | engine perf | n/o | not demonstrable | no | SKIP |
+| 0.14 | #845 | A class list is split at the spaces HTML names, not at a no-break space | engine | yes | Vitest | no | TEST-ONLY |
+| 0.14 | #786 (#784) | A bound style in `em`, `rem`, `vw`/`vh`/`vmin`/`vmax` is measured as in a stylesheet; `<ng-icon size="2em">` is 2em | styles / icons | yes | on screen + Vitest (size measured) | A8-5 and A13-6 use icon sizes (not modified) | PICK A14-1 |
+| 0.14 | #842 | A view with `aspect-ratio` that stretches across its line is as wide as its column | layout | yes | on screen | no | PICK A14-4 |
+| 0.14 | #803 | `aria-checked="false"` as an attribute reaches native as a boolean | a11y | yes | Vitest (prop) + screen reader tree | no | PICK A14-9 |
+| 0.14 | #820 | CSS system colours (`CanvasText`, `FieldText`, `ButtonText`, `GrayText`) show on Android | styles | yes (Android) | on screen | no | PICK A14-10 |
+| 0.14 | #834 | On Android the app's `StatusBar` claim stays after a push or a pop (`forScreens`) | status bar | yes (Android) | on screen (two screens, icon colour) | no | PICK B |
+| 0.14 | #825 | A push into another tab resolves `false` when a guard redirects | router | yes | on screen (tabs lab) | no | PICK B |
+| 0.14 | #793 | A `nativeRouterLink` in a page presented over another tab leaves that page | router | yes | on screen (tabs lab) | no | PICK B |
+| 0.14 | #827 | A `nativeRouterLink` to a tab nobody opened puts its first screen under the page; a query in the url is a query | router | yes | on screen (tabs lab) | no | PICK B |
+| 0.14 | #789 | A root guard's redirect at launch lands before a pushed screen or a deep link | router | yes | cold start only | no | TEST-ONLY |
+| 0.14 | #799 | A size transition restarted twice inside its duration is committed where it ends | engine | yes | on screen (a stepping progress bar), no observable difference | the size-transition repro says it does not touch a first start | PICK B |
+| 0.14 | #791 | A page of another tab shown with `present()` puts the tab under it behind (`SCREEN_IN_FRONT`) | router | yes | on screen (tabs lab) | no | PICK B |
+| 0.14 | #792 | `present()` of another tab's page at launch waits for the first screen | router | yes | cold start only | no | TEST-ONLY |
+| 0.14 | #798 | `@oxc-angular/vite` 0.0.41: a template arrow function that reads its parameter compiles | build | yes | the A14 toggles use `on.update((was) => !was)` | the lab is already on 0.0.41 | TEST-ONLY |
+| 0.14 | #798 | A component's `host` and `styles` can use a spread, a concatenation or a constant | build | yes | build only | no | SKIP |
+| 0.14 | #798 | An unclosed `@if (on() {` is reported by the compiler | build | n/o | not demonstrable | no | SKIP |
+| 0.14 | #798 | A hot update no longer patches the compiler's update module | build | n/o | not demonstrable | no | SKIP |
+| 0.14 | #806 | `nx g @ng-native/nx:tailwind` keeps `@charset` first and writes a Tailwind 3 config for a library named `require` | generator | n/o | not demonstrable | no | SKIP |
+| 0.14 | #806 | `nx g ... tailwind` run again keeps the first library | generator | n/o | not demonstrable | no | SKIP |
+| 0.14 | #806 | `nx g ... tailwind` puts Tailwind into an existing `src/styles.css` | generator | n/o | not demonstrable | no | SKIP |
+| 0.14 | #788 | An app that injects `Notifications` starts in Expo Go on Android | device | yes (Android) | on screen (no red screen) | no | PICK B |
+| 0.14 | #807 | A module missing from the build is reported when the service is used, not injected; the service is inert (`available` false) | device | yes | Vitest + on screen | no | TEST-ONLY |
+| 0.14 | #805 | A `templateUrl` or `styleUrl` is read when Metro starts from another directory | build | n/o | not demonstrable | no | SKIP |
+| 0.14 | #805 | A dev server started again shows a template edited while it was stopped | build | n/o | not demonstrable | no | SKIP |
+| 0.14 | #805 | A component whose template is only a comment builds | build | n/o | build only | no | SKIP |
+| 0.14 | #805 | `@media screen and (min-width: 500px), print` keeps its other queries | styles | yes | on screen | no | PICK B |
+| 0.14 | #805 | A `@font-face` url with a query or fragment bundles the file; remote or `data:` is dropped | build | n/o (font build) | not demonstrable | no | SKIP |
+| 0.14 | #802 | Five stale states follow the change (`.dark .title`, `:has()` in `display: none`, endless keyframes while hidden, scroll-driven animation, custom property with `calc()`) | engine | yes | on screen | no | TEST-ONLY |
+| 0.14 | #841 | The lines of a wrapping flex container with no `align-content` stretch across it | layout | yes | on screen | no | PICK A14-6 |
+| 0.14 | #853 | `ngNativeWeb()` registered twice (Storybook recipe) applies once | web build | n/o | not demonstrable | no | SKIP |
+| 0.14 | #843 | Text written into a view is truncated by `truncate`, `line-clamp` or `numberOfLines` on the view | text | yes | on screen | no | PICK A14-7 |
+| 0.14 | #846 | A class change that brings in a `transition` with the value it eases animates from the old value | transitions | yes | on screen (screenshot loop) | A8-2, A8-3 and the size-transition repro are the same area (not modified) | PICK A14-2 |
+| 0.14 | #826 | A `<native-toolbar>` ahead of a page's scroll view no longer stops the large title from collapsing | router (iOS toolbar) | dev build (toolbar needs `expo-router`'s native half, not installed) | not demonstrable | no | LIST |
+| 0.14 | #795 | `@ng-native/testing`'s Node hook runs on Node 22 and early Node 24 | testing | n/o | not demonstrable | the lab's tests run on its own Node | SKIP |
+| 0.14 | #828 | A `<native-header>` in a tab's page with no stack of its own does not configure the tab bar's stack screen | router | yes (Android) | on screen (tabs lab) | no | PICK B |
+| 0.14 | #855 (#849) | A SwiftUI `font` modifier on an `@expo/ui` view names an app `@font-face` face | expo ui | dev build | not demonstrable | no | LIST |
+| 0.14 | #817 | An icon whose shape has `opacity` or `clip-rule` no longer stops the app on Android | icons | yes (Android) | on screen | A13-1 and A13-7 draw icons (not modified) | PICK B |
+| 0.14 | #844 | A `<label class="flex flex-col">` holding two `<span>` stacks them | text | yes | on screen + Vitest | no | PICK A14-8 |
+| 0.14 | #862 (#848) | Presses in a `ui-bottom-sheet` keep working when a `ui-toolbar-item` comes and goes | expo ui | dev build | not demonstrable | no | LIST |
+| 0.14 | #815 (#810) | A `ui-bottom-sheet` with `ui-toolbar-item`s has no empty band on iOS | expo ui | dev build (the note says Expo Go keeps the band) | not demonstrable | no | LIST |
+| 0.14 | #838 | A change to opacity or transform after a native animation of it ended is drawn | transitions | yes | on screen (screenshot loop) | A8-2 (not modified) | PICK B |
+| 0.14 | #816 (#812) | A `font` modifier on a segmented `ui-picker` draws its segments in that font on iOS | expo ui | dev build (the note says Expo Go cannot load it) | not demonstrable | no | LIST |
+| 0.14 | #803 | A number input with a default keeps it when bound to `undefined` (`[delayLongPress]`, `[rowGap]`) | components | yes | on screen + Vitest | no | PICK A14-11 |
+| 0.14 | #800 | `<native-header-item type="title">` no longer crashes a screen on Android | router | yes (Android) | on screen (needs a header item) | no | PICK B |
+| 0.14 | #830 | A `<native-header-item>` written inside a component of the header shows in the bar | router | yes | on screen | no | PICK B |
+| 0.14 | #840 | A `min-height` or `min-width` over a `max-height` or `max-width` wins; padding and border too | layout | yes | on screen | no | PICK A14-5 |
+| 0.14 | #805 | An `@ng-icons` import in a template-literal code sample is left as text | build | n/o | not demonstrable | no | SKIP |
+
 ### Needs a development build (added)
 
 | Ver | PR | Entry | Why Expo Go cannot |
 |---|---|---|---|
 | 0.11 | #766, #767, #765, #768 | Live Activity `bannerSmall`, `staleDate`, `pushToStartToken`, widget `timeline` | Live Activity / widget extension, native modules |
 | 0.12 | #779, #781 | DOM component storage on Android, `url()` assets in a release build | Needs `@ng-native/web` + `@angular/platform-browser` (not in the lab); #781 is a release export |
+| 0.14 | #807, #855, #816, #862, #815, #826 | `ui-picker` on Android, `ui-date-picker` `displayedComponents` on Android, a SwiftUI font modifier, the segmented picker font, bottom-sheet toolbar items and band, a toolbar before a scroll view | `@expo/ui` / `expo-router` native halves, not in the lab |
+| 0.14 | #821, #823 | `<search-field>` (native code of `@ng-native/expo`, "Expo Go draws nothing for it"), `role="search"` tab (needs react-native-screens 4.29, the lab has 4.26) | dev build rebuild / newer native module |
 
 **Status of A11-1 ... A11-3 and A13-1 ... A13-8 (built in `feat/whats-new-0-11-0-13`, run on iOS and Android):** A11-2, A13-1 to A13-7 verified on both; A13-8 verified on Android (Back is Android only). A11-1 caveat (Android opens Expo Go's App info; the iOS simulator opens the top-level Settings list, not an Expo Go page). A11-3 caveat (the url goes to org 2's first page, but the Library tab drew org 1's stale Album x page together with the Library page). 0.12.0 has no section. See the README, "What's new".
