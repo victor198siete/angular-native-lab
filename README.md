@@ -26,7 +26,7 @@ partial (see [Android](#android)).
 |---|---|
 | `@ng-native/*` | 0.14.0 (also ran on 0.13.0, 0.10.0, 0.9.0, 0.5.0, 0.4.0 and 0.3.0: tags [`ng-native-0.13.0`](https://github.com/victor198siete/angular-native-lab/tree/ng-native-0.13.0), [`ng-native-0.10.0`](https://github.com/victor198siete/angular-native-lab/tree/ng-native-0.10.0), [`ng-native-0.9.0`](https://github.com/victor198siete/angular-native-lab/tree/ng-native-0.9.0), [`ng-native-0.5.0`](https://github.com/victor198siete/angular-native-lab/tree/ng-native-0.5.0), [`ng-native-0.4.0`](https://github.com/victor198siete/angular-native-lab/tree/ng-native-0.4.0) and [`ng-native-0.3.0`](https://github.com/victor198siete/angular-native-lab/tree/ng-native-0.3.0)) |
 | Angular | 22.2.1 |
-| Expo SDK | 57 (`expo` 57.0.29) |
+| Expo SDK | 57 (`expo` 57.0.30) |
 | React Native | 0.86.3 |
 | TypeScript / Vitest | 6.0.3 / 5.0.3 |
 | Node | 22.22.3 |
@@ -845,6 +845,8 @@ Read before the upgrade, against what the lab uses:
   ([#817](https://github.com/ng-native/ng-native/pull/817)), next to the Android `setPointerEvents` crash
   draft; the ICU assertion on a device is not in the notes. A bound style in `em`
   ([#786](https://github.com/ng-native/ng-native/pull/786)) is the first case planned for What's new 0.14.
+- `expo install --check` asked for `expo` 57.0.30, an Expo patch release 0.14.0 does not need: applied in
+  its own change; the 181 tests, Device and Login pass on both platforms after it.
 - `@oxc-angular/vite` 0.0.41 compiles a template arrow function that reads its own parameter, which the
   lab's What's new cases worked around with component methods.
 
