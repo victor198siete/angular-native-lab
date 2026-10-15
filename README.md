@@ -179,7 +179,7 @@ and numbers, dates and mock data in both languages.
 - **ICU plurals and selects, and `i18n-` attributes, tested in the What's new demo (0.9 case A9-1):**
   the extraction works (`npm run i18n:extract` writes `{VAR_PLURAL, plural, =0 {...} one {{INTERPOLATION} ...} other {...}}`,
   `{VAR_SELECT, select, ...}` and the `i18n-accessibilityLabel` text), and the Vitest tests render them
-  in English and Spanish. On a device they fail: in Expo Go in development, on the iOS simulator and
+  in English and Spanish. On a device they fail (still so on 0.14.0): in Expo Go in development, on the iOS simulator and
   the Android emulator, mounting one logs `ASSERTION ERROR: The provided value must be an instance of
   a DOM Node but got #anchor` and the sample is left undrawn. This app still uses `$localize` strings.
 - `$localize` at module level runs before the translations load and stays in English.
@@ -838,12 +838,17 @@ Read before the upgrade, against what the lab uses:
 - **Nothing to migrate.** The engine node's `name` becoming `tag`, the deprecated `StatusBar` colour and
   translucency options, and a unitless `line-height` in a `style` attribute now multiplying the font size:
   the lab uses none of them.
-- **It touches the lab's findings**, re-checked next on a device: a size transition started again and
+- **It touches the lab's findings**, re-checked on a device (iOS simulator and Android emulator), and **none changed**: a size transition started again and
   again ([#799](https://github.com/ng-native/ng-native/pull/799)) and a change that brings in its own
   transition ([#846](https://github.com/ng-native/ng-native/pull/846)), against the width/height
   transition that snaps in `src/app/repro/size-transition/`; Android shapes with `opacity` or `clip-rule`
   ([#817](https://github.com/ng-native/ng-native/pull/817)), next to the Android `setPointerEvents` crash
-  draft; the ICU assertion on a device is not in the notes. A bound style in `em`
+  draft; the ICU assertion on a device is not in the notes. Results on 0.14.0: `w` and `wh` still snap to
+  their end size in the first capture after the press, with and without a 3 s block (#799 only covers
+  the second restart in a row; #846 a change that brings in its own transition: neither is this case); the
+  ICU `v1` and `v5` each still log one `must be an instance of a DOM Node` line and draw no text, and the
+  `Node` probe still answers `false`; the catalog crashes in 4 of 12 launches (#817 is a different
+  mechanism, `NoSuchFieldException` in `propList`). A bound style in `em`
   ([#786](https://github.com/ng-native/ng-native/pull/786)) is the first case planned for What's new 0.14.
 - `expo install --check` asked for `expo` 57.0.30, an Expo patch release 0.14.0 does not need: applied in
   its own change; the 181 tests, Device and Login pass on both platforms after it.
@@ -965,6 +970,9 @@ First run on the Android 16 emulator (Pixel 9, API 36), in Expo Go and in a deve
   guard against it. The lab's stylesheets set no `pointer-events` at all. It shows within a few quick
   swipes on most launches (12 of 12 with a Maestro flow on 0.9.0) but no smaller screen we built
   reproduced it: it depends on the catalog's layout, not on one element. Not reported yet.
+  **Still there on 0.14.0:** 4 of 12 fresh launches of the catalog crashed with the same
+  `NullPointerException` at `SvgViewManager.setPointerEvents` and the red screen (six quick swipes each,
+  a different gesture from the 0.9.0 Maestro flow, so the rate is not comparable).
 - **Resolved in 0.6.0 — opening the catalog stopped the app** on 0.3.0 to 0.5.0, in Expo Go and in a
   development build ([ng-native/ng-native#558](https://github.com/ng-native/ng-native/issues/558)):
   ```
