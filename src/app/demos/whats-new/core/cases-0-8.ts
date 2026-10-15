@@ -19,7 +19,7 @@ export const cases08 = (): readonly Case[] => [
     note: $localize`:@@whatsNew.a8_2.note:A CSS transition of opacity, a transform or a size is played by native, so it keeps moving while JavaScript is busy; two boxes resized in one commit are eased from JavaScript.`,
     status: {
       kind: 'not-as-described',
-      note: 'On iOS and Android the opacity and transform tile kept moving through the 3 s block, in steps every 0.5 s. The width and height tile, the only box resized in its commit, did not: it stayed at its starting width for the whole block and jumped to where it should be when the block ended. The same happened with the block started in the same press and 100 ms later. The pair tile (the documented exception) was not run. Transitions were 10 s linear.',
+      note: 'On iOS and Android the opacity and transform tile kept moving through the 3 s block. The width and height tile stopped for the block and jumped after it, but that is the documented JavaScript fallback: the Animate button changes length (Animate to Reset) in the same commit, so the size is eased from JavaScript. Isolated in repro/size-transition: with nothing else changing, a lone width or height transition is not played at all, it snaps to its end value at once with or without a block (transitionstart and transitionend still fire 8 s apart). A box resized with no transition beside one that has it is eased from JavaScript and freezes in the block, as documented. Transitions were 10 s linear.',
     },
   },
   {

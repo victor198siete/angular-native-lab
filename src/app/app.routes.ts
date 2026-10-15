@@ -14,4 +14,9 @@ import { rewardsRoutes } from './demos/rewards/rewards.routes.ts';
 export const routes: Routes = [
   // Temporary ICU reproduction (branch repro/icu-anchor).
   { path: 'repro/icu', loadComponent: () => import('./repro/icu/icu-repro.screen.ts').then((m) => m.IcuReproScreen) },
+  // Temporary size-transition reproduction (branch repro/size-transition).
+  {
+    path: 'repro/size-transition',
+    loadComponent: () => import('./repro/size-transition/size-transition-repro.screen.ts').then((m) => m.SizeTransitionReproScreen),
+  },
   ...rewardsRoutes, ...loginRoutes, ...deviceRoutes, ...listsRoutes, ...gesturesRoutes, ...whatsNewRoutes];
