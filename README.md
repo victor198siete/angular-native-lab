@@ -24,7 +24,7 @@ partial (see [Android](#android)).
 
 | | Version |
 |---|---|
-| `@ng-native/*` | 0.13.0 (also ran on 0.10.0, 0.9.0, 0.5.0, 0.4.0 and 0.3.0: tags [`ng-native-0.10.0`](https://github.com/victor198siete/angular-native-lab/tree/ng-native-0.10.0), [`ng-native-0.9.0`](https://github.com/victor198siete/angular-native-lab/tree/ng-native-0.9.0), [`ng-native-0.5.0`](https://github.com/victor198siete/angular-native-lab/tree/ng-native-0.5.0), [`ng-native-0.4.0`](https://github.com/victor198siete/angular-native-lab/tree/ng-native-0.4.0) and [`ng-native-0.3.0`](https://github.com/victor198siete/angular-native-lab/tree/ng-native-0.3.0)) |
+| `@ng-native/*` | 0.14.0 (also ran on 0.13.0, 0.10.0, 0.9.0, 0.5.0, 0.4.0 and 0.3.0: tags [`ng-native-0.13.0`](https://github.com/victor198siete/angular-native-lab/tree/ng-native-0.13.0), [`ng-native-0.10.0`](https://github.com/victor198siete/angular-native-lab/tree/ng-native-0.10.0), [`ng-native-0.9.0`](https://github.com/victor198siete/angular-native-lab/tree/ng-native-0.9.0), [`ng-native-0.5.0`](https://github.com/victor198siete/angular-native-lab/tree/ng-native-0.5.0), [`ng-native-0.4.0`](https://github.com/victor198siete/angular-native-lab/tree/ng-native-0.4.0) and [`ng-native-0.3.0`](https://github.com/victor198siete/angular-native-lab/tree/ng-native-0.3.0)) |
 | Angular | 22.2.1 |
 | Expo SDK | 57 (`expo` 57.0.29) |
 | React Native | 0.86.3 |
@@ -824,6 +824,29 @@ with a caveat, — not tested there.
 | `[animatedStyle]` | `@ng-native/components/animations` | Gestures: the native-driver and JavaScript tiles | ✅ | No | — | A loop of an `Animated.sequence` is restarted from JavaScript; use one timing in a loop. No Vitest stand-in |
 | Reactive Forms, `ControlValueAccessor` | `@angular/forms` | Compatibility check only | ✅ | No | — | Angular binds `[formControl]` and `ngModel` to the `value` model; no accessor needed. Also ✅ on the Android emulator |
 | `HttpClient` with interceptors | `@ng-native/platform/http` (`provideNativeHttpClient`) | Login: auth interceptor, mock API | ✅ | No | — | Angular's `withInterceptors()` and `provideHttpClientTesting()` work unchanged. Also ✅ on the Android emulator |
+
+## Upgrading to 0.14.0
+
+0.14.0 came out on 15 October 2026: 7 features and about 45 fixes. The lab went from 0.13.0 to 0.14.0, all
+ten `@ng-native/*` packages, with **no change to the app**: typecheck clean, the 181 tests passing,
+translations matching. `@oxc-angular/vite` moves to 0.0.41 with it. With Metro restarted with `--clear`,
+the six Maestro flows pass on the iOS simulator and the Android emulator (Gestures on Android on a second
+run: the first stopped where it scrolls back up to the restored first row).
+
+Read before the upgrade, against what the lab uses:
+
+- **Nothing to migrate.** The engine node's `name` becoming `tag`, the deprecated `StatusBar` colour and
+  translucency options, and a unitless `line-height` in a `style` attribute now multiplying the font size:
+  the lab uses none of them.
+- **It touches the lab's findings**, re-checked next on a device: a size transition started again and
+  again ([#799](https://github.com/ng-native/ng-native/pull/799)) and a change that brings in its own
+  transition ([#846](https://github.com/ng-native/ng-native/pull/846)), against the width/height
+  transition that snaps in `src/app/repro/size-transition/`; Android shapes with `opacity` or `clip-rule`
+  ([#817](https://github.com/ng-native/ng-native/pull/817)), next to the Android `setPointerEvents` crash
+  draft; the ICU assertion on a device is not in the notes. A bound style in `em`
+  ([#786](https://github.com/ng-native/ng-native/pull/786)) is the first case planned for What's new 0.14.
+- `@oxc-angular/vite` 0.0.41 compiles a template arrow function that reads its own parameter, which the
+  lab's What's new cases worked around with component methods.
 
 ## Upgrading to 0.13.0
 
