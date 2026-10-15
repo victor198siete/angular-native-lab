@@ -535,7 +535,7 @@ pager (`Gesture.Native()` plus `blocksExternalGesture`), animation under load be
 
 A demo that takes the lines of the ng-native release notes and runs them, so the notes can be
 confirmed or contradicted on a device. Reached by deep link: `exp://127.0.0.1:8081/--/whats-new`
-(a list of versions), and `exp://127.0.0.1:8081/--/whats-new/0.10`, `.../0.13`, `.../0.11`, `.../0.9` or `.../0.8` for one version's cases. Spanish:
+(a list of versions), and `exp://127.0.0.1:8081/--/whats-new/0.14`, `.../0.13`, `.../0.11`, `.../0.10`, `.../0.9` or `.../0.8` for one version's cases. Spanish:
 "Novedades".
 
 How it grows, one version at a time (`src/app/demos/whats-new/`):
