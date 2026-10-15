@@ -80,7 +80,7 @@ maestro test -e APP_ID=host.exp.Exponent -e APP_URL=exp://127.0.0.1:8081 .maestr
 | [Login (JWT + Face ID)](#login-jwt-and-face-id) | Sign in against a mock API, tokens in the keychain, a guard, an interceptor that refreshes an expired token and retries, and Face ID to reopen the session | ✅ iOS, Android (no biometrics) |
 | [Lists](#lists-virtual-list-vs-scroll-view) | `<virtual-list>` against `<scroll-view>` at 200 and 2,000 rows, with a live count of the row components actually mounted | ✅ iOS, Android |
 | [Gestures](#gestures-drag-pinch-swipe-and-three-ways-to-animate) | Drag that springs back, pinch and rotate, swipe-to-delete rows inside a scrolling list, and the same slide animated by CSS, `Animated`, a worklet and the JavaScript thread, with a button that blocks it | ✅ iOS, Android (pinch and rotate: iOS simulator and Node) |
-| [What's new](#whats-new-each-release-note-checked) | One screen per ng-native version, each case a line of the release notes run live, with a badge for what was seen on the iOS simulator and the Android emulator (0.13, 0.11, 0.10, 0.9 and 0.8) | ✅ iOS, Android |
+| [What's new](#whats-new-each-release-note-checked) | One screen per ng-native version, each case a line of the release notes run live, with a badge for what was seen on the iOS simulator and the Android emulator (0.14, 0.13, 0.11, 0.10, 0.9 and 0.8) | ✅ iOS, Android |
 
 ### Rewards
 
@@ -657,6 +657,30 @@ longer running at the time) and not a Live Activity. The branch and the install 
 (`package.json`, `package-lock.json` and `node_modules` as before), and the #757 case is not built
 yet. So the `@expo/ui` cases of the triage (B6-3, B7-1, B10-5) need no development build on iOS.
 
+**0.14 cases** (same devices; Android in Spanish). `docs/whats-new-triage.md` has the 64-row triage of the
+0.14.0 notes: 28 PICK rows (13 in these 12 cases, 15 reserve), 9 TEST-ONLY, 9 LIST, 18 SKIP. The cards read
+what each case measured from `(layout)`; the fade is judged from a host-clock screenshot loop.
+
+| Case | PR | iOS | Android | What was seen |
+|---|---|---|---|---|
+| Bound size in `em`, `rem`, `vw`; `<ng-icon size="2em">` | #786, #784 | ✅ | ✅ | At font size 16: `2em` 32, `2rem` 32, `50vw` 201 (iOS, 402 pt wide) and 206 (Android), icon 32. After the button (24): 48, 32, same, 48. A Vitest test asserts the committed numbers (the PR's own test fails on 0.13.0 with the text `'2em'` committed) |
+| A class brings in the transition and the value | #846 | ⚠️ | ⚠️ | **Caveat.** Opacity and transform ease over the 6 s on both platforms, with no transition before and with `transition: none` before (x 108 to 768 px and opacity to 0.2 in about 0.5 s steps on iOS). **Width does not: the bar is at its end width (280 pt) in the first capture after the press, in both lanes, on both.** Same as the size-transition repro (below) |
+| Border colour before its width | #819 | n/a | ✅ | Both boxes get a seagreen border, not black, on Android (iOS the same). The second box asks for `border-style: dashed` and Android drew it solid, iOS dashed: not what #819 is about, not investigated |
+| `aspect-ratio` across a flex line | #842 | ✅ | ✅ | In a 200 pt column the view is 200 x 100 |
+| A minimum over a maximum | #840 | ✅ | ✅ | `min-height: 80` over `max-height: 40` measures 80, `min-width: 160` over `max-width: 100` 160, padding 16 and border 2 over `max-height: 20` 36 |
+| Wrapped lines stretch | #841 | ✅ | ✅ | In a 160 pt wrapping row with four height-less items, each is 80 tall (two lines) |
+| Truncated text written into a view | #843 | ✅ | ✅ | `truncate` is one line with an ellipsis (19 pt iOS, 22 Android), `line-clamp-2` two (38, 40), a plain view all of it (57, 59) |
+| A flex-col label of spans | #844 | ✅ | ✅ | `<label class="flex flex-col">` (Tailwind) and the same written as a rule in a sheet stack Name over Hint (39 / 39 pt iOS, 43 / 43 Android); a plain label is one line (19, 22). In Node only the sheet rule is committed as a view: the Vitest run does not load Tailwind |
+| `aria-checked="false"` | #803 | ✅ | ✅ | Android uiautomator: the checkbox is `checked: false`, the `"true"` one `checked: true`. iOS hierarchy value: `checkbox, unchecked` / `checkbox, checked` |
+| CSS system colours | #820 | n/a | ✅ | `CanvasText`, `FieldText`, `ButtonText` and `GrayText` all draw on Android, in the text colour (GrayText not grey, as the note says); iOS draws GrayText grey |
+| Number inputs bound to `undefined` | #803 | ✅ | ✅ | `[delayLongPress]` unset: a held press hears the long press after 500 ms on both; a `virtual-list` with `[rowGap]` and `[overscan]` unset draws its 3 rows |
+| CSS in a `style` attribute | #803 | ✅ | ✅ | `style="padding: 4px 8px"`: the inner view is at x 8, y 4; `line-height: 1.5` on a 20 pt text is a 30 pt line |
+
+The 0.14 section of the Maestro flow reads those numbers and passed 3 of 3 on the iOS simulator and 3 of 3 on the Android emulator (whole flow). The Node tests
+(`whats-new-0-14.test.ts`, 9) assert what the engine commits for A14-1, 5, 6, 8, 9, 10, 11 and 12 and the
+cards with their badges; A14-2, 3, 4 and 7 need a device (no layout, no clock). The dev-build entries
+(`<search-field>`, bottom-sheet toolbars, `ui-picker` on Android) are LIST in the triage.
+
 **Caveats**
 
 - #729 is an iOS change. Android was run too, but on Android the choice dialog cannot be dismissed
@@ -849,7 +873,7 @@ Read before the upgrade, against what the lab uses:
   ICU `v1` and `v5` each still log one `must be an instance of a DOM Node` line and draw no text, and the
   `Node` probe still answers `false`; the catalog crashes in 4 of 12 launches (#817 is a different
   mechanism, `NoSuchFieldException` in `propList`). A bound style in `em`
-  ([#786](https://github.com/ng-native/ng-native/pull/786)) is the first case planned for What's new 0.14.
+  ([#786](https://github.com/ng-native/ng-native/pull/786)) is now case A14-1 of What's new 0.14.
 - `expo install --check` asked for `expo` 57.0.30, an Expo patch release 0.14.0 does not need: applied in
   its own change; the 181 tests, Device and Login pass on both platforms after it.
 - `@oxc-angular/vite` 0.0.41 compiles a template arrow function that reads its own parameter, which the

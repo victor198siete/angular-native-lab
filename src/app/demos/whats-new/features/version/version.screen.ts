@@ -29,6 +29,18 @@ import { IconSizeTokenCase } from '../cases/icon-size-token-case.ts';
 import { IconValuesCase } from '../cases/icon-values-case.ts';
 import { OpenSettingsCase } from '../cases/open-settings-case.ts';
 import { TabsLabCase } from '../cases/tabs-lab-case.ts';
+import { AriaCheckedCase } from '../cases/aria-checked-case.ts';
+import { AspectStretchCase } from '../cases/aspect-stretch-case.ts';
+import { BorderLaterCase } from '../cases/border-later-case.ts';
+import { BoundUnitsCase } from '../cases/bound-units-case.ts';
+import { LabelColumnCase } from '../cases/label-column-case.ts';
+import { NumberDefaultsCase } from '../cases/number-defaults-case.ts';
+import { SizeLimitsCase } from '../cases/size-limits-case.ts';
+import { StyleAttributeCase } from '../cases/style-attribute-case.ts';
+import { SystemColorsCase } from '../cases/system-colors-case.ts';
+import { TransitionArrivesCase } from '../cases/transition-arrives-case.ts';
+import { TruncateViewCase } from '../cases/truncate-view-case.ts';
+import { WrapLinesCase } from '../cases/wrap-lines-case.ts';
 import { CaseCard } from '../shared/case-card.ts';
 
 /**
@@ -38,7 +50,8 @@ import { CaseCard } from '../shared/case-card.ts';
 @Component({
   selector: 'app-whats-new-version-screen',
   imports: [
-    AnimateInCase, BorderColorCase, CaseCard, DarkClassCase, DeepLinkCase, DialogsCase, GradientVarCase,
+    AnimateInCase, AriaCheckedCase, AspectStretchCase, BorderColorCase, BorderLaterCase, BoundUnitsCase, LabelColumnCase,
+    NumberDefaultsCase, SizeLimitsCase, StyleAttributeCase, SystemColorsCase, TransitionArrivesCase, TruncateViewCase, WrapLinesCase, CaseCard, DarkClassCase, DeepLinkCase, DialogsCase, GradientVarCase,
     IcuCase, IconColorVarCase, IconConfigCase, IconLabelCase, IconLoaderCase, IconShapesCase, IconSizeCase,
     IconSizeTokenCase, IconValuesCase, InvisiblePressCase, KeyframesScopeCase, NativeHeader, NgDeepCase,
     NotDarkCase, OneWordCase, OpenSettingsCase, PanelHeightCase, PermissionRecheckCase, SafeAreaView,
@@ -53,6 +66,18 @@ import { CaseCard } from '../shared/case-card.ts';
         @for (item of cases(); track item.id) {
           <app-case-card [item]="item">
             @switch (item.id) {
+              @case ('a14-1') { <app-bound-units-case /> }
+              @case ('a14-2') { <app-transition-arrives-case /> }
+              @case ('a14-3') { <app-border-later-case /> }
+              @case ('a14-4') { <app-aspect-stretch-case /> }
+              @case ('a14-5') { <app-size-limits-case /> }
+              @case ('a14-6') { <app-wrap-lines-case /> }
+              @case ('a14-7') { <app-truncate-view-case /> }
+              @case ('a14-8') { <app-label-column-case /> }
+              @case ('a14-9') { <app-aria-checked-case /> }
+              @case ('a14-10') { <app-system-colors-case /> }
+              @case ('a14-11') { <app-number-defaults-case /> }
+              @case ('a14-12') { <app-style-attribute-case /> }
               @case ('a13-1') { <app-icon-shapes-case /> }
               @case ('a13-2') { <app-icon-color-var-case /> }
               @case ('a13-3') { <app-icon-config-case /> }

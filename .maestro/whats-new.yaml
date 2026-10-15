@@ -301,3 +301,103 @@ appId: ${APP_ID}
 - extendedWaitUntil:
     visible: "url: /whats-new/tabs/2/library"
     timeout: 10000
+# 9. The 0.14 cases, opened by another pushed link. The layout cases (A14-4 to A14-8, A14-12) print what
+# they measured, so the flow reads the numbers; A14-3, A14-7 and A14-10 and the colours and fade of
+# A14-2 are screenshots.
+- openLink: ${APP_URL}/--/whats-new/0.14
+- extendedWaitUntil:
+    visible:
+      id: whats-new-a14-1-toggle
+    timeout: 30000
+# A14-1: 2em follows the font size, 2rem stays 32, the icon with size="2em" is 2em (50vw is half the screen)
+- scrollUntilVisible:
+    element:
+      id: whats-new-a14-1-toggle
+    centerElement: true
+- assertVisible: "Font 16 / 2em 32 / 2rem 32 / 50vw [0-9]+ / icon 32|Fuente 16 / 2em 32 / 2rem 32 / 50vw [0-9]+ / icono 32"
+- tapOn:
+    id: whats-new-a14-1-toggle
+- assertVisible: "Font 24 / 2em 48 / 2rem 32 / 50vw [0-9]+ / icon 48|Fuente 24 / 2em 48 / 2rem 32 / 50vw [0-9]+ / icono 48"
+- tapOn:
+    id: whats-new-a14-1-toggle
+- assertVisible: "Font 16 / 2em 32 / 2rem 32 / 50vw [0-9]+ / icon 32|Fuente 16 / 2em 32 / 2rem 32 / 50vw [0-9]+ / icono 32"
+# A14-2: the fade is judged from the host-clock screenshot loop, not from this flow; one press starts it
+- scrollUntilVisible:
+    element:
+      id: whats-new-a14-2-toggle
+    centerElement: true
+- tapOn:
+    id: whats-new-a14-2-toggle
+# A14-3: the borders are a screenshot (seagreen, not black, on Android)
+- scrollUntilVisible:
+    element:
+      id: whats-new-a14-3-toggle
+    centerElement: true
+- tapOn:
+    id: whats-new-a14-3-toggle
+# A14-4 to A14-8: what each measured
+- scrollUntilVisible:
+    element:
+      id: whats-new-a14-4-readout
+    centerElement: true
+- assertVisible: "Drawn: 200 x 100|Dibujado: 200 x 100"
+- scrollUntilVisible:
+    element:
+      id: whats-new-a14-5-readout
+    centerElement: true
+- assertVisible: "Measured: height 80 / width 160 / box 36|Medido: alto 80 / ancho 160 / caja 36"
+- scrollUntilVisible:
+    element:
+      id: whats-new-a14-6-readout
+    centerElement: true
+- assertVisible: "Line 1 item 80 / line 2 item 80 tall|Elemento de la línea 1: 80 / de la línea 2: 80 de alto"
+# A14-7: one line, two lines, all of it (the line height differs by platform, so the three are ordered)
+- scrollUntilVisible:
+    element:
+      id: whats-new-a14-7-readout
+    centerElement: true
+- assertVisible: "Heights: 19 / 38 / 57|Alturas: 22 / 40 / 59|Heights: 2[0-9] / [4-5][0-9] / [5-6][0-9]"
+- scrollUntilVisible:
+    element:
+      id: whats-new-a14-8-readout
+    centerElement: true
+- assertVisible: "Heights: sheet 39 / Tailwind 39 / plain 19|Alturas: hoja 43 / Tailwind 43 / simple 22"
+# A14-9: the accessibility tree says unchecked for "false" and checked for "true"
+- scrollUntilVisible:
+    element:
+      id: whats-new-a14-9-false
+    centerElement: true
+- runFlow:
+    when:
+      platform: Android
+    commands:
+      - assertVisible:
+          id: whats-new-a14-9-false
+          checked: false
+      - assertVisible:
+          id: whats-new-a14-9-true
+          checked: true
+- runFlow:
+    when:
+      platform: iOS
+    commands:
+      - assertVisible:
+          id: whats-new-a14-9-false
+          text: "checkbox, unchecked"
+      - assertVisible:
+          id: whats-new-a14-9-true
+          text: "checkbox, checked"
+# A14-10 is a screenshot. A14-11: a long press, held, is heard after about 500 ms
+- scrollUntilVisible:
+    element:
+      id: whats-new-a14-11-hold
+    centerElement: true
+- assertVisible: "Rows drawn: 3|Filas dibujadas: 3"
+- longPressOn:
+    id: whats-new-a14-11-hold
+- assertVisible: "Long press heard after [3-7]00 ms|Pulsación larga oída tras [3-7]00 ms"
+# A14-12: padding 8 / 4, a 30 point line (the last card: no centring at the scroll's end)
+- scrollUntilVisible:
+    element:
+      id: whats-new-a14-12-readout
+- assertVisible: "Padding 8 / 4 / line 30|Padding 8 / 4 / línea 30"
