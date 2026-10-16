@@ -3,12 +3,13 @@ import { deviceRoutes } from './demos/device/device.routes.ts';
 import { gesturesRoutes } from './demos/gestures/gestures.routes.ts';
 import { listsRoutes } from './demos/lists/lists.routes.ts';
 import { loginRoutes } from './demos/login/login.routes.ts';
+import { offlineRoutes } from './demos/offline/offline.routes.ts';
 import { whatsNewRoutes } from './demos/whats-new/whats-new.routes.ts';
 import { rewardsRoutes } from './demos/rewards/rewards.routes.ts';
 
 /**
  * For now the app opens straight into the Rewards demo, as in the LinkedIn video. The Login,
- * Device, Lists, Gestures and What's new demos are reached by deep link (`/--/login`, `/--/device`, `/--/lists`, `/--/gestures`, `/--/whats-new`); when the demos get a home,
+ * Device, Lists, Gestures, What's new and Offline demos are reached by deep link (`/--/login`, `/--/device`, `/--/lists`, `/--/gestures`, `/--/whats-new`, `/--/offline`); when the demos get a home,
  * each becomes a tab of the lab and these routes move under it.
  */
 export const routes: Routes = [
@@ -19,4 +20,4 @@ export const routes: Routes = [
     path: 'repro/size-transition',
     loadComponent: () => import('./repro/size-transition/size-transition-repro.screen.ts').then((m) => m.SizeTransitionReproScreen),
   },
-  ...rewardsRoutes, ...loginRoutes, ...deviceRoutes, ...listsRoutes, ...gesturesRoutes, ...whatsNewRoutes];
+  ...rewardsRoutes, ...loginRoutes, ...deviceRoutes, ...listsRoutes, ...gesturesRoutes, ...whatsNewRoutes, ...offlineRoutes];

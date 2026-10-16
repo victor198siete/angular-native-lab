@@ -32,6 +32,7 @@
     "expo-network": "~57.0.2",
     "expo-screen-capture": "~57.0.4",
     "expo-secure-store": "~57.0.4",
+    "expo-sqlite": "~57.0.4",
     "expo-status-bar": "~57.0.1",
     "expo-system-ui": "~57.0.4",
     "marked": "^18.1.1",
