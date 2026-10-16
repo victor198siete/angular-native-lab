@@ -571,6 +571,8 @@ appId: ${APP_ID}
     element:
       id: whats-new-a6-8-reset
     centerElement: true
+# the swipe that centred the card can still be coasting: wait for it to stop before pressing
+- waitForAnimationToEnd
 - tapOn:
     id: whats-new-a6-8-backdrop
 - tapOn:

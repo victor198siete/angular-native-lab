@@ -720,7 +720,14 @@ English text for the strings Metro had not translated yet). `marked` (added with
 | A press on an invisible view | #574 | ✅ | ✅ | A full-size `opacity: 0` pressable over the red button: two presses on the button count `Backdrop heard 2 / button heard 0` on iOS, and the same on Android (where the note says it already worked) |
 | `light-dark()` and `color-mix()` with a token | #559, #565 | ✅ | ✅ | `--tone: light-dark(#fef3c7, #1e293b)` is pale amber in light and dark slate in dark (the lab's toggle), on both; `color-mix(in srgb, var(--ink) calc(var(--share) * 100%), transparent)` is crimson at 40% (pink) and at 60% (darker) as the share token moves |
 
-The 0.6 section of the Maestro flow reads the numbers above (A6-6 and A6-7 are screenshots). In Node, 9 tests
+The 0.7 and 0.6 sections of the Maestro flow (the whole flow now takes about 7 minutes on iOS and about 9 on Android, with
+the wait for Expo Go) read the numbers above (A6-6, A6-7, A7-4 and A7-6 are screenshots). The whole flow passed 3 of 3 on the iOS
+simulator and 3 of 3 on the Android emulator. Before that, one iOS run failed on A6-8 (the swipe that centred the card was still
+coasting when the second press arrived, `waitForAnimationToEnd` now sits before it), and the Android runs that did not start from a
+closed Expo Go failed at the first step or on a stale stack. On Android the app has to be loaded before the flow starts: the first
+`am start` after `force-stop` lands on the home screen, the second opens the app.
+
+The 0.6 cases are read by the same flow (A6-6 and A6-7 are screenshots). In Node, 9 tests
 (`whats-new-0-6.test.ts`): the nine cards with their badges (and 0.6 last in the list), `display: none` removing the box,
 the markdown link, the committed width of the bar, the header and footer, the fallbacks of `border-radius` and `margin`
 (`0` at the square corner, `0 24 0 24`), the backdrop counter and the scheme and share readout.
