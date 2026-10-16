@@ -44,6 +44,8 @@ interface QueueRow {
   sent_at: number | null;
 }
 
+type Db = Awaited<ReturnType<typeof offlineDb.ready>>;
+
 const nextId = (now: number) => `rd-${now.toString(36)}${Math.random().toString(36).slice(2, 8)}`;
 
 /**
@@ -73,6 +75,7 @@ export class OfflineStore {
   private readonly synced = signal<number | null>(null);
   private readonly busy = signal(false);
   private readonly serverError = signal(false);
+  private readonly storageFailure = signal<string | null>(null);
 
   readonly rewards: Signal<Reward[]> = this.rewardList.asReadonly();
   readonly movements: Signal<Movement[]> = this.movementList.asReadonly();
@@ -85,6 +88,11 @@ export class OfflineStore {
   readonly syncing: Signal<boolean> = this.busy.asReadonly();
   /** The server answered with an error and the queue is waiting to try again. */
   readonly hasServerError: Signal<boolean> = this.serverError.asReadonly();
+  /**
+   * The last real SQLite error (a statement that failed with the module present), or `null`. A
+   * platform without `expo-sqlite` is not an error and never shows here: there is nothing to save.
+   */
+  readonly storageError: Signal<string | null> = this.storageFailure.asReadonly();
   readonly online = this.connectivity.online;
   /** Something is on screen from a previous run or fetch. */
   readonly hasCache = computed(() => this.rewardList().length > 0 || this.movementList().length > 0);
@@ -92,7 +100,11 @@ export class OfflineStore {
   /** Resolves once the cache has been read; a sync waits for it so it cannot be overwritten by older rows. */
   readonly loaded: Promise<void>;
 
+  /** Never reset by `clear()`: numbers only grow, so a new row cannot meet an old one on disk. */
   private seq = 0;
+  /** The tail of the write queue: every SQLite call of this store runs after the one before it ends. */
+  private queue: Promise<void> = Promise.resolve();
+  private destroyed = false;
   private flushing = false;
   private syncRunning = false;
   /** A sync was asked for while one was running: it runs once more when that one ends, so nothing queued meanwhile waits. */
@@ -110,7 +122,10 @@ export class OfflineStore {
       if (this.online()) untracked(() => void this.sync());
     });
 
-    inject(DestroyRef).onDestroy(() => this.cancelRetry());
+    inject(DestroyRef).onDestroy(() => {
+      this.destroyed = true;
+      this.cancelRetry();
+    });
   }
 
   /** Queue a redemption and, with a connection, send it. The id is made here, once, and never again. */
@@ -135,7 +150,7 @@ export class OfflineStore {
   /** The button, the retry timer and a reconnection: send the queue, then refresh. Safe to call at any moment. */
   async sync(): Promise<void> {
     await this.loaded;
-    if (!this.online()) return;
+    if (!this.online() || this.destroyed) return;
     if (this.syncRunning) {
       this.syncAgain = true;
       return;
@@ -164,15 +179,13 @@ export class OfflineStore {
     this.movementList.set([]);
     this.entries.set([]);
     this.synced.set(null);
-    this.seq = 0;
-    try {
-      const db = await offlineDb.ready();
+    // Queued behind whatever is being written, and ahead of anything asked for after this call:
+    // a redemption made once Clear is confirmed is saved after the DELETEs, never swept by them.
+    await this.write(async (db) => {
       await db.withTransactionAsync(async () => {
         for (const table of ['reward', 'movement', 'meta', 'redeem_queue']) await db.runAsync(`DELETE FROM ${table}`);
       });
-    } catch {
-      // No SQLite on this platform: there was nothing saved to forget.
-    }
+    });
     if (this.online()) void this.sync();
   }
 
@@ -237,7 +250,7 @@ export class OfflineStore {
   /** Offline is not an error to show: the cache stays and the effect sends again on reconnect. A server error retries. */
   private failed(error: unknown): void {
     const status = error instanceof HttpErrorResponse ? error.status : 0;
-    if (status === 0) return;
+    if (status === 0 || this.destroyed) return;
     this.serverError.set(true);
     this.cancelRetry();
     this.retryTimer = setTimeout(() => {
@@ -254,18 +267,39 @@ export class OfflineStore {
   private async markSent(entry: RedeemEntry): Promise<void> {
     const sentAt = this.clock();
     this.entries.update((all) => all.map((e) => (e.seq === entry.seq ? { ...e, status: 'sent', sentAt } : e)));
-    try {
-      const db = await offlineDb.ready();
-      await db.runAsync("UPDATE redeem_queue SET status = 'sent', sent_at = ? WHERE id = ?", sentAt, entry.id);
-    } catch {
-      // No SQLite on this platform.
-    }
+    await this.write((db) =>
+      db.runAsync("UPDATE redeem_queue SET status = 'sent', sent_at = ? WHERE id = ?", sentAt, entry.id),
+    );
+  }
+
+  /**
+   * Every SQLite write goes through here, one at a time and in the order asked. `Database` has no
+   * exclusive transaction, and `withTransactionAsync` does not wait for another one: two of them
+   * at once fail with "cannot start a transaction within a transaction". Without `expo-sqlite`
+   * `ready()` throws and the task is skipped (nothing to save). Any other error is a real one: it
+   * is kept in `storageError`, and the queue goes on with the next task.
+   */
+  private write(task: (db: Db) => Promise<unknown>): Promise<void> {
+    const run = this.queue.then(async () => {
+      let db: Db;
+      try {
+        db = await offlineDb.ready();
+      } catch {
+        return; // No SQLite on this platform.
+      }
+      try {
+        await task(db);
+      } catch (error) {
+        this.storageFailure.set(error instanceof Error ? error.message : String(error));
+      }
+    });
+    this.queue = run;
+    return run;
   }
 
   /** What a cold start shows, before any request - offline, this is all there is. */
-  private async loadFromCache(): Promise<void> {
-    try {
-      const db = await offlineDb.ready();
+  private loadFromCache(): Promise<void> {
+    return this.write(async (db) => {
       const rewards = await db.getAllAsync<RewardRow>('SELECT * FROM reward ORDER BY position');
       const movements = await db.getAllAsync<Movement>('SELECT id, type, points, description, date FROM movement ORDER BY position');
       const queue = await db.getAllAsync<QueueRow>('SELECT * FROM redeem_queue ORDER BY seq');
@@ -295,18 +329,14 @@ export class OfflineStore {
           sentAt: q.sent_at,
         })),
       );
-      this.seq = queue.reduce((max, q) => Math.max(max, q.seq), 0);
+      this.seq = Math.max(this.seq, queue.reduce((max, q) => Math.max(max, q.seq), 0));
       this.synced.set(meta ? Number(meta.value) : null);
-    } catch {
-      // No SQLite on this platform (a Node test without a stand-in): an empty cache and an empty
-      // queue are what a first launch looks like anyway.
-    }
+    });
   }
 
   private async persistFetched(rewards: readonly Reward[], movements: readonly Movement[], at: number): Promise<void> {
-    try {
-      const db = await offlineDb.ready();
-      await db.withTransactionAsync(async () => {
+    await this.write((db) =>
+      db.withTransactionAsync(async () => {
         await db.runAsync('DELETE FROM reward');
         await db.runAsync('DELETE FROM movement');
         for (const [position, r] of rewards.entries()) {
@@ -322,21 +352,16 @@ export class OfflineStore {
           );
         }
         await db.runAsync("INSERT OR REPLACE INTO meta (key, value) VALUES ('last_sync', ?)", String(at));
-      });
-    } catch {
-      // No SQLite on this platform.
-    }
+      }),
+    );
   }
 
   private async persistEntry(entry: RedeemEntry): Promise<void> {
-    try {
-      const db = await offlineDb.ready();
-      await db.runAsync(
+    await this.write((db) =>
+      db.runAsync(
         'INSERT INTO redeem_queue (seq, id, reward_id, title, points, created_at, status) VALUES (?, ?, ?, ?, ?, ?, ?)',
         entry.seq, entry.id, entry.rewardId, entry.title, entry.points, entry.createdAt, entry.status,
-      );
-    } catch {
-      // No SQLite on this platform: the in-memory queue is what gets sent.
-    }
+      ),
+    );
   }
 }

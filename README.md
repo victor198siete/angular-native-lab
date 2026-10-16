@@ -553,6 +553,10 @@ How it is put together (`src/app/demos/offline/`):
   any request. Online, the queue is sent and then fresh data replaces the cache in one
   transaction. Every `Database` call has its own `try`/`catch`, because `Database` throws without
   `expo-sqlite`.
+- **A write queue**: `Database` has no exclusive transaction, so every SQLite write (the cache,
+  the queue rows, Clear) goes through one promise chain, in the order asked. Clear waits behind
+  what is being written, and a redemption made after it is saved after its DELETEs. A real SQLite
+  error is kept in `storageError`; only a missing `expo-sqlite` is skipped silently.
 - **The queue** (`redeem_queue`): one row per redemption with its own id, made when the person
   taps Redeem, which is the idempotency key. It is sent oldest first, one request each, and stops
   at the first failure. A **409** (the server has that id) counts as sent. A **500** leaves it
