@@ -637,6 +637,7 @@
     "offline.status.cached": "Mostrando datos guardados de las {$time}",
     "offline.status.pending": "Pendientes: {$count}",
     "offline.status.sentCount": "Enviados: {$count}",
-    "offline.status.error": "El servidor falló. Se reintentará en breve."
+    "offline.status.error": "El servidor falló. Se reintentará en breve.",
+    "offline.status.storageError": "No se pudo guardar en este teléfono. Lo que ves puede perderse al reiniciar."
   }
 }

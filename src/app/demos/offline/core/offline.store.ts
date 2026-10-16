@@ -1,5 +1,6 @@
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { DestroyRef, Service, computed, effect, inject, signal, untracked, type Signal } from '@angular/core';
+import { MissingModuleError } from '@ng-native/expo';
 import { firstValueFrom } from 'rxjs';
 import type { Movement, Reward } from '../../rewards/core/models/index.ts';
 import { Connectivity } from './connectivity.ts';
@@ -276,25 +277,33 @@ export class OfflineStore {
    * Every SQLite write goes through here, one at a time and in the order asked. `Database` has no
    * exclusive transaction, and `withTransactionAsync` does not wait for another one: two of them
    * at once fail with "cannot start a transaction within a transaction". Without `expo-sqlite`
-   * `ready()` throws and the task is skipped (nothing to save). Any other error is a real one: it
-   * is kept in `storageError`, and the queue goes on with the next task.
+   * `ready()` throws a `MissingModuleError` and the task is skipped (nothing to save). Any other
+   * error, from `ready()` or from the task, is a real one: it is kept in `storageError`, and the
+   * queue goes on with the next task.
+   *
+   * A task must not `await this.write(...)`: it would wait behind itself and never end.
    */
   private write(task: (db: Db) => Promise<unknown>): Promise<void> {
     const run = this.queue.then(async () => {
       let db: Db;
       try {
         db = await offlineDb.ready();
-      } catch {
-        return; // No SQLite on this platform.
+      } catch (error) {
+        if (!(error instanceof MissingModuleError)) this.reportStorageError(error); // else: no SQLite on this platform.
+        return;
       }
       try {
         await task(db);
       } catch (error) {
-        this.storageFailure.set(error instanceof Error ? error.message : String(error));
+        this.reportStorageError(error);
       }
     });
     this.queue = run;
     return run;
+  }
+
+  private reportStorageError(error: unknown): void {
+    this.storageFailure.set(error instanceof Error ? error.message : String(error));
   }
 
   /** What a cold start shows, before any request - offline, this is all there is. */

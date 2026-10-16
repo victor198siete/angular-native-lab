@@ -4,6 +4,7 @@
  * Production code and the existing tests are untouched.
  */
 import { cleanup, screen, userEvent, waitFor } from '@ng-native/testing';
+import { MissingModuleError } from '@ng-native/expo';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { renderApp } from '../rewards/features/testing.ts';
 import { textOf } from '../lists/testing.ts';
@@ -203,5 +204,25 @@ describe('reconnection churn', () => {
     await waitFor(() => expect(textOf('offline-sent')).toBe('Sent: 1'));
     expect(server.accepted).toHaveLength(1);
     expect(screen.queryByTestId('offline-error')).toBeNull();
+  });
+});
+
+describe('a failing SQLite', () => {
+  it('a real error from ready() is kept in storageError and shown; a missing module is not', async () => {
+    const ready = vi.spyOn(offlineDb, 'ready').mockRejectedValue(new Error('disk full'));
+    try {
+      await open();
+      await screen.findByTestId('offline-storage-error');
+      expect(store!.storageError()).toBe('disk full');
+      cleanup();
+
+      ready.mockRejectedValue(new MissingModuleError('expo-sqlite', 'ios'));
+      await open();
+      await sleep(30);
+      expect(store!.storageError()).toBeNull();
+      expect(screen.queryByTestId('offline-storage-error')).toBeNull();
+    } finally {
+      ready.mockRestore();
+    }
   });
 });

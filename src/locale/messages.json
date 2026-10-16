@@ -637,6 +637,7 @@
     "offline.status.cached": "Showing saved data from {$time}",
     "offline.status.pending": "Pending: {$count}",
     "offline.status.sentCount": "Sent: {$count}",
-    "offline.status.error": "The server failed. Trying again soon."
+    "offline.status.error": "The server failed. Trying again soon.",
+    "offline.status.storageError": "Could not save on this phone. What you see may be lost on restart."
   }
 }

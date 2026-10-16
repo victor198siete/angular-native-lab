@@ -20,6 +20,9 @@ import { OfflineCard } from './card.ts';
         @if (store.online() && store.hasServerError()) {
           <text testID="offline-error" accessibilityRole="alert" class="text-caption font-semibold text-loss dark:text-loss-dk" i18n="@@offline.status.error">The server failed. Trying again soon.</text>
         }
+        @if (store.storageError() !== null) {
+          <text testID="offline-storage-error" accessibilityRole="alert" class="text-caption font-semibold text-loss dark:text-loss-dk" i18n="@@offline.status.storageError">Could not save on this phone. What you see may be lost on restart.</text>
+        }
       </view>
       <view class="flex-row gap-6">
         <text testID="offline-pending" class="text-body font-semibold text-ink dark:text-ink-dk">{{ pendingText() }}</text>
