@@ -80,7 +80,7 @@ maestro test -e APP_ID=host.exp.Exponent -e APP_URL=exp://127.0.0.1:8081 .maestr
 | [Login (JWT + Face ID)](#login-jwt-and-face-id) | Sign in against a mock API, tokens in the keychain, a guard, an interceptor that refreshes an expired token and retries, and Face ID to reopen the session | ✅ iOS, Android (no biometrics) |
 | [Lists](#lists-virtual-list-vs-scroll-view) | `<virtual-list>` against `<scroll-view>` at 200 and 2,000 rows, with a live count of the row components actually mounted | ✅ iOS, Android |
 | [Gestures](#gestures-drag-pinch-swipe-and-three-ways-to-animate) | Drag that springs back, pinch and rotate, swipe-to-delete rows inside a scrolling list, and the same slide animated by CSS, `Animated`, a worklet and the JavaScript thread, with a button that blocks it | ✅ iOS, Android (pinch and rotate: iOS simulator and Node) |
-| [What's new](#whats-new-each-release-note-checked) | One screen per ng-native version, each case a line of the release notes run live, with a badge for what was seen on the iOS simulator and the Android emulator (0.14, 0.13, 0.11, 0.10, 0.9 and 0.8) | ✅ iOS, Android |
+| [What's new](#whats-new-each-release-note-checked) | One screen per ng-native version, each case a line of the release notes run live, with a badge for what was seen on the iOS simulator and the Android emulator (0.14, 0.13, 0.11, 0.10, 0.9, 0.8 and 0.7) | ✅ iOS, Android |
 
 ### Rewards
 
@@ -680,6 +680,27 @@ The 0.14 section of the Maestro flow reads those numbers and passed 3 of 3 on th
 (`whats-new-0-14.test.ts`, 9) assert what the engine commits for A14-1, 5, 6, 8, 9, 10, 11 and 12 and the
 cards with their badges; A14-2, 3, 4 and 7 need a device (no layout, no clock). The dev-build entries
 (`<search-field>`, bottom-sheet toolbars, `ui-picker` on Android) are LIST in the triage.
+
+**0.7 cases** (same devices; Android in Spanish; the iOS app switched to Spanish between the case runs and the Maestro
+runs, cause not found, so the flow reads both languages). `marked` ^18.1.1 is a new dependency (`npx expo install marked`): the
+`.md` import and `<markdown>` need it, and nothing else changed in `package.json`, `metro.config.js` or `tsconfig.json`
+(the type of a `.md` import is `src/app/demos/whats-new/markdown.d.ts`, a `/// <reference types="@ng-native/metro/markdown" />`).
+`docs/whats-new-triage.md` marks which of its A7 cases are built. A7-1 needed no `expo-router` install: Expo Go carries the
+native half, as the note says. The lab is on 0.14.0, so what is seen is 0.14's behaviour of what 0.7 brought.
+
+| Case | PR | iOS | Android | What was seen |
+|---|---|---|---|---|
+| `<native-toolbar>` | #658, #657 | ✅ | ✅ | iOS 27: a round plus button at the left and a "Clear" button at the right float over the bottom of the screen (glass), and each press is counted (plus 1, Clear then plus: `Plus pressed 1 times, Clear 1 times`). Android: nothing is drawn and the app does not complain, as the note says. The toolbar belongs to the whole screen, so it shows under every 0.7 card |
+| `endReached` on a short list | #647 | ✅ | ✅ | Three 40 pt rows in a 200 pt list, no touch: the readout reaches `Rows 12 / endReached 4 times`, on its own, on both. "Keep two rows" (a filter that leaves fewer) makes `viewableItemsChanged` report again and the list refills (the count climbs with each refill), so both halves of the note hold |
+| A link to a url already on the stack | #645 | ✅ | ✅ | **The note is about a url already on the stack under the page, not the one showing**: a `nativeRouterLink` to the url of the screen on top does nothing (Expo Go does not push the same url again, see Caveats). Page B (a route of the demo, `whats-new/link-lab`) links back to `/whats-new/0.7`, which is under it: a second copy of the 0.7 screen opens over Page B (copies 1 to 2, the iOS back button reads "Page B"), and Back returns to Page B, where the old behaviour popped to the first copy and destroyed Page B. The `replaceUrl` link on Page B replaced it: copies of Page B stay 1 |
+| Transitions from the initial value | #641, #649 | ✅ | ✅ | Three lanes, 5 s linear, no rule writes `opacity: 1` or a background: `transition: opacity` and `transition: all` fade a crimson and a blue box out and back, and a class-added `background-color` (`transition: background-color`) fills in from transparent to seagreen, gradually (host-clock capture loop on both platforms; a jump is the old behaviour) |
+| Unitless `line-height` inherited | #639, #638 | ✅ | ✅ | `.card { font-size: 10px; line-height: 2 }` around a 20 px text of three lines: 120 points (40 per line); the fixed `line-height: 20px` copy 60 on iOS and 61 on Android |
+| markdown: wrapped lines and entities | #648 | ✅ | ✅ | A `content/entities.md` imported as a module: the three source lines are one paragraph, `&rarr; &eacute; &euro; &hearts; &amp; &#39;` draw as `→ é € ♥ & '` (the heart is the emoji one on Android), and the two-space break and the backslash break both break. The raw source is shown above for comparison |
+
+The Maestro flow reads the A7 numbers at the end of the file (A7-4 and A7-6 are screenshots). In Node, 7 tests (`whats-new-0-7.test.ts`):
+the six cards with their badges (and 0.7 listed under 0.8), the toolbar counters, the list's rows, the push of a
+second copy through the link on Page B, the line heights committed for the text (40 and 20) and the markdown joined
+text. A7-1's buttons (there is no native toolbar in the fake), A7-2's `endReached` (no layout) and A7-4's easing need a device.
 
 **Caveats**
 

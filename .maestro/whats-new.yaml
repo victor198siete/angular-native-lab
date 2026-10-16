@@ -10,6 +10,8 @@
 # The end of the file covers 0.13 (the icon readouts, the loader, the aria-label, and Back refused on a
 # presented page on Android) and 0.11 (the two tab cases, in the tabs lab: Search behind a 4 s guard, and a
 # tab bar moved from org 1 to org 2). The 0.13 and 0.11 drawings, and A11-1 (it leaves the app), are screenshots.
+# The 0.7 cases come last (0.7 is the oldest section: the toolbar on iOS, a list that fills itself, a link to a url
+# already on the stack, the line heights and the markdown); A7-4 and A7-6 are screenshots.
 appId: ${APP_ID}
 ---
 - openLink: ${APP_URL}/--/whats-new
@@ -356,12 +358,12 @@ appId: ${APP_ID}
     element:
       id: whats-new-a14-7-readout
     centerElement: true
-- assertVisible: "Heights: 19 / 38 / 57|Alturas: 22 / 40 / 59|Heights: 2[0-9] / [4-5][0-9] / [5-6][0-9]"
+- assertVisible: "Heights: 19 / 38 / 57|Alturas: 19 / 38 / 57|Alturas: 22 / 40 / 59|Heights: 2[0-9] / [4-5][0-9] / [5-6][0-9]"
 - scrollUntilVisible:
     element:
       id: whats-new-a14-8-readout
     centerElement: true
-- assertVisible: "Heights: sheet 39 / Tailwind 39 / plain 19|Alturas: hoja 43 / Tailwind 43 / simple 22"
+- assertVisible: "Heights: sheet 39 / Tailwind 39 / plain 19|Alturas: hoja 39 / Tailwind 39 / simple 19|Alturas: hoja 43 / Tailwind 43 / simple 22"
 # A14-9: the accessibility tree says unchecked for "false" and checked for "true"
 - scrollUntilVisible:
     element:
@@ -401,3 +403,102 @@ appId: ${APP_ID}
     element:
       id: whats-new-a14-12-readout
 - assertVisible: "Padding 8 / 4 / line 30|Padding 8 / 4 / línea 30"
+# 10. The 0.7 cases, opened by another pushed link
+- openLink: ${APP_URL}/--/whats-new/0.7
+- extendedWaitUntil:
+    visible:
+      id: whats-new-a7-1-readout
+    timeout: 30000
+# A7-1: the readout starts at zero. On iOS the toolbar draws its two buttons and each press is counted; on Android
+# nothing is drawn, so there is nothing to press
+- assertVisible: "Plus pressed 0 times, Clear 0 times|Más pulsado 0 veces, Borrar 0 veces"
+- runFlow:
+    when:
+      platform: iOS
+    commands:
+      - tapOn: "Add|Añadir"
+      - tapOn: "Add|Añadir"
+      - tapOn: "Clear|Borrar"
+      - tapOn: "Add|Añadir"
+      - assertVisible: "Plus pressed 1 times, Clear 1 times|Más pulsado 1 veces, Borrar 1 veces"
+- runFlow:
+    when:
+      platform: Android
+    commands:
+      - assertNotVisible: "Add|Añadir"
+# A7-2: three rows are shorter than the list, and with no drag it fills itself to 12 rows and fires 4 times
+- scrollUntilVisible:
+    element:
+      id: whats-new-a7-2-again
+    centerElement: true
+- tapOn:
+    id: whats-new-a7-2-again
+- extendedWaitUntil:
+    visible: "Rows 12 / endReached 4 times.*|Filas 12 / endReached 4 veces.*"
+    timeout: 20000
+# A7-3: Page B links back to the 0.7 page under it: a second copy opens over Page B, and Back returns to Page B
+- scrollUntilVisible:
+    element:
+      id: whats-new-a7-3-open
+    centerElement: true
+- assertVisible: "Copies of this page on the stack: 1|Copias de esta página en la pila: 1"
+- tapOn:
+    id: whats-new-a7-3-open
+- extendedWaitUntil:
+    visible: "Copies of Page B: 1 / of the 0.7 page: 1|Copias de la Página B: 1 / de la página 0.7: 1"
+    timeout: 20000
+- tapOn:
+    id: whats-new-link-lab-back
+- scrollUntilVisible:
+    element:
+      id: whats-new-a7-3-open
+    centerElement: true
+- assertVisible: "Copies of this page on the stack: 2|Copias de esta página en la pila: 2"
+- runFlow:
+    when:
+      platform: iOS
+    commands:
+      - tapOn: "Page B|Página B"
+- runFlow:
+    when:
+      platform: Android
+    commands:
+      - back
+- extendedWaitUntil:
+    visible: "Copies of Page B: 1 / of the 0.7 page: 1|Copias de la Página B: 1 / de la página 0.7: 1"
+    timeout: 20000
+# The replaceUrl link swaps Page B for a new one: still one copy of each
+- tapOn:
+    id: whats-new-link-lab-replace
+- assertVisible: "Copies of Page B: 1 / of the 0.7 page: 1|Copias de la Página B: 1 / de la página 0.7: 1"
+- runFlow:
+    when:
+      platform: iOS
+    commands:
+      - tapOn: "Version 0.7|Versión 0.7"
+- runFlow:
+    when:
+      platform: Android
+    commands:
+      - back
+- extendedWaitUntil:
+    visible: "Copies of this page on the stack: 1|Copias de esta página en la pila: 1"
+    timeout: 20000
+# A7-4: one press starts the fades; the easing is judged from the host-clock screenshot loop
+- scrollUntilVisible:
+    element:
+      id: whats-new-a7-4-toggle
+    centerElement: true
+- tapOn:
+    id: whats-new-a7-4-toggle
+# A7-5: the unitless 2 is inherited as the number: 3 lines of 40 is 120, the fixed 20 gives about 60
+- scrollUntilVisible:
+    element:
+      id: whats-new-a7-5-readout
+    centerElement: true
+- assertVisible: "Heights: unitless 120 / fixed 6[01]|Alturas: sin unidad 120 / fija 6[01]"
+# A7-6 is a screenshot (the last card: no centring at the scroll's end)
+- scrollUntilVisible:
+    element:
+      id: whats-new-a7-6-drawn
+- assertVisible: ".*hard-wrapped in the source reads as one line.*"

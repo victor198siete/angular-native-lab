@@ -41,6 +41,12 @@ import { SystemColorsCase } from '../cases/system-colors-case.ts';
 import { TransitionArrivesCase } from '../cases/transition-arrives-case.ts';
 import { TruncateViewCase } from '../cases/truncate-view-case.ts';
 import { WrapLinesCase } from '../cases/wrap-lines-case.ts';
+import { InheritedLineHeightCase } from '../cases/inherited-line-height-case.ts';
+import { InitialValueTransitionCase } from '../cases/initial-value-transition-case.ts';
+import { LinkOnStackCase } from '../cases/link-on-stack-case.ts';
+import { MarkdownEntitiesCase } from '../cases/markdown-entities-case.ts';
+import { ShortListCase } from '../cases/short-list-case.ts';
+import { ToolbarCase } from '../cases/toolbar-case.ts';
 import { CaseCard } from '../shared/case-card.ts';
 
 /**
@@ -56,6 +62,7 @@ import { CaseCard } from '../shared/case-card.ts';
     IconSizeTokenCase, IconValuesCase, InvisiblePressCase, KeyframesScopeCase, NativeHeader, NgDeepCase,
     NotDarkCase, OneWordCase, OpenSettingsCase, PanelHeightCase, PermissionRecheckCase, SafeAreaView,
     ScrollView, SpacingTransitionCase, TabsLabCase, Text, TransitionsBlockCase, ZIndexCase,
+    InheritedLineHeightCase, InitialValueTransitionCase, LinkOnStackCase, MarkdownEntitiesCase, ShortListCase, ToolbarCase,
   ],
   host: { style: 'flex: 1' },
   template: `
@@ -66,6 +73,12 @@ import { CaseCard } from '../shared/case-card.ts';
         @for (item of cases(); track item.id) {
           <app-case-card [item]="item">
             @switch (item.id) {
+              @case ('a7-1') { <app-toolbar-case /> }
+              @case ('a7-2') { <app-short-list-case /> }
+              @case ('a7-3') { <app-link-on-stack-case /> }
+              @case ('a7-4') { <app-initial-value-transition-case /> }
+              @case ('a7-5') { <app-inherited-line-height-case /> }
+              @case ('a7-6') { <app-markdown-entities-case /> }
               @case ('a14-1') { <app-bound-units-case /> }
               @case ('a14-2') { <app-transition-arrives-case /> }
               @case ('a14-3') { <app-border-later-case /> }

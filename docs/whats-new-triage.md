@@ -51,6 +51,8 @@ One screen section per version. Within a version, ordered by video value. Tier B
 
 ### 0.7.0
 
+Built in What's new 0.7 (2026-10-15, ng-native 0.14.0 on iOS 27 and the Android emulator): **A7-1 to A7-6, all six, each with its badge verified on iOS and Android.** B7-1 and B7-2 are not built. Two corrections to the sketches below: A7-1 needed no `expo-router` install (Expo Go carries the native half); A7-3 is about a url already **on the stack under the page**, so the demo links from a second page (`whats-new/link-lab`) back to `/whats-new/0.7`, because a link to the url on top does nothing.
+
 | Id | Entries | Demo sketch | Observable proof |
 |---|---|---|---|
 | A7-1 | #658 (#657), iOS 18+ | `<native-toolbar>` with two `<native-toolbar-item>` buttons (SF Symbol, title), a spacer and a press counter, on a stack screen. Needs `npx expo install expo-router` (native half only). | Buttons appear in the bottom toolbar and `(press)` increments the counter; on Android nothing is drawn (the badge notes it). |
