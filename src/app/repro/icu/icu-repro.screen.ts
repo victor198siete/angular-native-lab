@@ -3,6 +3,8 @@ import { Pressable, ScrollView, Text, View } from '@ng-native/components';
 import { IcuV1, IcuV1i, IcuV2, IcuV2i, IcuV3, IcuV3i, IcuV4, IcuV5, IcuV6, IcuV7 } from './icu-variants.ts';
 
 /**
+ * Reported as https://github.com/ng-native/ng-native/issues/882. Kept while the issue is open.
+ *
  * Temporary reproduction screen (`/--/repro/icu`). A button mounts one variant behind an `@if`; `?v=v3` mounts it
  * 1.5 s after the screen is up, so each variant can start from a fresh launch.
  */

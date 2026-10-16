@@ -2,6 +2,8 @@ import { Component, DestroyRef, inject, input, signal } from '@angular/core';
 import { Pressable, Text, View } from '@ng-native/components';
 
 /**
+ * Reported as https://github.com/ng-native/ng-native/issues/883. Kept while the issue is open.
+ *
  * Temporary reproduction (`/--/repro/size-transition?v=<variant>`): which size transition native keeps
  * playing while the JavaScript thread is busy (case A8-2, ng-native 0.13.0). One variant per screen, one
  * button starts it (`?auto=<ms>` presses the same handler after that many ms, to sync a recording).
