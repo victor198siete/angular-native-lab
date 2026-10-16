@@ -1,0 +1,210 @@
+# What's new demo, sections 0.7 and 0.6 (the oldest), end to end in Expo Go, on iOS or Android:
+#   iOS:     xcrun simctl terminate booted host.exp.Exponent, then
+#            maestro test -e APP_ID=host.exp.Exponent -e APP_URL=exp://127.0.0.1:8081 .maestro/whats-new-early.yaml
+#   Android: adb reverse tcp:8081 tcp:8081, then the same with APP_ID=host.exp.exponent
+# Start with Expo Go closed. Sections 0.14 to 0.8 are in whats-new.yaml. A7-4 and A7-6 are screenshots.
+appId: ${APP_ID}
+---
+- openLink: ${APP_URL}/--/whats-new
+- extendedWaitUntil:
+    visible: "What's new|Novedades|Continue|Close"
+    timeout: 40000
+# Expo Go's developer menu can open on a fresh install
+- runFlow:
+    when:
+      visible: "Continue"
+    commands:
+      - tapOn: "Continue"
+- runFlow:
+    when:
+      visible: "Close"
+    commands:
+      - tapOn: "Close"
+# 10. The 0.7 cases, opened by another pushed link
+- openLink: ${APP_URL}/--/whats-new/0.7
+- extendedWaitUntil:
+    visible:
+      id: whats-new-a7-1-readout
+    timeout: 30000
+# A7-1: the readout starts at zero. On iOS the toolbar draws its two buttons and each press is counted; on Android
+# nothing is drawn, so there is nothing to press
+- assertVisible: "Plus pressed 0 times, Clear 0 times|Más pulsado 0 veces, Borrar 0 veces"
+- runFlow:
+    when:
+      platform: iOS
+    commands:
+      - tapOn: "Add|Añadir"
+      - tapOn: "Add|Añadir"
+      - tapOn: "Clear|Borrar"
+      - tapOn: "Add|Añadir"
+      - assertVisible: "Plus pressed 1 times, Clear 1 times|Más pulsado 1 veces, Borrar 1 veces"
+- runFlow:
+    when:
+      platform: Android
+    commands:
+      - assertNotVisible: "Add|Añadir"
+# A7-2: three rows are shorter than the list, and with no drag it fills itself to 12 rows and fires 4 times
+- scrollUntilVisible:
+    element:
+      id: whats-new-a7-2-again
+    centerElement: true
+- tapOn:
+    id: whats-new-a7-2-again
+- extendedWaitUntil:
+    visible: "Rows 12 / endReached 4 times.*|Filas 12 / endReached 4 veces.*"
+    timeout: 20000
+# A7-3: Page B links back to the 0.7 page under it: a second copy opens over Page B, and Back returns to Page B
+- scrollUntilVisible:
+    element:
+      id: whats-new-a7-3-open
+    centerElement: true
+- assertVisible: "Copies of this page on the stack: 1|Copias de esta página en la pila: 1"
+- tapOn:
+    id: whats-new-a7-3-open
+- extendedWaitUntil:
+    visible: "Copies of Page B: 1 / of the 0.7 page: 1|Copias de la Página B: 1 / de la página 0.7: 1"
+    timeout: 20000
+- tapOn:
+    id: whats-new-link-lab-back
+- scrollUntilVisible:
+    element:
+      id: whats-new-a7-3-open
+    centerElement: true
+- assertVisible: "Copies of this page on the stack: 2|Copias de esta página en la pila: 2"
+- runFlow:
+    when:
+      platform: iOS
+    commands:
+      - tapOn: "Page B|Página B"
+- runFlow:
+    when:
+      platform: Android
+    commands:
+      - back
+- extendedWaitUntil:
+    visible: "Copies of Page B: 1 / of the 0.7 page: 1|Copias de la Página B: 1 / de la página 0.7: 1"
+    timeout: 20000
+# The replaceUrl link swaps Page B for a new one: still one copy of each
+- tapOn:
+    id: whats-new-link-lab-replace
+- assertVisible: "Copies of Page B: 1 / of the 0.7 page: 1|Copias de la Página B: 1 / de la página 0.7: 1"
+- runFlow:
+    when:
+      platform: iOS
+    commands:
+      - tapOn: "Version 0.7|Versión 0.7"
+- runFlow:
+    when:
+      platform: Android
+    commands:
+      - back
+- extendedWaitUntil:
+    visible: "Copies of this page on the stack: 1|Copias de esta página en la pila: 1"
+    timeout: 20000
+# A7-4: one press starts the fades; the easing is judged from the host-clock screenshot loop
+- scrollUntilVisible:
+    element:
+      id: whats-new-a7-4-toggle
+    centerElement: true
+- tapOn:
+    id: whats-new-a7-4-toggle
+# A7-5: the unitless 2 is inherited as the number: 3 lines of 40 is 120, the fixed 20 gives about 60
+- scrollUntilVisible:
+    element:
+      id: whats-new-a7-5-readout
+    centerElement: true
+- assertVisible: "Heights: unitless 120 / fixed 6[01]|Alturas: sin unidad 120 / fija 6[01]"
+# A7-6 is a screenshot (the last card: no centring at the scroll's end)
+- scrollUntilVisible:
+    element:
+      id: whats-new-a7-6-drawn
+- assertVisible: ".*hard-wrapped in the source reads as one line.*"
+# 11. The 0.6 cases, opened by another pushed link. The list of A6-5 is 45% wide so a swipe that starts in the middle of the
+# screen never lands on it; A6-6 (the fades through a blocked thread) and A6-7 (the shapes) are screenshots.
+- openLink: ${APP_URL}/--/whats-new/0.6
+- extendedWaitUntil:
+    visible:
+      id: whats-new-a6-1-hide
+    timeout: 30000
+# A6-1: after Hide and Show the display: none box starts at row 1 again and was laid out twice; the opacity box is still at row 11
+- tapOn:
+    id: whats-new-a6-1-scroll
+- tapOn:
+    id: whats-new-a6-1-hide
+- tapOn:
+    id: whats-new-a6-1-hide
+- assertVisible: "Laid out: display none 2 times / opacity 1 times|Dispuesto: display none 2 veces / opacity 1 veces"
+- assertVisible: "Row 1|Fila 1"
+- assertVisible: "Row 11|Fila 11"
+# A6-2: the link of the imported .md reports its url (and does not leave for a browser)
+- scrollUntilVisible:
+    element:
+      id: whats-new-a6-2-readout
+    centerElement: true
+- tapOn: "the release notes"
+- assertVisible: "Link pressed: https://github.com/ng-native/ng-native/releases|Enlace pulsado: https://github.com/ng-native/ng-native/releases"
+# A6-3: rows 1, 3 and 5 are 38, 78 and 118 points tall
+- scrollUntilVisible:
+    element:
+      id: whats-new-a6-3-readout
+    centerElement: true
+- assertVisible: "Heights: rows 1 38 / rows 3 78 / rows 5 118|Alturas: rows 1 38 / rows 3 78 / rows 5 118"
+# A6-4: the bar goes from 100% to 60% of its track and back
+- scrollUntilVisible:
+    element:
+      id: whats-new-a6-4-toggle
+    centerElement: true
+- assertVisible: "Bar [0-9]+ of [0-9]+ points .100%.|Barra [0-9]+ de [0-9]+ puntos .100%."
+- tapOn:
+    id: whats-new-a6-4-toggle
+- assertVisible: "Bar [0-9]+ of [0-9]+ points .60%.|Barra [0-9]+ de [0-9]+ puntos .60%."
+- tapOn:
+    id: whats-new-a6-4-toggle
+- assertVisible: "Bar [0-9]+ of [0-9]+ points .100%.|Barra [0-9]+ de [0-9]+ puntos .100%."
+# A6-5: the list opens with a header and a footer (on Android it stopped the app); Scroll to the footer moves it
+- scrollUntilVisible:
+    element:
+      id: whats-new-a6-5-end
+    centerElement: true
+- assertVisible: "Scrolled 0 points|Desplazado 0 puntos"
+- tapOn:
+    id: whats-new-a6-5-end
+- assertVisible: "Scrolled [1-9][0-9]* points|Desplazado [1-9][0-9]* puntos"
+# A6-6: one press starts the squares and the block; the fades are judged from the host-clock screenshot loop
+- scrollUntilVisible:
+    element:
+      id: whats-new-a6-6-both
+    centerElement: true
+- tapOn:
+    id: whats-new-a6-6-both
+# A6-7 is a screenshot, with its measured margin: the green box at x 24 and y 0
+- scrollUntilVisible:
+    element:
+      id: whats-new-a6-7-readout
+    centerElement: true
+- assertVisible: "Green box at x 24 / y 0|Caja verde en x 24 / y 0"
+# A6-8: a press anywhere on the invisible backdrop counts for it and not for the button under it
+- scrollUntilVisible:
+    element:
+      id: whats-new-a6-8-reset
+    centerElement: true
+# the swipe that centred the card can still be coasting: wait for it to stop before pressing
+- waitForAnimationToEnd
+- tapOn:
+    id: whats-new-a6-8-backdrop
+- tapOn:
+    id: whats-new-a6-8-backdrop
+- assertVisible: "Backdrop heard 2 / button heard 0|El fondo oyó 2 / el botón oyó 0"
+# A6-9: the scheme and the share (the last card: no centring at the scroll's end)
+- scrollUntilVisible:
+    element:
+      id: whats-new-a6-9-more
+- tapOn:
+    id: whats-new-a6-9-more
+- assertVisible: "Scheme: light, share 60%|Esquema: claro, parte 60%"
+- tapOn:
+    id: whats-new-a6-9-toggle
+- assertVisible: "Scheme: dark, share 60%|Esquema: oscuro, parte 60%"
+- tapOn:
+    id: whats-new-a6-9-toggle
+- assertVisible: "Scheme: light, share 60%|Esquema: claro, parte 60%"

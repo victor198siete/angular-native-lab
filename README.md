@@ -65,7 +65,12 @@ maestro test -e APP_ID=host.exp.Exponent -e APP_URL=exp://127.0.0.1:8081 .maestr
 maestro test -e APP_ID=host.exp.Exponent -e APP_URL=exp://127.0.0.1:8081 .maestro/lists.yaml
 maestro test -e APP_ID=host.exp.Exponent -e APP_URL=exp://127.0.0.1:8081 .maestro/gestures.yaml
 maestro test -e APP_ID=host.exp.Exponent -e APP_URL=exp://127.0.0.1:8081 .maestro/whats-new.yaml
+maestro test -e APP_ID=host.exp.Exponent -e APP_URL=exp://127.0.0.1:8081 .maestro/whats-new-early.yaml
 ```
+
+What's new runs as two flows: `whats-new.yaml` covers 0.14 to 0.8 and `whats-new-early.yaml` covers 0.7 and
+0.6 (split on 15 Oct 2026, when one flow took 7 min on iOS and 9.5 on Android; now about 3.5 + 2.7 min on iOS
+and 5 + 2.8 min on Android, each passing on the first run on both).
 
 ## Demos
 
