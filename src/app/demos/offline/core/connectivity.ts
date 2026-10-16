@@ -1,5 +1,9 @@
-import { Service, computed, inject, signal } from '@angular/core';
+import { Service, computed, inject } from '@angular/core';
 import { Network } from '@ng-native/expo/network';
+import { SecureStorage } from '@ng-native/expo/secure-store';
+
+/** Keychain key of the lab switch. */
+export const SIMULATE_OFFLINE_KEY = 'offline.simulate';
 
 /**
  * Whether the app should behave as online. The phone's connection comes from `Network`, and the lab
@@ -12,8 +16,12 @@ import { Network } from '@ng-native/expo/network';
 @Service()
 export class Connectivity {
   private readonly network = inject(Network);
+  private readonly storage = inject(SecureStorage);
 
-  /** The lab switch. */
-  readonly simulateOffline = signal(false);
+  /**
+   * The lab switch. Kept across a restart on purpose: that is how a redemption queued offline can
+   * be seen waiting after the app is closed and opened again, on a simulator that has a network.
+   */
+  readonly simulateOffline = this.storage.signal<boolean>(SIMULATE_OFFLINE_KEY, false);
   readonly online = computed(() => this.network.connected() && !this.simulateOffline());
 }

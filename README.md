@@ -85,6 +85,7 @@ and 5 + 2.8 min on Android, each passing on the first run on both).
 | [Login (JWT + Face ID)](#login-jwt-and-face-id) | Sign in against a mock API, tokens in the keychain, a guard, an interceptor that refreshes an expired token and retries, and Face ID to reopen the session | ✅ iOS, Android (no biometrics) |
 | [Lists](#lists-virtual-list-vs-scroll-view) | `<virtual-list>` against `<scroll-view>` at 200 and 2,000 rows, with a live count of the row components actually mounted | ✅ iOS, Android |
 | [Gestures](#gestures-drag-pinch-swipe-and-three-ways-to-animate) | Drag that springs back, pinch and rotate, swipe-to-delete rows inside a scrolling list, and the same slide animated by CSS, `Animated`, a worklet and the JavaScript thread, with a button that blocks it | ✅ iOS, Android (pinch and rotate: iOS simulator and Node) |
+| [Offline](#offline-sqlite-cache-and-a-queue-of-redemptions) | Catalog and history in SQLite shown with no network and dated, redemptions queued offline that survive a restart and are sent once on reconnect, a fake API with duplicates (409) and failures (500) | ✅ iOS, Android (real airplane mode on Android) |
 | [What's new](#whats-new-each-release-note-checked) | One screen per ng-native version, each case a line of the release notes run live, with a badge for what was seen on the iOS simulator and the Android emulator (0.14 to 0.6) | ✅ iOS, Android |
 
 ### Rewards
@@ -537,6 +538,54 @@ JavaScript thread..." while it runs. No timings were taken.
 **Not tested:** a real phone, two-finger pinch or rotate on a device, a swipe inside a horizontal
 pager (`Gesture.Native()` plus `blocksExternalGesture`), animation under load beyond the 3 s block.
 
+### Offline: SQLite cache and a queue of redemptions
+
+The catalog and the history of the Rewards mock are fetched from a fake API, **saved in SQLite**
+(`Database` from `@ng-native/expo/database`) and shown from there when there is no network, with
+the time of the last sync. A redemption made offline goes into a **queue table**, shows as
+*Pending*, survives closing the app, and is sent **once**, in order, when the connection returns.
+A demo of its own, reached by deep link: `exp://127.0.0.1:8081/--/offline`.
+
+How it is put together (`src/app/demos/offline/`):
+
+- **`core/offline.store.ts`**: signals are what the screen reads and SQLite is the copy that
+  survives a restart, as the Working offline guide lays it out. The cache is read first, before
+  any request. Online, the queue is sent and then fresh data replaces the cache in one
+  transaction. Every `Database` call has its own `try`/`catch`, because `Database` throws without
+  `expo-sqlite`.
+- **The queue** (`redeem_queue`): one row per redemption with its own id, made when the person
+  taps Redeem, which is the idempotency key. It is sent oldest first, one request each, and stops
+  at the first failure. A **409** (the server has that id) counts as sent. A **500** leaves it
+  queued and a timer tries again; offline does not retry, the reconnection does.
+- **`core/fake-api.ts`**: an interceptor in the Login demo's mold, latency configurable. With no
+  connection it fails with status 0, it answers 409 on a repeated id and 500 with the lab switch
+  on. It is provided on the route (`offline.routes.ts`), so `main.ts` is untouched.
+- **`core/connectivity.ts`**: `Network.connected()` and the lab switch **Simulate offline**,
+  which behaves exactly like no network. The iOS simulator follows the Mac's network, so the
+  switch is how the offline path is repeatable. It is kept in the keychain, so a restart stays
+  offline and a queued redemption can be seen waiting.
+- **Clear local data** asks with `Dialogs.confirm` and then empties all four tables.
+
+**What was tested:** in Node, 9 tests on `memoryDatabase()` (the cache dated and shown offline,
+a cold start offline from SQLite, queue, restart and one send per id, 409, 500 and retry, the
+switch, clear with and without confirmation, Spanish); each RED test was checked to fail when
+its rule was broken. Maestro (`.maestro/offline.yaml`) passes 3 of 3 on the iOS simulator
+(English) and 3 of 3 on the Android emulator (Spanish). On Android the real airplane mode was
+checked by hand: the saved data stays, a redemption queues, and it is sent when the network is
+back.
+
+**What failed or needed work**
+
+- `npx expo install expo-sqlite` added `"expo-sqlite"` to the `app.json` plugins. The module
+  guide asks for nothing of the kind and Expo Go carries it, so that line was left out.
+- The queue is sent while the screen is open: the store belongs to the screen, so leaving it
+  cancels any retry. Rows stay in SQLite and go out on the next visit.
+- On Android, `stopApp` followed by `openLink` sometimes lands on the home screen; the flow
+  wraps the reopening in a `retry`.
+
+**Not tested:** a real phone, a release build, a captive network (`connected` with no
+internet), the queue sent from the background.
+
 ### What's new: each release note, checked
 
 A demo that takes the lines of the ng-native release notes and runs them, so the notes can be
@@ -894,8 +943,10 @@ with a caveat, — not tested there.
 | `NgIcon` with `[svg]` | `@ng-native/icons` (`react-native-svg`) | Lucide icons, the QR | ✅ | No | — | Parser handles `svg`, `g`, `path`, `rect`… |
 | `ColorScheme` | `@ng-native/device` | Dark mode, Device | ✅ | No | — | Also ✅ on the Android emulator |
 | `Screen`, `SafeArea` | `@ng-native/device` | Device | ✅ | No | — | Android reports fractional points. Also ✅ on the Android emulator |
-| `Network` | `@ng-native/expo/network` (`expo-network`) | Device | ✅ | No | — | Offline and back verified on the Android emulator; the iOS simulator follows the Mac's network |
+| `Network` | `@ng-native/expo/network` (`expo-network`) | Device, Offline | ✅ | No | — | Offline and back verified on the Android emulator; the iOS simulator follows the Mac's network |
 | `Location` | `@ng-native/expo/location` (`expo-location`) | Device: tracking, reverse geocoding | ✅ | No | — | Android: declining Google's Location Accuracy prompt rejects the watcher. Usage text needed for dev builds |
+| `Database` | `@ng-native/expo/database` (`expo-sqlite`) | Offline: cached catalog and history, queue of redemptions | ✅ | No | — | Opened and migrated on first `ready()`; throws without the module, so each call has a `try`/`catch`. Also ✅ on the Android emulator. In Node `memoryDatabase()` stands in |
+| `Dialogs` | `@ng-native/device` | Offline: confirm before clearing local data | ✅ | No | — | Also ✅ on the Android emulator |
 | Router, native tabs and stack | `@ng-native/router` | All navigation | ✅ | No | — | |
 | `<virtual-list>`, `<scroll-view>` | `@ng-native/components` | Rewards catalog and history, Lists | ✅ | No | — | 2,000 rows: 12–14 components mounted vs 2,000. Also ✅ on the Android emulator |
 | Signal Forms on `<text-input>` and `<switch>` | `@angular/forms/signals` | Join the program | ✅ | No | — | `pattern()` lets an empty value through. Also ✅ on the Android emulator |
@@ -1092,7 +1143,7 @@ src/
   main.ts                    mounts the app: router, Tailwind, localization
   locale/                    messages.json (extracted) and messages.es.json
   app/
-    app.routes.ts            the app opens on Rewards; Login, Device, Lists, Gestures and What's new by deep link
+    app.routes.ts            the app opens on Rewards; Login, Device, Lists, Gestures, What's new and Offline by deep link
     core/                    shared by every demo: theme, i18n
     demos/rewards/           core (models, mocks, store), shared UI, features, shell
     demos/login/             mock auth server, session, guard, interceptor, sign-in and account
@@ -1100,6 +1151,7 @@ src/
     demos/lists/             virtual-list vs scroll-view with a mounted-row counter
     demos/gestures/          drag, pinch and rotate, swipe-to-delete, and four ways to animate
     demos/whats-new/         release-note cases per ng-native version, each with a status badge
+    demos/offline/           fake API, SQLite cache, queue of redemptions, lab switches
 repro/                       one folder per duel looked for, with its steps and scripts
 ```
 

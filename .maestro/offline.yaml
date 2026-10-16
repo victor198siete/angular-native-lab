@@ -1,0 +1,143 @@
+# Offline demo, end to end in Expo Go, on iOS or Android, in English or Spanish:
+#   iOS:     maestro test -e APP_ID=host.exp.Exponent -e APP_URL=exp://127.0.0.1:8081 .maestro/offline.yaml
+#   Android: adb reverse tcp:8081 tcp:8081, then the same with APP_ID=host.exp.exponent
+# Offline is the lab switch "Simulate offline" (it is kept across a restart): a simulator follows the
+# Mac's network and cannot lose it alone. It is the same code path as no network, so the flow covers:
+# queued redemptions, the queue surviving a restart, sending on reconnect, a 500 that retries, and
+# Clear local data behind its confirmation. The real airplane mode is checked by hand on Android.
+appId: ${APP_ID}
+---
+- openLink: ${APP_URL}/--/offline
+- extendedWaitUntil:
+    visible: "Offline|Sin conexión|Continue|Close"
+    timeout: 40000
+# Expo Go's developer menu can open on a fresh install
+- runFlow:
+    when:
+      visible: "Continue"
+    commands:
+      - tapOn: "Continue"
+- runFlow:
+    when:
+      visible: "Close"
+    commands:
+      - tapOn: "Close"
+# The screen keeps its scroll position between runs, so look for the heading upwards
+- scrollUntilVisible:
+    element:
+      id: offline-heading
+    direction: UP
+    timeout: 30000
+# 0. A clean start: the switch off (it is kept from an earlier run), the local data cleared
+- runFlow:
+    when:
+      visible:
+        id: offline-state
+        text: "Offline|Sin conexión"
+    commands:
+      - tapOn:
+          id: offline-sim
+- tapOn:
+    id: offline-clear
+- tapOn: "Clear|CLEAR|Borrar|BORRAR"
+- extendedWaitUntil:
+    visible: "Last synced at.*|Última sincronización a las.*"
+    timeout: 20000
+- assertVisible: "Pending: 0|Pendientes: 0"
+- assertVisible: "Sent: 0|Enviados: 0"
+# 1. Offline: the saved data stays on screen and says since when
+- tapOn:
+    id: offline-sim
+- assertVisible:
+    id: offline-state
+    text: "Offline|Sin conexión"
+- assertVisible: "Showing saved data from.*|Mostrando datos guardados de las.*"
+# 2. Two redemptions with no connection: queued, not sent
+- scrollUntilVisible:
+    element:
+      id: offline-redeem-1
+    centerElement: true
+- tapOn:
+    id: offline-redeem-1
+- scrollUntilVisible:
+    element:
+      id: offline-redeem-2
+    centerElement: true
+- tapOn:
+    id: offline-redeem-2
+- scrollUntilVisible:
+    element:
+      id: offline-heading
+    direction: UP
+    timeout: 30000
+- assertVisible: "Pending: 2|Pendientes: 2"
+- assertVisible: "Sent: 0|Enviados: 0"
+# 3. Close the app and open it again: the queue is still there, and still offline
+- stopApp
+# On Android the link sometimes lands on the home screen right after the app was stopped: try again
+- retry:
+    maxRetries: 3
+    commands:
+      - openLink: ${APP_URL}/--/offline
+      - extendedWaitUntil:
+          visible: "Pending: 2|Pendientes: 2|Continue|Close"
+          timeout: 40000
+- runFlow:
+    when:
+      visible: "Continue"
+    commands:
+      - tapOn: "Continue"
+- runFlow:
+    when:
+      visible: "Close"
+    commands:
+      - tapOn: "Close"
+- scrollUntilVisible:
+    element:
+      id: offline-heading
+    direction: UP
+    timeout: 30000
+- assertVisible: "Pending: 2|Pendientes: 2"
+- assertVisible:
+    id: offline-state
+    text: "Offline|Sin conexión"
+# 4. The connection returns: both are sent, once each
+- tapOn:
+    id: offline-sim
+- extendedWaitUntil:
+    visible: "Sent: 2|Enviados: 2"
+    timeout: 20000
+- assertVisible: "Pending: 0|Pendientes: 0"
+# 5. A server error leaves the redemption queued and it is tried again until the server answers
+- tapOn:
+    id: offline-fail
+- scrollUntilVisible:
+    element:
+      id: offline-redeem-1
+    centerElement: true
+- tapOn:
+    id: offline-redeem-1
+- scrollUntilVisible:
+    element:
+      id: offline-heading
+    direction: UP
+    timeout: 30000
+- extendedWaitUntil:
+    visible:
+      id: offline-error
+    timeout: 20000
+- assertVisible: "Pending: 1|Pendientes: 1"
+- tapOn:
+    id: offline-fail
+- extendedWaitUntil:
+    visible: "Sent: 3|Enviados: 3"
+    timeout: 30000
+- assertVisible: "Pending: 0|Pendientes: 0"
+# 6. Clear local data: asked first, then everything goes
+- tapOn:
+    id: offline-clear
+- tapOn: "Clear|CLEAR|Borrar|BORRAR"
+- extendedWaitUntil:
+    visible: "Sent: 0|Enviados: 0"
+    timeout: 20000
+- assertVisible: "Pending: 0|Pendientes: 0"
