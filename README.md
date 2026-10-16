@@ -1050,7 +1050,8 @@ First run on the Android 16 emulator (Pixel 9, API 36), in Expo Go and in a deve
   `react-native-svg` (15.15.4) receives `pointerEvents` = `null` for an icon's root view and does not
   guard against it. The lab's stylesheets set no `pointer-events` at all. It shows within a few quick
   swipes on most launches (12 of 12 with a Maestro flow on 0.9.0) but no smaller screen we built
-  reproduced it: it depends on the catalog's layout, not on one element. Not reported yet.
+  reproduced it: it depends on the catalog's layout, not on one element. Reported as
+  [ng-native/ng-native#884](https://github.com/ng-native/ng-native/issues/884).
   **Still there on 0.14.0:** 4 of 12 fresh launches of the catalog crashed with the same
   `NullPointerException` at `SvgViewManager.setPointerEvents` and the red screen (six quick swipes each,
   a different gesture from the 0.9.0 Maestro flow, so the rate is not comparable).
