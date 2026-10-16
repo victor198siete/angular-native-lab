@@ -3,6 +3,7 @@ import { cases011 } from './cases-0-11.ts';
 import { cases010 } from './cases-0-10.ts';
 import { cases013 } from './cases-0-13.ts';
 import { cases014 } from './cases-0-14.ts';
+import { cases06 } from './cases-0-6.ts';
 import { cases07 } from './cases-0-7.ts';
 import { cases08 } from './cases-0-8.ts';
 import { cases09 } from './cases-0-9.ts';
@@ -19,6 +20,7 @@ export const RELEASES: readonly Release[] = [
   { version: '0.9', cases: cases09 },
   { version: '0.8', cases: cases08 },
   { version: '0.7', cases: cases07 },
+  { version: '0.6', cases: cases06 },
 ];
 
 export const releaseOf = (version: string | undefined): Release | undefined =>

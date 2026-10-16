@@ -80,7 +80,7 @@ maestro test -e APP_ID=host.exp.Exponent -e APP_URL=exp://127.0.0.1:8081 .maestr
 | [Login (JWT + Face ID)](#login-jwt-and-face-id) | Sign in against a mock API, tokens in the keychain, a guard, an interceptor that refreshes an expired token and retries, and Face ID to reopen the session | ✅ iOS, Android (no biometrics) |
 | [Lists](#lists-virtual-list-vs-scroll-view) | `<virtual-list>` against `<scroll-view>` at 200 and 2,000 rows, with a live count of the row components actually mounted | ✅ iOS, Android |
 | [Gestures](#gestures-drag-pinch-swipe-and-three-ways-to-animate) | Drag that springs back, pinch and rotate, swipe-to-delete rows inside a scrolling list, and the same slide animated by CSS, `Animated`, a worklet and the JavaScript thread, with a button that blocks it | ✅ iOS, Android (pinch and rotate: iOS simulator and Node) |
-| [What's new](#whats-new-each-release-note-checked) | One screen per ng-native version, each case a line of the release notes run live, with a badge for what was seen on the iOS simulator and the Android emulator (0.14, 0.13, 0.11, 0.10, 0.9, 0.8 and 0.7) | ✅ iOS, Android |
+| [What's new](#whats-new-each-release-note-checked) | One screen per ng-native version, each case a line of the release notes run live, with a badge for what was seen on the iOS simulator and the Android emulator (0.14 to 0.6) | ✅ iOS, Android |
 
 ### Rewards
 
@@ -701,6 +701,29 @@ The Maestro flow reads the A7 numbers at the end of the file (A7-4 and A7-6 are 
 the six cards with their badges (and 0.7 listed under 0.8), the toolbar counters, the list's rows, the push of a
 second copy through the link on Page B, the line heights committed for the text (40 and 20) and the markdown joined
 text. A7-1's buttons (there is no native toolbar in the fake), A7-2's `endReached` (no layout) and A7-4's easing need a device.
+
+**0.6 cases** (same devices; both apps in Spanish when the Maestro runs were made, the cases were looked at with the
+English text for the strings Metro had not translated yet). `marked` (added with 0.7) is what A6-2 imports through.
+`.md` files in `src/app/demos/whats-new/features/cases/content/` are bundled by Metro as `{ attributes, content, tokens }`.
+`docs/whats-new-triage.md` marks which A6 cases are built; B6-1 to B6-4 are not. The lab is on 0.14.0, so this is what
+0.6's changes do today.
+
+| Case | PR | iOS | Android | What was seen |
+|---|---|---|---|---|
+| `display: none` has no native view | #604, #587 | ✅ | ✅ | Two scroll views of 30 rows, both scrolled to row 11. Hide and Show: the `display: none` box starts at Row 1 again and its `(layout)` has fired twice (the view was made again); the `position: absolute; opacity: 0; pointer-events: none` box still shows Row 11 and was laid out once. In Node, `@ng-native/testing` finds no `display: none` element |
+| A `.md` file drawn by `<markdown>` | #509 | ✅ | ✅ | `import post from './content/post.md'` (front matter, heading, bold with nested italic, inline code, strike, a task list with a done and an open box, a table, a code block cut at the edge of its own horizontal scroll view, a link) is drawn as native text and views. Pressing the link reports `Link pressed: https://github.com/ng-native/ng-native/releases` through `(linkPress)` (with `preventDefault()`, so no browser opens); the front matter title (`A post`) is read from `post.attributes`. Nothing is parsed on the device: the module is the tokens |
+| `rows` on a multiline `<text-input>` | #609, #580 | ✅ | ✅ | Rows 1, 3 and 5 with a 20 pt line height, 8 pt padding and 1 pt border measure 38, 78 and 118 on both, from `(layout)`. Metro and Vitest still print `<text-input> has no prop 'rows', so native ignores it` for it: the size is right, the warning is not (the note's own `rows` example draws the same warning) |
+| `flex-basis` that changes after layout | #613 | ✅ | ✅ | A bar with `flex-basis: 100%` in a row (330 of 330 points on iOS, 339 on Android) goes to 198 of 330 (60%) on iOS and 203 of 339 (60%) on Android after the button, and back to 100% |
+| `<virtual-list>` with a header and a footer | #589, #558 | ✅ | ✅ | #558 is this lab's first upstream issue. 20 rows with `listHeader` and `listFooter` open on Android with no crash (Expo Go), and "Scroll to the footer" scrolls to 599 points on Android (594 on iOS) with the footer under Row 20. The list is 45% wide on purpose: a vertical swipe that starts in the middle of the screen, as Maestro's `scrollUntilVisible` does, would otherwise land on the list and scroll it |
+| Keyframes that native plays | #629, #617 | ✅ | ✅ | In What's new, with its own "Block JS for 3 s" (the Gestures demo is not touched). An 80 pt crimson square sliding by `translateX(200%)` and a blue one going from `rotate(180deg) translateX(-100px)` to its own `rotate(180deg)` keep moving through the 3 s block while the tick counter of the JavaScript thread stops (iOS: 6314 on three captures in a row; Android: 4 on two) and then resumes. Host-clock capture loops, 10 s animations. The counter only runs while an animation does: a counter that never stops kept Maestro from scrolling the screen |
+| `var()` with a several-part fallback | #591, #562 | ✅ | ✅ | With no token set: `border-radius: var(--r, 50% 50% 50% 0)` is a teardrop with one square corner, `margin: var(--gap, 0 24px)` puts the green box at x 24, y 0 (read from `(layout)`), and `transform: var(--t, translateX(40px) rotate(45deg))` draws the blue square turned and pushed right |
+| A press on an invisible view | #574 | ✅ | ✅ | A full-size `opacity: 0` pressable over the red button: two presses on the button count `Backdrop heard 2 / button heard 0` on iOS, and the same on Android (where the note says it already worked) |
+| `light-dark()` and `color-mix()` with a token | #559, #565 | ✅ | ✅ | `--tone: light-dark(#fef3c7, #1e293b)` is pale amber in light and dark slate in dark (the lab's toggle), on both; `color-mix(in srgb, var(--ink) calc(var(--share) * 100%), transparent)` is crimson at 40% (pink) and at 60% (darker) as the share token moves |
+
+The 0.6 section of the Maestro flow reads the numbers above (A6-6 and A6-7 are screenshots). In Node, 9 tests
+(`whats-new-0-6.test.ts`): the nine cards with their badges (and 0.6 last in the list), `display: none` removing the box,
+the markdown link, the committed width of the bar, the header and footer, the fallbacks of `border-radius` and `margin`
+(`0` at the square corner, `0 24 0 24`), the backdrop counter and the scheme and share readout.
 
 **Caveats**
 

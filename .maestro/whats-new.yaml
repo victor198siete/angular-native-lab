@@ -11,7 +11,7 @@
 # presented page on Android) and 0.11 (the two tab cases, in the tabs lab: Search behind a 4 s guard, and a
 # tab bar moved from org 1 to org 2). The 0.13 and 0.11 drawings, and A11-1 (it leaves the app), are screenshots.
 # The 0.7 cases come last (0.7 is the oldest section: the toolbar on iOS, a list that fills itself, a link to a url
-# already on the stack, the line heights and the markdown); A7-4 and A7-6 are screenshots.
+# already on the stack, the line heights and the markdown); A7-4 and A7-6 are screenshots. The 0.6 cases follow the 0.7 ones.
 appId: ${APP_ID}
 ---
 - openLink: ${APP_URL}/--/whats-new
@@ -502,3 +502,90 @@ appId: ${APP_ID}
     element:
       id: whats-new-a7-6-drawn
 - assertVisible: ".*hard-wrapped in the source reads as one line.*"
+# 11. The 0.6 cases, opened by another pushed link. The list of A6-5 is 45% wide so a swipe that starts in the middle of the
+# screen never lands on it; A6-6 (the fades through a blocked thread) and A6-7 (the shapes) are screenshots.
+- openLink: ${APP_URL}/--/whats-new/0.6
+- extendedWaitUntil:
+    visible:
+      id: whats-new-a6-1-hide
+    timeout: 30000
+# A6-1: after Hide and Show the display: none box starts at row 1 again and was laid out twice; the opacity box is still at row 11
+- tapOn:
+    id: whats-new-a6-1-scroll
+- tapOn:
+    id: whats-new-a6-1-hide
+- tapOn:
+    id: whats-new-a6-1-hide
+- assertVisible: "Laid out: display none 2 times / opacity 1 times|Dispuesto: display none 2 veces / opacity 1 veces"
+- assertVisible: "Row 1|Fila 1"
+- assertVisible: "Row 11|Fila 11"
+# A6-2: the link of the imported .md reports its url (and does not leave for a browser)
+- scrollUntilVisible:
+    element:
+      id: whats-new-a6-2-readout
+    centerElement: true
+- tapOn: "the release notes"
+- assertVisible: "Link pressed: https://github.com/ng-native/ng-native/releases|Enlace pulsado: https://github.com/ng-native/ng-native/releases"
+# A6-3: rows 1, 3 and 5 are 38, 78 and 118 points tall
+- scrollUntilVisible:
+    element:
+      id: whats-new-a6-3-readout
+    centerElement: true
+- assertVisible: "Heights: rows 1 38 / rows 3 78 / rows 5 118|Alturas: rows 1 38 / rows 3 78 / rows 5 118"
+# A6-4: the bar goes from 100% to 60% of its track and back
+- scrollUntilVisible:
+    element:
+      id: whats-new-a6-4-toggle
+    centerElement: true
+- assertVisible: "Bar [0-9]+ of [0-9]+ points .100%.|Barra [0-9]+ de [0-9]+ puntos .100%."
+- tapOn:
+    id: whats-new-a6-4-toggle
+- assertVisible: "Bar [0-9]+ of [0-9]+ points .60%.|Barra [0-9]+ de [0-9]+ puntos .60%."
+- tapOn:
+    id: whats-new-a6-4-toggle
+- assertVisible: "Bar [0-9]+ of [0-9]+ points .100%.|Barra [0-9]+ de [0-9]+ puntos .100%."
+# A6-5: the list opens with a header and a footer (on Android it stopped the app); Scroll to the footer moves it
+- scrollUntilVisible:
+    element:
+      id: whats-new-a6-5-end
+    centerElement: true
+- assertVisible: "Scrolled 0 points|Desplazado 0 puntos"
+- tapOn:
+    id: whats-new-a6-5-end
+- assertVisible: "Scrolled [1-9][0-9]* points|Desplazado [1-9][0-9]* puntos"
+# A6-6: one press starts the squares and the block; the fades are judged from the host-clock screenshot loop
+- scrollUntilVisible:
+    element:
+      id: whats-new-a6-6-both
+    centerElement: true
+- tapOn:
+    id: whats-new-a6-6-both
+# A6-7 is a screenshot, with its measured margin: the green box at x 24 and y 0
+- scrollUntilVisible:
+    element:
+      id: whats-new-a6-7-readout
+    centerElement: true
+- assertVisible: "Green box at x 24 / y 0|Caja verde en x 24 / y 0"
+# A6-8: a press anywhere on the invisible backdrop counts for it and not for the button under it
+- scrollUntilVisible:
+    element:
+      id: whats-new-a6-8-reset
+    centerElement: true
+- tapOn:
+    id: whats-new-a6-8-backdrop
+- tapOn:
+    id: whats-new-a6-8-backdrop
+- assertVisible: "Backdrop heard 2 / button heard 0|El fondo oyó 2 / el botón oyó 0"
+# A6-9: the scheme and the share (the last card: no centring at the scroll's end)
+- scrollUntilVisible:
+    element:
+      id: whats-new-a6-9-more
+- tapOn:
+    id: whats-new-a6-9-more
+- assertVisible: "Scheme: light, share 60%|Esquema: claro, parte 60%"
+- tapOn:
+    id: whats-new-a6-9-toggle
+- assertVisible: "Scheme: dark, share 60%|Esquema: oscuro, parte 60%"
+- tapOn:
+    id: whats-new-a6-9-toggle
+- assertVisible: "Scheme: light, share 60%|Esquema: claro, parte 60%"

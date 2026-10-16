@@ -33,6 +33,8 @@ One screen section per version. Within a version, ordered by video value. Tier B
 
 ### 0.6.0
 
+Built in What's new 0.6 (2026-10-15, ng-native 0.14.0 on iOS 27 and the Android emulator): **A6-1 to A6-9, all nine, each with its badge verified on iOS and Android.** B6-1 to B6-4 are not built. A6-2 imports a `.md` through Metro (`marked` was installed for it); A6-6 is built inside What's new with its own Block JS button, the Gestures demo is untouched; A6-3's `rows` still prints a `<text-input> has no prop 'rows'` warning although it sizes the field.
+
 | Id | Entries | Demo sketch | Observable proof |
 |---|---|---|---|
 | A6-1 | #604 (#587) | A short `<scroll-view>` of 30 lines, scrolled by a button to offset 300 (readout from `(scroll)`), inside a box toggled with `display: none`. Second box hidden the documented way (`position: absolute; opacity: 0; pointer-events: none`). | After hide then show, the display:none box reads offset 0 (view recreated); the opacity-0 box still reads 300. Note says exactly this. |

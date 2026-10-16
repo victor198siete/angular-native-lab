@@ -47,6 +47,15 @@ import { LinkOnStackCase } from '../cases/link-on-stack-case.ts';
 import { MarkdownEntitiesCase } from '../cases/markdown-entities-case.ts';
 import { ShortListCase } from '../cases/short-list-case.ts';
 import { ToolbarCase } from '../cases/toolbar-case.ts';
+import { DisplayNoneCase } from '../cases/display-none-case.ts';
+import { FlexBasisCase } from '../cases/flex-basis-case.ts';
+import { InvisibleBackdropCase } from '../cases/invisible-backdrop-case.ts';
+import { KeyframesBlockCase } from '../cases/keyframes-block-case.ts';
+import { LightDarkMixCase } from '../cases/light-dark-mix-case.ts';
+import { ListHeaderFooterCase } from '../cases/list-header-footer-case.ts';
+import { MarkdownPostCase } from '../cases/markdown-post-case.ts';
+import { MultilineRowsCase } from '../cases/multiline-rows-case.ts';
+import { VarFallbackCase } from '../cases/var-fallback-case.ts';
 import { CaseCard } from '../shared/case-card.ts';
 
 /**
@@ -62,6 +71,8 @@ import { CaseCard } from '../shared/case-card.ts';
     IconSizeTokenCase, IconValuesCase, InvisiblePressCase, KeyframesScopeCase, NativeHeader, NgDeepCase,
     NotDarkCase, OneWordCase, OpenSettingsCase, PanelHeightCase, PermissionRecheckCase, SafeAreaView,
     ScrollView, SpacingTransitionCase, TabsLabCase, Text, TransitionsBlockCase, ZIndexCase,
+    DisplayNoneCase, FlexBasisCase, InvisibleBackdropCase, KeyframesBlockCase, LightDarkMixCase, ListHeaderFooterCase,
+    MarkdownPostCase, MultilineRowsCase, VarFallbackCase,
     InheritedLineHeightCase, InitialValueTransitionCase, LinkOnStackCase, MarkdownEntitiesCase, ShortListCase, ToolbarCase,
   ],
   host: { style: 'flex: 1' },
@@ -73,6 +84,15 @@ import { CaseCard } from '../shared/case-card.ts';
         @for (item of cases(); track item.id) {
           <app-case-card [item]="item">
             @switch (item.id) {
+              @case ('a6-1') { <app-display-none-case /> }
+              @case ('a6-2') { <app-markdown-post-case /> }
+              @case ('a6-3') { <app-multiline-rows-case /> }
+              @case ('a6-4') { <app-flex-basis-case /> }
+              @case ('a6-5') { <app-list-header-footer-case /> }
+              @case ('a6-6') { <app-keyframes-block-case /> }
+              @case ('a6-7') { <app-var-fallback-case /> }
+              @case ('a6-8') { <app-invisible-backdrop-case /> }
+              @case ('a6-9') { <app-light-dark-mix-case /> }
               @case ('a7-1') { <app-toolbar-case /> }
               @case ('a7-2') { <app-short-list-case /> }
               @case ('a7-3') { <app-link-on-stack-case /> }
