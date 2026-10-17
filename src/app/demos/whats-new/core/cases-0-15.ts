@@ -24,10 +24,7 @@ export const cases015 = (): readonly Case[] => [
     prs: ['#865', '#850'],
     title: $localize`:@@whatsNew.a15_3.title:A markdown table that scrolls sideways`,
     note: $localize`:@@whatsNew.a15_3.note:A markdown table wider than the page scrolls sideways, each column as wide as its widest cell (up to 280pt), instead of squeezing every column into the page.`,
-    status: {
-      kind: 'caveat',
-      note: 'iOS: the table is wider than the card and scrolls sideways to its last column (Expires), the long cell capped at 280 pt. Android: it scrolls only about 12 pt, the Where column is about 165 dp wide (its long cell wraps; uiautomator bounds 433 px at 2.625) and Expires cannot be reached, so the columns are squeezed rather than each as wide as its widest cell.',
-    },
+    status: { kind: 'verified', platforms: ['iOS', 'Android'] },
   },
   {
     id: 'a15-4',

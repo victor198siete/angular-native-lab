@@ -427,7 +427,7 @@ appId: ${APP_ID}
 - inputText: "hi"
 - hideKeyboard
 - assertVisible: "Keys 2 .last i. / scrolls [0-9]+ / content size changes [0-9]+|Teclas 2 .última i. / desplazamientos [0-9]+ / cambios de tamaño del contenido [0-9]+"
-# A15-3: the table is drawn; on iOS it scrolls sideways to its last column (on Android it does not get there, see the card)
+# A15-3: the table is drawn; on iOS the flow swipes it to its last column (on Android the swipe is a screenshot job: a swipe at the centre of the screen does not reach the table there)
 - scrollUntilVisible:
     element:
       id: whats-new-a15-3-drawn
