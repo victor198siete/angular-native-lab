@@ -521,3 +521,11 @@ appId: ${APP_ID}
 - tapOn:
     id: whats-new-a15-10-break
 - assertVisible: "--paint is #be123c|--paint es #be123c"
+# 11. The 0.16 case. A16-1 (the picture sizes) is a screenshot: the flow opens the page and checks the card is there.
+- openLink: ${APP_URL}/--/whats-new/0.16
+- extendedWaitUntil:
+    visible: "Version 0.16"
+    timeout: 30000
+- assertVisible:
+    id: whats-new-a16-1-drawn
+- assertVisible: "#922 · #906"

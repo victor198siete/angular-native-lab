@@ -68,7 +68,7 @@ maestro test -e APP_ID=host.exp.Exponent -e APP_URL=exp://127.0.0.1:8081 .maestr
 maestro test -e APP_ID=host.exp.Exponent -e APP_URL=exp://127.0.0.1:8081 .maestro/whats-new-early.yaml
 ```
 
-What's new runs as two flows: `whats-new.yaml` covers 0.15 to 0.8 and `whats-new-early.yaml` covers 0.7 and
+What's new runs as two flows: `whats-new.yaml` covers 0.16 to 0.8 and `whats-new-early.yaml` covers 0.7 and
 0.6 (split on 15 Oct 2026, when one flow took 7 min on iOS and 9.5 on Android; now about 3.5 + 2.7 min on iOS
 and 5 + 2.8 min on Android, each passing on the first run on both).
 
@@ -86,7 +86,7 @@ and 5 + 2.8 min on Android, each passing on the first run on both).
 | [Lists](#lists-virtual-list-vs-scroll-view) | `<virtual-list>` against `<scroll-view>` at 200 and 2,000 rows, with a live count of the row components actually mounted | ✅ iOS, Android |
 | [Gestures](#gestures-drag-pinch-swipe-and-three-ways-to-animate) | Drag that springs back, pinch and rotate, swipe-to-delete rows inside a scrolling list, and the same slide animated by CSS, `Animated`, a worklet and the JavaScript thread, with a button that blocks it | ✅ iOS, Android (pinch and rotate: iOS simulator and Node) |
 | [Offline](#offline-sqlite-cache-and-a-queue-of-redemptions) | Catalog and history in SQLite shown with no network and dated, redemptions queued offline that survive a restart and are sent once on reconnect, a fake API with duplicates (409) and failures (500) | ✅ iOS, Android (real airplane mode on Android) |
-| [What's new](#whats-new-each-release-note-checked) | One screen per ng-native version, each case a line of the release notes run live, with a badge for what was seen on the iOS simulator and the Android emulator (0.15 to 0.6) | ✅ iOS, Android |
+| [What's new](#whats-new-each-release-note-checked) | One screen per ng-native version, each case a line of the release notes run live, with a badge for what was seen on the iOS simulator and the Android emulator (0.16 to 0.6) | ✅ iOS, Android |
 
 ### Rewards
 
@@ -594,7 +594,7 @@ internet), the queue sent from the background.
 
 A demo that takes the lines of the ng-native release notes and runs them, so the notes can be
 confirmed or contradicted on a device. Reached by deep link: `exp://127.0.0.1:8081/--/whats-new`
-(a list of versions), and `exp://127.0.0.1:8081/--/whats-new/0.15`, `.../0.14`, `.../0.13`, `.../0.11`, `.../0.10`, `.../0.9` or `.../0.8` for one version's cases. Spanish:
+(a list of versions), and `exp://127.0.0.1:8081/--/whats-new/0.16`, `.../0.15`, `.../0.14`, `.../0.13`, `.../0.11`, `.../0.10`, `.../0.9` or `.../0.8` for one version's cases. Spanish:
 "Novedades".
 
 How it grows, one version at a time (`src/app/demos/whats-new/`):
@@ -763,6 +763,17 @@ The 0.15 section of `.maestro/whats-new.yaml` reads the readouts (A15-1, 2, 4, 6
 (`whats-new-0-15.test.ts`) assert the committed props for A15-1 to A15-10 and the cards, and 3 more
 (`whats-new-0-15-cards.test.ts`) assert the updated A9-1, A8-2 and A14-2. The A8-2 and A14-2 cards now say that Android eases a
 lone width and iOS still jumps ([ng-native#883](https://github.com/ng-native/ng-native/issues/883) stays open for iOS). Reserve cases not built: #891 (icon rows), #916 (status bar), #892 (tabs outlet).
+
+**0.16 case** (same devices, the app in English). `docs/whats-new-triage.md` has the 16-row triage of the 0.16.0 notes (8 entries):
+1 PICK row (the case below), 2 TEST-ONLY, 8 LIST and 5 SKIP. Seven of the eight entries are `ui-*` components of `@expo/ui`, which is not in the lab
+(no package was installed), so #928, #923, #927, #930 and #926 are LIST. #918 (the `templateUrl` / `styleUrl` error) is a Metro message in the terminal when a
+template does not compile: no screen can show it, so it is SKIP.
+
+| Case | PR | iOS | Android | What was seen |
+|---|---|---|---|---|
+| A markdown picture at its own size | #922 | ✅ | ✅ | A 32 x 32 PNG and a 600 x 100 PNG written as `data:` urls. iOS (402 pt wide): the icon is 32 pt, the strip about 314 pt wide by 52 pt high. Android (411 dp): the icon is 32 dp, the strip about 322 dp by 53 dp. The icon keeps its size and the strip is narrowed to the card keeping its 6 to 1 shape; neither fills the card at 200 pt high. The "before" (0.15) was not run. Sizes read from screenshots |
+
+In Node, 2 tests (`whats-new-0-16.test.ts`) assert the card and, by sending the `load` and `layout` events by hand, the committed props (the icon 32 wide with ratio 1, the strip at 50 high from a 300-wide document). The Maestro section for 0.16 only opens the page and checks the card; the 0.16 steps passed on iOS and on Android when run on their own. **The whole `whats-new.yaml` is not green after this section** (not edited, decision pending): on iOS the new 0.16 row pushes the 0.10 row off the first screen, so step 1 (tap `whats-new-version-0.10`) fails; on Android the run failed later, at the A15-4 step `Streaming: chunk 1 of 6`.
 
 **0.7 cases** (same devices; Android in Spanish; the iOS app switched to Spanish between the case runs and the Maestro
 runs, cause not found, so the flow reads both languages). `marked` ^18.1.1 is a new dependency (`npx expo install marked`): the
