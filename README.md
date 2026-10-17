@@ -24,7 +24,7 @@ partial (see [Android](#android)).
 
 | | Version |
 |---|---|
-| `@ng-native/*` | 0.15.0 (also ran on 0.14.0, 0.13.0, 0.10.0, 0.9.0, 0.5.0, 0.4.0 and 0.3.0: tags [`ng-native-0.13.0`](https://github.com/victor198siete/angular-native-lab/tree/ng-native-0.13.0), [`ng-native-0.10.0`](https://github.com/victor198siete/angular-native-lab/tree/ng-native-0.10.0), [`ng-native-0.9.0`](https://github.com/victor198siete/angular-native-lab/tree/ng-native-0.9.0), [`ng-native-0.5.0`](https://github.com/victor198siete/angular-native-lab/tree/ng-native-0.5.0), [`ng-native-0.4.0`](https://github.com/victor198siete/angular-native-lab/tree/ng-native-0.4.0) and [`ng-native-0.3.0`](https://github.com/victor198siete/angular-native-lab/tree/ng-native-0.3.0)) |
+| `@ng-native/*` | 0.16.0 (also ran on 0.15.0, 0.14.0, 0.13.0, 0.10.0, 0.9.0, 0.5.0, 0.4.0 and 0.3.0: tags [`ng-native-0.13.0`](https://github.com/victor198siete/angular-native-lab/tree/ng-native-0.13.0), [`ng-native-0.10.0`](https://github.com/victor198siete/angular-native-lab/tree/ng-native-0.10.0), [`ng-native-0.9.0`](https://github.com/victor198siete/angular-native-lab/tree/ng-native-0.9.0), [`ng-native-0.5.0`](https://github.com/victor198siete/angular-native-lab/tree/ng-native-0.5.0), [`ng-native-0.4.0`](https://github.com/victor198siete/angular-native-lab/tree/ng-native-0.4.0) and [`ng-native-0.3.0`](https://github.com/victor198siete/angular-native-lab/tree/ng-native-0.3.0)) |
 | Angular | 22.2.1 |
 | Expo SDK | 57 (`expo` 57.0.30) |
 | React Native | 0.86.3 |
@@ -769,7 +769,7 @@ runs, cause not found, so the flow reads both languages). `marked` ^18.1.1 is a 
 `.md` import and `<markdown>` need it, and nothing else changed in `package.json`, `metro.config.js` or `tsconfig.json`
 (the type of a `.md` import is `src/app/demos/whats-new/markdown.d.ts`, a `/// <reference types="@ng-native/metro/markdown" />`).
 `docs/whats-new-triage.md` marks which of its A7 cases are built. A7-1 needed no `expo-router` install: Expo Go carries the
-native half, as the note says. The lab is on 0.15.0 (the badges below were seen on 0.14.0 and the flow passes on 0.15.0), so what is seen is what 0.7 brought as of 0.14.
+native half, as the note says. The lab is on 0.16.0 (the badges below were seen on 0.14.0 and the flow passes on 0.16.0), so what is seen is what 0.7 brought as of 0.14.
 
 | Case | PR | iOS | Android | What was seen |
 |---|---|---|---|---|
@@ -788,7 +788,7 @@ text. A7-1's buttons (there is no native toolbar in the fake), A7-2's `endReache
 **0.6 cases** (same devices; both apps in Spanish when the Maestro runs were made, the cases were looked at with the
 English text for the strings Metro had not translated yet). `marked` (added with 0.7) is what A6-2 imports through.
 `.md` files in `src/app/demos/whats-new/features/cases/content/` are bundled by Metro as `{ attributes, content, tokens }`.
-`docs/whats-new-triage.md` marks which A6 cases are built; B6-1 to B6-4 are not. The lab is on 0.15.0 (the badges below were seen on 0.14.0 and the flow passes on 0.15.0), so this is what
+`docs/whats-new-triage.md` marks which A6 cases are built; B6-1 to B6-4 are not. The lab is on 0.16.0 (the badges below were seen on 0.14.0 and the flow passes on 0.16.0), so this is what
 0.6's changes did as of 0.14.
 
 | Case | PR | iOS | Android | What was seen |
@@ -984,6 +984,36 @@ with a caveat, — not tested there.
 | `[animatedStyle]` | `@ng-native/components/animations` | Gestures: the native-driver and JavaScript tiles | ✅ | No | — | A loop of an `Animated.sequence` is restarted from JavaScript; use one timing in a loop. No Vitest stand-in |
 | Reactive Forms, `ControlValueAccessor` | `@angular/forms` | Compatibility check only | ✅ | No | — | Angular binds `[formControl]` and `ngModel` to the `value` model; no accessor needed. Also ✅ on the Android emulator |
 | `HttpClient` with interceptors | `@ng-native/platform/http` (`provideNativeHttpClient`) | Login: auth interceptor, mock API | ✅ | No | — | Angular's `withInterceptors()` and `provideHttpClientTesting()` work unchanged. Also ✅ on the Android emulator |
+
+## Upgrading to 0.16.0
+
+0.16.0 is fixes only, nothing breaking, nothing to migrate. The lab went from 0.15.0 to 0.16.0, all ten
+`@ng-native/*` packages, with **no change to the app**: typecheck clean, the 237 tests passing,
+`expo install --check` clean. With Metro restarted with `--clear`, the eight Maestro flows (Device, Gestures,
+Join, Lists, Login, Offline, What's new, What's new early) pass on the iOS simulator and the Android emulator,
+the app in English, with the one retry listed below.
+
+- **Most of the notes do not apply.** They are fixes to the `ui-*` components of `@expo/ui` (date picker,
+  picker, gauge, image, label, button, `ui-view-host` `matchContents`, `ui-host` in a header item) and to the
+  `UiContextMenu` and `UiViewHost` exports. `grep` of `ui-`, `UiContextMenu`, `UiViewHost` and `matchContents`
+  in `src/` finds nothing: the lab uses none of them. The `templateUrl` and `styleUrl` error that now names the
+  component ([#918](https://github.com/ng-native/ng-native/pull/918)) is not exercised either: no component of the
+  lab uses `templateUrl` or `styleUrl`.
+- **`<markdown>` images, [#922](https://github.com/ng-native/ng-native/pull/922): A15-5 is the only place the lab
+  draws one.** The 32 x 32 PNG of the card is drawn at its own size once it loads, 32 pt on both platforms (about
+  96 px at 3x on the iPhone 18 Pro capture, about 84 px at 2.625x on the Pixel capture), left-aligned in its box, with the SVG still its
+  alt text "vector logo". That is what the card says ("a small picture in three colours"), so the card is not out of date.
+  The 0.15.0 size of that picture was not captured, so what changed is taken from the notes (before, an image was
+  scaled to the document's width), not measured here. A6-2 (the imported `post.md`, `/--/whats-new/0.6`) has no image
+  in it, and neither has any other `<markdown>` in the lab (the table, entities, streaming and post cases): #922 does
+  not touch them.
+- **[#883](https://github.com/ng-native/ng-native/issues/883) on iOS: still snaps on 0.16.0.**
+  `/--/repro/size-transition?v=wh&noblock=1&auto=6000` (8 s linear), 30 captures in a loop (about 0.7 s apart):
+  the box measured 180 x 88 px (60 x 30 pt) in ten captures, then 960 x 448 px (320 x 150 pt) in the next and in
+  every one after it. No in-between size. The notes do not mention it.
+- **Maestro retries:** Android Join failed once (at the scroll back up to `join-email` after `join-submit`) and
+  passed on the second run. The rest passed on the first run on both platforms. (The first iOS pass did not run
+  at all: Maestro had no `JAVA_HOME`; set it and the eight flows passed on the first run.)
 
 ## Upgrading to 0.15.0
 
