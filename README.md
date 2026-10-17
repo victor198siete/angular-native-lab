@@ -24,7 +24,7 @@ partial (see [Android](#android)).
 
 | | Version |
 |---|---|
-| `@ng-native/*` | 0.14.0 (also ran on 0.13.0, 0.10.0, 0.9.0, 0.5.0, 0.4.0 and 0.3.0: tags [`ng-native-0.13.0`](https://github.com/victor198siete/angular-native-lab/tree/ng-native-0.13.0), [`ng-native-0.10.0`](https://github.com/victor198siete/angular-native-lab/tree/ng-native-0.10.0), [`ng-native-0.9.0`](https://github.com/victor198siete/angular-native-lab/tree/ng-native-0.9.0), [`ng-native-0.5.0`](https://github.com/victor198siete/angular-native-lab/tree/ng-native-0.5.0), [`ng-native-0.4.0`](https://github.com/victor198siete/angular-native-lab/tree/ng-native-0.4.0) and [`ng-native-0.3.0`](https://github.com/victor198siete/angular-native-lab/tree/ng-native-0.3.0)) |
+| `@ng-native/*` | 0.15.0 (also ran on 0.14.0, 0.13.0, 0.10.0, 0.9.0, 0.5.0, 0.4.0 and 0.3.0: tags [`ng-native-0.13.0`](https://github.com/victor198siete/angular-native-lab/tree/ng-native-0.13.0), [`ng-native-0.10.0`](https://github.com/victor198siete/angular-native-lab/tree/ng-native-0.10.0), [`ng-native-0.9.0`](https://github.com/victor198siete/angular-native-lab/tree/ng-native-0.9.0), [`ng-native-0.5.0`](https://github.com/victor198siete/angular-native-lab/tree/ng-native-0.5.0), [`ng-native-0.4.0`](https://github.com/victor198siete/angular-native-lab/tree/ng-native-0.4.0) and [`ng-native-0.3.0`](https://github.com/victor198siete/angular-native-lab/tree/ng-native-0.3.0)) |
 | Angular | 22.2.1 |
 | Expo SDK | 57 (`expo` 57.0.30) |
 | React Native | 0.86.3 |
@@ -186,7 +186,7 @@ and numbers, dates and mock data in both languages.
   reported as [ng-native/ng-native#882](https://github.com/ng-native/ng-native/issues/882)):**
   the extraction works (`npm run i18n:extract` writes `{VAR_PLURAL, plural, =0 {...} one {{INTERPOLATION} ...} other {...}}`,
   `{VAR_SELECT, select, ...}` and the `i18n-accessibilityLabel` text), and the Vitest tests render them
-  in English and Spanish. On a device they fail (still so on 0.14.0): in Expo Go in development, on the iOS simulator and
+  in English and Spanish. On a device they failed up to 0.14.0 and **work on 0.15.0** (#882 fixed upstream, see [Upgrading to 0.15.0](#upgrading-to-0150)). Before, in Expo Go in development, on the iOS simulator and
   the Android emulator, mounting one logs `ASSERTION ERROR: The provided value must be an instance of
   a DOM Node but got #anchor` and the sample is left undrawn. This app still uses `$localize` strings.
 - `$localize` at module level runs before the translations load and stays in English.
@@ -659,7 +659,7 @@ press counter, and the cards of A9-5.
 | Case | PR | iOS | Android | What was seen |
 |---|---|---|---|---|
 | `Permission.ensure()` after Settings | #682 | ✅ | ✅ | **iOS:** `simctl privacy revoke location host.exp.Exponent` did not kill the app; after a "Read the permission" press the card read `denied` / `blocked(): yes`, and "Ask with ensure()" answered `not granted` with no dialog. Then `simctl launch com.apple.Preferences` (the Settings app in front), `simctl privacy grant location host.exp.Exponent`, and `simctl launch host.exp.Exponent` to come back: with no press the card read `granted` / `blocked(): no` (same process id 35171 throughout), and `ensure()` answered `granted` with no dialog. A second run granted while the app stayed in front and pressed Ask: `ensure(): granted`, no dialog. `simctl openurl app-settings:` fails on this simulator (`LSApplicationWorkspaceErrorDomain error 115`), and the Settings toggle itself was not driven: the grant is `simctl privacy`. **Android:** `pm revoke` kills the app (process gone), so it was relaunched; "Ask with ensure()" showed the system dialog, "Don't allow" gave `denied` / `blocked(): yes`, and a second ask showed no dialog (`not granted`). Then `am start -a android.settings.APPLICATION_DETAILS_SETTINGS` (Settings in front), `pm grant` of both location permissions, and Back to the app: `granted` / `blocked(): no` by itself, same process id 32169, and `ensure()` then answered `granted` with no dialog. The Google "Location Accuracy" prompt never appeared (nothing starts tracking) |
-| Transitions through Block JS | #672, #676 | ❌ | ❌ | **Not as described, and not for the reason first thought.** The opacity and transform tile moves through the 3 s block on both platforms. The width and height tile stopped for the block and jumped after it because the Animate button changes length (Animate to Reset) in that commit, which is the documented fallback to JavaScript. Isolated with one box per screen (`/--/repro/size-transition?v=wh`, screenshots timed against the press, 8 s linear, block 100 ms after): a lone `width`, `height` or both is **not animated at all**, it snaps to its end value within 0.5 s of the press, with or without the block, on iOS and Android, while `transitionstart` and `transitionend` still fire 8 s apart. Adding a button label that changes length, or a second box resized with no transition, makes it animate from JavaScript and freeze for the block. Reported as [ng-native/ng-native#883](https://github.com/ng-native/ng-native/issues/883) |
+| Transitions through Block JS | #672, #676 | ❌ | ❌ | **Not as described, and not for the reason first thought.** The opacity and transform tile moves through the 3 s block on both platforms. The width and height tile stopped for the block and jumped after it because the Animate button changes length (Animate to Reset) in that commit, which is the documented fallback to JavaScript. Isolated with one box per screen (`/--/repro/size-transition?v=wh`, screenshots timed against the press, 8 s linear, block 100 ms after): a lone `width`, `height` or both is **not animated at all**, it snaps to its end value within 0.5 s of the press, with or without the block, on iOS and Android, while `transitionstart` and `transitionend` still fire 8 s apart. Adding a button label that changes length, or a second box resized with no transition, makes it animate from JavaScript and freeze for the block. Reported as [ng-native/ng-native#883](https://github.com/ng-native/ng-native/issues/883). **On 0.15.0 ([#902](https://github.com/ng-native/ng-native/pull/902)): Android animates width and height** (60 x 30 to 320 x 150 pt over about 8 s, linear, in the `wh` repro), **iOS still snaps** to the end size between two captures 0.5 s apart. See [Upgrading to 0.15.0](#upgrading-to-0150) |
 | Padding, margin, radius transitions | #670 | ✅ | ✅ | 2 s linear, nothing written at 0: padding read 0, 4, 7, 10, 14, 17, 20 at 0.33 s steps on iOS (margin the same), the green box's radius rounded in step; Android showed the red border and the radius growing over the same frames |
 | Gradient in a custom property | #664 | ✅ | ✅ | `[style.--x]` holding `linear-gradient(90deg, red 0%, gold N%, blue 100%)`: `background: var(--x)` draws it and the gold stop follows the buttons (50 %, 10 %, 90 %); `background-color: var(--x)` with the same value draws nothing, as the note says |
 | Icon `size` in px and rem | #668 | ✅ | ✅ | `18px`, `1.5rem`, `24` and an unreadable `big` read 18 / 24 / 24 / 16 points from `(layout)`; the last one is the text size (16 with no font size in scope) and looks smaller than the other three |
@@ -723,7 +723,7 @@ what each case measured from `(layout)`; the fade is judged from a host-clock sc
 | Case | PR | iOS | Android | What was seen |
 |---|---|---|---|---|
 | Bound size in `em`, `rem`, `vw`; `<ng-icon size="2em">` | #786, #784 | ✅ | ✅ | At font size 16: `2em` 32, `2rem` 32, `50vw` 201 (iOS, 402 pt wide) and 206 (Android), icon 32. After the button (24): 48, 32, same, 48. A Vitest test asserts the committed numbers (the PR's own test fails on 0.13.0 with the text `'2em'` committed) |
-| A class brings in the transition and the value | #846 | ⚠️ | ⚠️ | **Caveat.** Opacity and transform ease over the 6 s on both platforms, with no transition before and with `transition: none` before (x 108 to 768 px and opacity to 0.2 in about 0.5 s steps on iOS). **Width does not: the bar is at its end width (280 pt) in the first capture after the press, in both lanes, on both.** Same as the size-transition repro ([#883](https://github.com/ng-native/ng-native/issues/883)) |
+| A class brings in the transition and the value | #846 | ⚠️ | ⚠️ | **Caveat.** Opacity and transform ease over the 6 s on both platforms, with no transition before and with `transition: none` before (x 108 to 768 px and opacity to 0.2 in about 0.5 s steps on iOS). **Width does not: the bar is at its end width (280 pt) in the first capture after the press, in both lanes, on both.** Same as the size-transition repro ([#883](https://github.com/ng-native/ng-native/issues/883)). **On 0.15.0 the width bar eases on Android (40 to 280 pt over about 6 s) and still snaps on iOS** |
 | Border colour before its width | #819 | n/a | ✅ | Both boxes get a seagreen border, not black, on Android (iOS the same). The second box asks for `border-style: dashed` and Android drew it solid, iOS dashed: not what #819 is about, not investigated |
 | `aspect-ratio` across a flex line | #842 | ✅ | ✅ | In a 200 pt column the view is 200 x 100 |
 | A minimum over a maximum | #840 | ✅ | ✅ | `min-height: 80` over `max-height: 40` measures 80, `min-width: 160` over `max-width: 100` 160, padding 16 and border 2 over `max-height: 20` 36 |
@@ -745,7 +745,7 @@ runs, cause not found, so the flow reads both languages). `marked` ^18.1.1 is a 
 `.md` import and `<markdown>` need it, and nothing else changed in `package.json`, `metro.config.js` or `tsconfig.json`
 (the type of a `.md` import is `src/app/demos/whats-new/markdown.d.ts`, a `/// <reference types="@ng-native/metro/markdown" />`).
 `docs/whats-new-triage.md` marks which of its A7 cases are built. A7-1 needed no `expo-router` install: Expo Go carries the
-native half, as the note says. The lab is on 0.14.0, so what is seen is 0.14's behaviour of what 0.7 brought.
+native half, as the note says. The lab is on 0.15.0 (the badges below were seen on 0.14.0 and the flow passes on 0.15.0), so what is seen is what 0.7 brought as of 0.14.
 
 | Case | PR | iOS | Android | What was seen |
 |---|---|---|---|---|
@@ -764,8 +764,8 @@ text. A7-1's buttons (there is no native toolbar in the fake), A7-2's `endReache
 **0.6 cases** (same devices; both apps in Spanish when the Maestro runs were made, the cases were looked at with the
 English text for the strings Metro had not translated yet). `marked` (added with 0.7) is what A6-2 imports through.
 `.md` files in `src/app/demos/whats-new/features/cases/content/` are bundled by Metro as `{ attributes, content, tokens }`.
-`docs/whats-new-triage.md` marks which A6 cases are built; B6-1 to B6-4 are not. The lab is on 0.14.0, so this is what
-0.6's changes do today.
+`docs/whats-new-triage.md` marks which A6 cases are built; B6-1 to B6-4 are not. The lab is on 0.15.0 (the badges below were seen on 0.14.0 and the flow passes on 0.15.0), so this is what
+0.6's changes did as of 0.14.
 
 | Case | PR | iOS | Android | What was seen |
 |---|---|---|---|---|
@@ -961,6 +961,41 @@ with a caveat, — not tested there.
 | Reactive Forms, `ControlValueAccessor` | `@angular/forms` | Compatibility check only | ✅ | No | — | Angular binds `[formControl]` and `ngModel` to the `value` model; no accessor needed. Also ✅ on the Android emulator |
 | `HttpClient` with interceptors | `@ng-native/platform/http` (`provideNativeHttpClient`) | Login: auth interceptor, mock API | ✅ | No | — | Angular's `withInterceptors()` and `provideHttpClientTesting()` work unchanged. Also ✅ on the Android emulator |
 
+## Upgrading to 0.15.0
+
+0.15.0 is fixes plus `NavigationBar`, nothing breaking, nothing to migrate. The
+lab went from 0.14.0 to 0.15.0, all ten `@ng-native/*` packages, with **no change to the app**: typecheck
+clean, the 223 tests passing, `expo install --check` clean. With Metro restarted with `--clear`, the eight
+Maestro flows (Device, Gestures, Join, Lists, Login, Offline, What's new, What's new early) pass on the iOS
+simulator and the Android emulator, with the retries listed under the table.
+
+**The three issues the lab reported are closed upstream. Two are fixed on both platforms; #883 is fixed on
+Android only, as the notes say.** Re-run on the 0.15.0 build (iOS simulator and Android emulator):
+
+| Issue | Fix | iOS | Android |
+|---|---|---|---|
+| [#882](https://github.com/ng-native/ng-native/issues/882) ICU plural or select threw `must be an instance of a DOM Node` | [#885](https://github.com/ng-native/ng-native/pull/885) | **Fixed.** `/--/repro/icu` `v1` draws `one` and `v5` draws `Alpha`, no red screen, the `Node` probe answers `true` | **Fixed.** Same: `one`, `Alpha`, probe `true` |
+| [#883](https://github.com/ng-native/ng-native/issues/883) width and height transition snapped | [#902](https://github.com/ng-native/ng-native/pull/902) | **Still snaps.** `/--/repro/size-transition?v=wh&noblock=1` (8 s linear): 60 x 30 pt in one capture, 320 x 150 pt in the next, 0.5 s later, and unchanged for the following 17 s. The #846 width bar (What's new A14-2) does the same: 40 to 280 pt between two captures 0.6 s apart | **Fixed.** Same repro: the box grows from 60 x 30 to 320 x 150 pt in steps of about 0.6 s over about 8 s. The A14-2 width bar eases from 40 to 280 pt over about 6 s |
+| [#884](https://github.com/ng-native/ng-native/issues/884) `setPointerEvents` crash on a `<virtual-list>` of `<ng-icon>` rows | [#891](https://github.com/ng-native/ng-native/pull/891) | Not applicable (Android only) | **Fixed.** 12 fresh launches of `/--/catalog`, 6 quick swipes each, 0 crashes (on 0.14.0: 4 of 12) |
+
+(#883 was measured with `noblock=1`, which leaves out the 3 s JavaScript block of the `wh` variant: the question is
+whether the size animates at all. #884 was counted from `adb logcat` for `setPointerEvents` or `FATAL EXCEPTION`
+after each launch.)
+
+- **Maestro retries:** iOS Gestures passed on the second run (the first did not find `gestures-block-js` while
+  scrolling). iOS Device failed twice at `location-latitude` because the simulator had no location set (the flow says it
+  needs one); `xcrun simctl location <udid> set 4.7110,-74.0721` and it passed. Android What's new asserts the
+  Android heights of A14-8 in Spanish only, and failed twice in English (the second time at the 0.10 version
+  link); in Spanish it passed on the next run. The rest passed on the first run on both platforms.
+- **Fixes that touch the lab, none changed anything here:** `<text-input rows>` no longer warns
+  ([#895](https://github.com/ng-native/ng-native/issues/895)), so the draft finding about that warning is obsolete;
+  `NavigationBar`, the `pointerEvents` committed as `auto` for every view, and `(scroll)`, `(keyPress)` and
+  `(contentSizeChange)` on `<text-input>` on Android are used nowhere in the lab.
+- **What's new still says the old thing.** On 0.15.0 the A9-1 sample (ICU plural, select and `i18n-` label, `/--/whats-new/0.9`) draws on both platforms ("No rewards", "Gold member", the three buttons), but its card still carries the "Not as described" badge and the `ASSERTION ERROR` text, and the A8-2 and A14-2 cards still describe the size transition as snapping. The cards are app code, not part of this upgrade.
+- **Repro screens kept:** `src/app/repro/icu` and `src/app/repro/size-transition` stay, with their routes. #882 and
+  #884 are fixed, but #883 still reproduces on iOS.
+- The 0.15 cases of What's new are another change.
+
 ## Upgrading to 0.14.0
 
 0.14.0 came out on 15 October 2026: 7 features and about 45 fixes. The lab went from 0.13.0 to 0.14.0, all
@@ -1107,7 +1142,8 @@ First run on the Android 16 emulator (Pixel 9, API 36), in Expo Go and in a deve
   swipes on most launches (12 of 12 with a Maestro flow on 0.9.0) but no smaller screen we built
   reproduced it: it depends on the catalog's layout, not on one element. Reported as
   [ng-native/ng-native#884](https://github.com/ng-native/ng-native/issues/884).
-  **Still there on 0.14.0:** 4 of 12 fresh launches of the catalog crashed with the same
+  **Resolved in 0.15.0** ([#891](https://github.com/ng-native/ng-native/pull/891)): 0 crashes in 12 fresh launches of the catalog on the Android emulator, 6 swipes each (see [Upgrading to 0.15.0](#upgrading-to-0150)).
+  *Still there on 0.14.0:* 4 of 12 fresh launches of the catalog crashed with the same
   `NullPointerException` at `SvgViewManager.setPointerEvents` and the red screen (six quick swipes each,
   a different gesture from the 0.9.0 Maestro flow, so the rate is not comparable).
 - **Resolved in 0.6.0 — opening the catalog stopped the app** on 0.3.0 to 0.5.0, in Expo Go and in a
