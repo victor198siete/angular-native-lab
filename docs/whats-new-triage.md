@@ -580,3 +580,47 @@ Totals: PICK 11 + PICK B 3 + TEST-ONLY 6 + LIST 9 + SKIP 16 + card update 2 = 47
 | 0.15 | #879 | `Camera.record()` | `expo-camera` is not installed (and the iOS simulator has no camera) |
 
 **Status of A15-1 ... A15-10 (built in `feat/whats-new-0.15`, run on iOS and Android):** A15-1, A15-3, A15-4, A15-5 and A15-7 to A15-10 verified on both; A15-2 and A15-6 verified on Android (the claims are Android only; on iOS the `NavigationBar` readout follows the claims). A15-3 (#865) was first recorded as an Android caveat (columns squeezed, Expires unreachable); that was a measurement mistake of the lab (the swipes missed the table and `uiautomator` clips bounds to the viewport). Re-measured on a minimal repro and in the card: on Android the Where column is 735 px (280 dp) and Expires is reached after two swipes on the table. No LIST entry was built: none needed a package the lab could install. `expo-navigation-bar` was not installed and `NavigationBar` ran in Expo Go on Android. The cards A9-1 (verified on both: #882 fixed), A8-2 (caveat) and A14-2 (caveat: Android eases a lone width, iOS still jumps, #883) were updated from the measured runs. See the README, "What's new".
+
+## Addendum: ng-native 0.16.0
+
+Date: 2026-10-17. The lab is on 0.16.0 (`dd5d2d3`). Same method and legend as the 0.15.0 addendum: nothing below was run when it was written, the "Shown" column is what the demo will do. The 0.16.0 note is all fixes: 8 entries, 16 rows (a sub-bullet or a second paragraph naming a separate change is a row). Verdicts: PICK 1 row in 1 case (A16-1), TEST-ONLY 2, LIST 8, SKIP 5. Total 16.
+
+Facts about the lab that shape this addendum:
+- Seven of the eight entries are `ui-*` components of `@expo/ui`, which is not in `package.json`, and the task rules out `npm install`. They are LIST with that reason, even where Expo Go carries the native half.
+- `<markdown>` is already used (A6-2, A7-6, A15-3 to A15-5), so #922 needs nothing new. The two pictures are base64 PNGs written into the case, as in A15-5.
+- #918 is a Metro error in the terminal when a `templateUrl` or `styleUrl` file does not compile. To show it, the lab would have to ship a component that breaks the bundle, which no screen can render: SKIP (not demonstrable on a screen).
+
+### Proposed case (PICK)
+
+| Id | Entries | Demo sketch | Observable proof |
+|---|---|---|---|
+| A16-1 | #922 (#906) | A `<markdown>` with a small PNG (32 pt) and a PNG wider than the card with a 6:1 shape. | The small one keeps its 32 pt size instead of filling the card; the wide one is narrowed to the card's width, keeping its shape (a strip, not a 200 pt block). |
+
+### 0.16.0 (16 rows)
+
+| Ver | PR | What | Area | Expo Go | Shown | Lab touches | Verdict |
+|---|---|---|---|---|---|---|---|
+| 0.16 | #928 (#924) | On Android `ui-date-picker`'s `range` limits the pickable dates and its `accessibilityLabel` is what TalkBack reads (`@expo/ui` 57.0.21+) | expo ui (Android) | dev build (`@expo/ui` is not in the lab, no install) | not demonstrable | no | LIST |
+| 0.16 | #928 | The typed components stop sending Compose the SwiftUI props it never reads (image, menu, button `label`/`systemImage`/`role`, toggle `label`, date picker `title`, host `ignoreSafeArea`, slot `extraProps`) | expo ui | dev build (`@expo/ui`) | not observable: props that native ignored | no | SKIP |
+| 0.16 | #919 (#911) | `UiContextMenu` and `UiViewHost` are exported from the main `@ng-native/expo` entry | expo ui | the import resolves; drawing either needs `@expo/ui` | Vitest (import) | no | TEST-ONLY |
+| 0.16 | #923 (#910) | `ui-view-host`'s `matchContents` sizes it to its element again with `@expo/ui` 57.0.23+, on iOS and Android (context-menu trigger, `ui-bottom-sheet` `fitToContents`) | expo ui | dev build (`@expo/ui`) | not demonstrable | no | LIST |
+| 0.16 | #918 (#917) | A `templateUrl` / `styleUrl` file whose template does not compile now errors naming the component, not a Babel `Unexpected token` | build | n/o (Metro error in the terminal) | not demonstrable on a screen | no | SKIP |
+| 0.16 | #922 (#906) | A `<markdown>` image is drawn at its own size once it loads and narrowed to the document's width, keeping its shape, only when wider | markdown | yes | on screen | A15-5 draws a 32 pt PNG (not modified) | PICK A16-1 |
+| 0.16 | #922 | An image is still the document's width at 200 pt high until it loads; an `img` class in `classes` sets the width instead | markdown | yes | Vitest (a data url loads at once, the 200 pt state is not stable on screen) | no | TEST-ONLY |
+| 0.16 | #922 | On the web host the load event carries no size, so an image keeps the document's width | markdown (web) | n/o (no web host in the lab) | not demonstrable | no | SKIP |
+| 0.16 | #927 (#909) | A `ui-host` with `matchContents` in a `native-header-item` of type `title` or `center` sizes to its content on iOS | expo ui (iOS) | dev build (`@expo/ui`) | not demonstrable | no | LIST |
+| 0.16 | #930 (#908) | On iOS a `<ui-picker>` with no `label` is drawn | expo ui (iOS) | dev build (`@expo/ui`) | not demonstrable | no | LIST |
+| 0.16 | #926 | On iOS `ui-image`'s `size` and `color` take effect | expo ui (iOS) | dev build (`@expo/ui`) | not demonstrable | no | LIST |
+| 0.16 | #926 | On iOS `ui-gauge`'s `type` and its three labels take effect | expo ui (iOS) | dev build (`@expo/ui`) | not demonstrable | no | LIST |
+| 0.16 | #926 | On iOS `ui-label`'s `color` draws its symbol in that colour | expo ui (iOS) | dev build (`@expo/ui`) | not demonstrable | no | LIST |
+| 0.16 | #926 | On iOS the `accessibilityLabel` of `ui-date-picker` and `ui-menu` takes effect (an `accessibilityLabel` modifier) | expo ui (iOS) | dev build (`@expo/ui`) | not demonstrable | no | LIST |
+| 0.16 | #926 | `ui-button` no longer sends `target` to native (a widget or Live Activity layout still compiles it) | expo ui | dev build (`@expo/ui`) | not observable | no | SKIP |
+| 0.16 | #926 | `ui-view-host` sends `modifiers` on Android only | expo ui | dev build (`@expo/ui`) | not observable | no | SKIP |
+
+Totals: PICK 1 + TEST-ONLY 2 + LIST 8 + SKIP 5 = 16.
+
+### Needs a development build or a new package (added)
+
+| Ver | PR | Entry | Why Expo Go (with this `package.json`) cannot |
+|---|---|---|---|
+| 0.16 | #928, #923, #927, #930, #926 | `ui-date-picker`, `ui-view-host`, header `ui-host`, `ui-picker`, `ui-image`, `ui-gauge`, `ui-label`, `ui-menu` | `@expo/ui` is not in the lab and `npm install` is out of scope for this round |
