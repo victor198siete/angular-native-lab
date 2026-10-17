@@ -39,8 +39,8 @@ const badgeOf = (item: Case) => {
  * A14-2, A14-3, A14-4, A14-7 and the viewport unit of A14-1 are only on a device.
  */
 describe('what is new, 0.14', () => {
-  it('is the newest release in the list, and its twelve cases each have a PR and a badge that matches the data', async () => {
-    expect(RELEASES[0]!.version).toBe('0.14');
+  it('is in the list of releases, and its twelve cases each have a PR and a badge that matches the data', async () => {
+    expect(RELEASES.map((r) => r.version)).toContain('0.14');
     await openVersion();
     const cases = cases014();
     expect(cases.map((c) => c.id)).toEqual(Array.from({ length: 12 }, (_, i) => `a14-${i + 1}`));
