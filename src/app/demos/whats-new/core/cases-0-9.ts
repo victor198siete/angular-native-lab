@@ -10,10 +10,7 @@ export const cases09 = (): readonly Case[] => [
     prs: ['#687'],
     title: $localize`:@@whatsNew.a9_1.title:ICU plurals, selects and i18n- attributes`,
     note: $localize`:@@whatsNew.a9_1.note:Plurals and selects render on iOS and Android, translated or not, and an i18n- attribute keeps its text.`,
-    status: {
-      kind: 'not-as-described',
-      note: 'Extraction works: localize-extract wrote the plural, the select and the i18n- label with their source text. But in Expo Go in development, on iOS and Android, mounting them throws "ASSERTION ERROR: The provided value must be an instance of a DOM Node but got #anchor", and none of the three is drawn. A release build was not run. Reported as ng-native/ng-native#882.',
-    },
+    status: { kind: 'verified', platforms: ['iOS', 'Android'] },
   },
   {
     id: 'a9-2',

@@ -362,7 +362,7 @@ appId: ${APP_ID}
     element:
       id: whats-new-a14-8-readout
     centerElement: true
-- assertVisible: "Heights: sheet 39 / Tailwind 39 / plain 19|Alturas: hoja 39 / Tailwind 39 / simple 19|Alturas: hoja 43 / Tailwind 43 / simple 22"
+- assertVisible: "Heights: sheet 39 / Tailwind 39 / plain 19|Heights: sheet 43 / Tailwind 43 / plain 22|Alturas: hoja 39 / Tailwind 39 / simple 19|Alturas: hoja 43 / Tailwind 43 / simple 22"
 # A14-9: the accessibility tree says unchecked for "false" and checked for "true"
 - scrollUntilVisible:
     element:
@@ -402,3 +402,122 @@ appId: ${APP_ID}
     element:
       id: whats-new-a14-12-readout
 - assertVisible: "Padding 8 / 4 / line 30|Padding 8 / 4 / línea 30"
+# 10. The 0.15 cases. A15-1, A15-2, A15-4, A15-6, A15-8 and A15-10 print what they did, so the flow reads it;
+# A15-3 (the table scrolls sideways), A15-5 (the picture), A15-7, and the fades of A15-9 are screenshots. The
+# first time A15-6 hides the bar Android shows "Viewing full screen" once, which the flow dismisses.
+- openLink: ${APP_URL}/--/whats-new/0.15
+- extendedWaitUntil:
+    visible: "Version 0.15"
+    timeout: 30000
+- scrollUntilVisible:
+    element:
+      id: whats-new-a15-1-next
+    centerElement: true
+- assertVisible: "--brand is #0369a1|--brand es #0369a1"
+- tapOn:
+    id: whats-new-a15-1-next
+- assertVisible: "--brand is #be123c|--brand es #be123c"
+# A15-2: typing is two key presses on both platforms
+- scrollUntilVisible:
+    element:
+      id: whats-new-a15-2-readout
+    centerElement: true
+- tapOn:
+    id: whats-new-a15-2-field
+- inputText: "hi"
+- hideKeyboard
+- assertVisible: "Keys 2 .last i. / scrolls [0-9]+ / content size changes [0-9]+|Teclas 2 .última i. / desplazamientos [0-9]+ / cambios de tamaño del contenido [0-9]+"
+# A15-3: the table is drawn; on iOS it scrolls sideways to its last column (on Android it does not get there, see the card)
+- scrollUntilVisible:
+    element:
+      id: whats-new-a15-3-drawn
+    centerElement: true
+- assertVisible: ".*ree coffee"
+- runFlow:
+    when:
+      platform: iOS
+    commands:
+      - swipe:
+          start: 85%,50%
+          end: 5%,50%
+      - assertVisible: "Expires"
+# the table is a horizontal scroll view at the centre of the screen, where scrollUntilVisible starts its swipe:
+# on Android that swipe does not move the page, so move it from the edge first
+- swipe:
+    start: 97%,70%
+    end: 97%,40%
+# A15-4: two chunks held back, finished
+- scrollUntilVisible:
+    element:
+      id: whats-new-a15-4-next
+    centerElement: true
+# a tap on Android right after the scroll can be lost (it stops the fling), so each press is retried until its chunk shows
+- waitForAnimationToEnd
+- retry:
+    maxRetries: 3
+    commands:
+      - tapOn:
+          id: whats-new-a15-4-next
+      - assertVisible: "Streaming: chunk 1 of 6|En flujo: fragmento 1 de 6"
+- retry:
+    maxRetries: 3
+    commands:
+      - tapOn:
+          id: whats-new-a15-4-next
+      - assertVisible: "Streaming: chunk 2 of 6|En flujo: fragmento 2 de 6"
+- tapOn:
+    id: whats-new-a15-4-finish
+- assertVisible: "Finished: chunk 2 of 6, drawn as written|Terminado: fragmento 2 de 6, dibujado tal como se escribió"
+# A15-5: the picture is a screenshot; the SVG is its alt text
+- scrollUntilVisible:
+    element:
+      id: whats-new-a15-5-drawn
+    centerElement: true
+- assertVisible: "vector logo"
+# A15-6: claims on the bar
+- scrollUntilVisible:
+    element:
+      id: whats-new-a15-6-hidden
+    centerElement: true
+- tapOn:
+    id: whats-new-a15-6-hidden
+- runFlow:
+    when:
+      visible: "Got it"
+    commands:
+      - tapOn: "Got it"
+- assertVisible: "Bar claims: style - / hidden yes|Reclamos de la barra: estilo - / oculta yes"
+- tapOn:
+    id: whats-new-a15-6-style
+- assertVisible: "Bar claims: style dark / hidden yes|Reclamos de la barra: estilo dark / oculta yes"
+- tapOn:
+    id: whats-new-a15-6-hidden
+- assertVisible: "Bar claims: style dark / hidden no|Reclamos de la barra: estilo dark / oculta no"
+# A15-8: :host:has(.on) follows the class
+- scrollUntilVisible:
+    element:
+      id: whats-new-a15-8-toggle
+    centerElement: true
+- tapOn:
+    id: whats-new-a15-8-toggle
+- assertVisible: "inner has .on"
+- tapOn:
+    id: whats-new-a15-8-toggle
+- assertVisible: "inner has no .on"
+# A15-9: one press starts the fade of the late box; the screenshot loop judges it
+- scrollUntilVisible:
+    element:
+      id: whats-new-a15-9-early-button
+    centerElement: true
+- tapOn:
+    id: whats-new-a15-9-early-button
+# A15-10: the typo leaves the app running (the last card: no centring at the scroll's end)
+- scrollUntilVisible:
+    element:
+      id: whats-new-a15-10-break
+- tapOn:
+    id: whats-new-a15-10-break
+- assertVisible: "--paint is notacolour|--paint es notacolour"
+- tapOn:
+    id: whats-new-a15-10-break
+- assertVisible: "--paint is #be123c|--paint es #be123c"

@@ -18,8 +18,8 @@ export const cases08 = (): readonly Case[] => [
     title: $localize`:@@whatsNew.a8_2.title:Transitions that survive Block JS`,
     note: $localize`:@@whatsNew.a8_2.note:A CSS transition of opacity, a transform or a size is played by native, so it keeps moving while JavaScript is busy; two boxes resized in one commit are eased from JavaScript.`,
     status: {
-      kind: 'not-as-described',
-      note: 'On iOS and Android the opacity and transform tile kept moving through the 3 s block. The width and height tile stopped for the block and jumped after it, but that is the documented JavaScript fallback: the Animate button changes length (Animate to Reset) in the same commit, so the size is eased from JavaScript. Isolated in repro/size-transition: with nothing else changing, a lone width or height transition is not played at all, it snaps to its end value at once with or without a block (transitionstart and transitionend still fire 8 s apart). A box resized with no transition beside one that has it is eased from JavaScript and freezes in the block, as documented. Transitions were 10 s linear. Reported as ng-native/ng-native#883.',
+      kind: 'caveat',
+      note: 'Measured on 0.15.0 with host-clock capture loops, Animate then block. Opacity and transform (the red tile) keep moving through the 3 s block on iOS and Android, played by native. The width and height tile is eased from JavaScript, as documented, because the Animate button changes length (Animate to Reset) in the same commit: on both platforms it stops for the block and catches up after it. A size transition alone in its commit is ng-native/ng-native#883, which 0.15.0 (#902) fixed on Android only: Android eases it, from JavaScript (so it stalls while JavaScript is busy, it is not played by native), and iOS still jumps to the end size at once (see A14-2). On 0.13 and 0.14 a lone width or height snapped on both platforms. Transitions were 10 s linear.',
     },
   },
   {

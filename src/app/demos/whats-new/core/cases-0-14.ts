@@ -20,7 +20,7 @@ export const cases014 = (): readonly Case[] => [
     note: $localize`:@@whatsNew.a14_2.note:A class change that brings in a transition together with the value it eases animates from the old value, where out of transition: none or no transition at all it jumped.`,
     status: {
       kind: 'caveat',
-      note: 'Opacity and transform (lanes 1 and 2) ease over the 6 s on iOS and Android, from the old value, with no transition before and with transition: none before. Width (lanes 3 and 4) does not: the bar is at its end width in the first capture after the press on both platforms, in both lanes.',
+      note: 'Measured on 0.15.0 with host-clock capture loops. Opacity and transform (lanes 1 and 2) ease over the 6 s on iOS and Android, from the old value, with no transition before and with transition: none before. Width (lanes 3 and 4): Android eases it, linearly over about 6 s, in both lanes (#902 fixed #883 there); iOS does not, the bar is at its end width in the first capture after the press, 0.5 s apart, in both lanes, the same snap as in 0.13 and 0.14.',
     },
   },
   {

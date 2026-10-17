@@ -25,7 +25,7 @@ describe('what is new, 0.8', () => {
       else expect(badge).not.toBe('');
     }
     expect(textOf('whats-new-a8-1-status')).toBe('Verified · iOS · Android');
-    expect(textOf('whats-new-a8-2-status')).toBe('Not as described');
+    expect(textOf('whats-new-a8-2-status')).toBe('Caveat');
   });
 
   it('A8-1: blocked() flips by itself when the app returns, and ensure() then answers with no dialog', async () => {
