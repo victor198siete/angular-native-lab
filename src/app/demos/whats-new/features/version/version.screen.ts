@@ -29,6 +29,7 @@ import { IconSizeTokenCase } from '../cases/icon-size-token-case.ts';
 import { IconValuesCase } from '../cases/icon-values-case.ts';
 import { OpenSettingsCase } from '../cases/open-settings-case.ts';
 import { TabsLabCase } from '../cases/tabs-lab-case.ts';
+import { MarkdownImageSizeCase } from '../cases/markdown-image-size-case.ts';
 import { FirstDrawCase } from '../cases/first-draw-case.ts';
 import { HasEitherCase } from '../cases/has-either-case.ts';
 import { HostHasCase } from '../cases/host-has-case.ts';
@@ -83,6 +84,7 @@ import { CaseCard } from '../shared/case-card.ts';
     ScrollView, SpacingTransitionCase, TabsLabCase, Text, TransitionsBlockCase, ZIndexCase,
     DisplayNoneCase, FlexBasisCase, InvisibleBackdropCase, KeyframesBlockCase, LightDarkMixCase, ListHeaderFooterCase,
     MarkdownPostCase, MultilineRowsCase, VarFallbackCase,
+    MarkdownImageSizeCase,
     FirstDrawCase, HasEitherCase, HostHasCase, MarkdownDataImageCase, MarkdownStreamingCase, MarkdownTableCase,
     NavigationBarCase, SvgBadPaintCase, TextInputEventsCase, TokenColorsCase,
     InheritedLineHeightCase, InitialValueTransitionCase, LinkOnStackCase, MarkdownEntitiesCase, ShortListCase, ToolbarCase,
@@ -111,6 +113,7 @@ import { CaseCard } from '../shared/case-card.ts';
               @case ('a7-4') { <app-initial-value-transition-case /> }
               @case ('a7-5') { <app-inherited-line-height-case /> }
               @case ('a7-6') { <app-markdown-entities-case /> }
+              @case ('a16-1') { <app-markdown-image-size-case /> }
               @case ('a15-1') { <app-token-colors-case /> }
               @case ('a15-2') { <app-text-input-events-case /> }
               @case ('a15-3') { <app-markdown-table-case /> }

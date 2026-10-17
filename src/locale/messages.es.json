@@ -687,6 +687,9 @@
     "whatsNew.a15_1.next": "Cambiar --brand",
     "whatsNew.a15_1.readout": "--brand es {$brand}",
     "whatsNew.a15_1.labels": "De izquierda a derecha: var(--brand), color-mix con blanco 20%, un color relativo, un color relativo con clamp() en el rojo.",
-    "whatsNew.a15_1.hint": "Esperado: cuatro muestras, ninguna en blanco. La segunda es más pálida que la primera, la tercera es igual a la primera, la cuarta tiene más rojo; todas siguen el botón."
+    "whatsNew.a15_1.hint": "Esperado: cuatro muestras, ninguna en blanco. La segunda es más pálida que la primera, la tercera es igual a la primera, la cuarta tiene más rojo; todas siguen el botón.",
+    "whatsNew.a16_1.title": "Una imagen de markdown a su propio tamaño",
+    "whatsNew.a16_1.note": "Una imagen de markdown se dibuja a su propio tamaño cuando carga, como la dibuja un navegador, y se estrecha al ancho del documento, conservando su forma, solo cuando es más ancha; un icono pequeño conserva su tamaño.",
+    "whatsNew.a16_1.hint": "Esperado: el icono pequeño conserva sus 32 pt, y la tira ancha se estrecha al ancho de la tarjeta, conservando su proporción de 6 a 1. Antes, ambas llenaban el ancho de la tarjeta."
   }
 }

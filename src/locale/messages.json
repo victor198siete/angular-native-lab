@@ -687,6 +687,9 @@
     "whatsNew.a15_1.next": "Change --brand",
     "whatsNew.a15_1.readout": "--brand is {$brand}",
     "whatsNew.a15_1.labels": "From the left: var(--brand), color-mix with white 20%, a relative colour, a relative colour with clamp() on red.",
-    "whatsNew.a15_1.hint": "Expected: four swatches, none blank. The second is paler than the first, the third equals the first, the fourth has more red; all follow the button."
+    "whatsNew.a15_1.hint": "Expected: four swatches, none blank. The second is paler than the first, the third equals the first, the fourth has more red; all follow the button.",
+    "whatsNew.a16_1.title": "A markdown picture at its own size",
+    "whatsNew.a16_1.note": "A markdown image is drawn at its own size once it loads, as a browser draws it, and is narrowed to the document's width, keeping its shape, only when it is wider; a small icon keeps its size.",
+    "whatsNew.a16_1.hint": "Expected: the small icon keeps its own 32 pt size, and the wide strip is narrowed to the card's width, keeping its 6 to 1 shape. Before, both filled the card's width."
   }
 }
