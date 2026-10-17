@@ -487,3 +487,94 @@ Source: the 0.14.0 release note (`gh pr view <n>` for #786, #803, #819, #820, #8
 **Status of A11-1 ... A11-3 and A13-1 ... A13-8 (built in `feat/whats-new-0-11-0-13`, run on iOS and Android):** A11-2, A13-1 to A13-7 verified on both; A13-8 verified on Android (Back is Android only). A11-1 caveat (Android opens Expo Go's App info; the iOS simulator opens the top-level Settings list, not an Expo Go page). A11-3 caveat (the url goes to org 2's first page, but the Library tab drew org 1's stale Album x page together with the Library page). 0.12.0 has no section. See the README, "What's new".
 
 **Status of A14-1 ... A14-12 (built in `feat/whats-new-0-14`, run on iOS and Android):** A14-1, A14-4 to A14-9, A14-11 and A14-12 verified on both; A14-3 and A14-10 verified on Android (the claim is Android only). A14-2 (#846) caveat: opacity and transform ease on both platforms, `width` does not (the bar is at its end width in the first capture after the press, in both lanes, with and without `transition: none` before), the same snap as the size-transition repro. A14-3 side observation: `border-style: dashed` given later is drawn solid on Android, dashed on iOS. The 0.14 section of `.maestro/whats-new.yaml` passed 3 of 3 on each platform. See the README, "What's new".
+
+## Addendum: ng-native 0.15.0
+
+Date: 2026-10-16. The lab is on 0.15.0 (`bfecb81`). Same method and legend as above, with the verdict `PICK` meaning BUILD (a live case in `src/app/demos/whats-new/`, ids A15-1 to A15-10), `PICK B` a reserve case that is demoable in Expo Go but was not built in this round, and `LIST` an entry that needs a new npm package or a development build. Nothing below was run when it was written; the "Shown" column is what the demo will do. The 0.15.0 note is all fixes (47 rows from 27 entries; a sub-bullet is a row). Verdicts: PICK 11 rows in 10 cases, PICK B 3, TEST-ONLY 6, LIST 9, SKIP 16, card update 2 (the #902 row and the #885 row, which change cards that already exist: A8-2, A14-2 and A9-1). Total 47.
+
+Facts about the lab that shape this addendum:
+- No package is installed for a case. `@expo/ui`, `expo-camera`, `expo-video`, `expo-blur` and `@ng-native/web` are not in `package.json` and the task rules out `npm install`, so every entry that needs one is LIST with that reason, even where Expo Go carries the native half (`node_modules/expo/bundledNativeModules.json` lists `@expo/ui`, `expo-camera`, `expo-video`, `expo-blur`).
+- `NavigationBar` (#907) needs no install: `@ng-native/device` reaches `expo-navigation-bar`'s native module by the name `ExpoNavigationBar` (`navigation-bar.js` line 22), and the bundled module list of Expo SDK 57 carries `expo-navigation-bar ~57.0.3`, so Expo Go has it. `expo-navigation-bar` is not in `node_modules`, and does not need to be. To confirm on the emulator, not assumed.
+- `<markdown>` is already used (A6-2, A7-6) and `marked` is installed, so the three Markdown entries need nothing new. The `data:` image (#905) is a base64 PNG written into the case.
+- Three cards that already exist are made out of date by this release: A9-1 (#882 fixed), A8-2 and A14-2 (#883 fixed on Android only, per the README's "Upgrading to 0.15.0"). They are updated, not rebuilt.
+
+### Proposed cases (PICK)
+
+| Id | Entries | Demo sketch | Observable proof |
+|---|---|---|---|
+| A15-1 | #866 | Swatches bound with `[style.backgroundColor]` to `color-mix(in srgb, var(--brand), white 20%)` and to `color(from var(--brand) srgb r g b)`, with `--brand` set on the view around them and changed by a button; one relative colour with `clamp()`. | Each swatch is the colour worked out from the token and follows it. Before: the text reached native and nothing was painted. |
+| A15-2 | #903 (#858) | A multiline `<text-input [rows]>` with `(keyPress)`, `(scroll)` and `(contentSizeChange)` counters. | On Android each counter moves when typing, scrolling a long text and growing the text; iOS is unchanged (its `contentSizeChange` comes when the field resizes). Android only claim for the three events. |
+| A15-3 | #865 (#850) | A `<markdown source>` table with a long cell, wider than the card. | The table scrolls sideways and the columns are as wide as their widest cell; before, every column was squeezed into the page's width. |
+| A15-4 | #867 (#851) | A `<markdown [streaming]>` fed a chunk at a time by a timer, with a code span, a link and a fence cut in the middle of a chunk; a button restarts it. | While streaming, the open span, link and fence opening line are held back rather than drawn as raw text; when it ends, the whole source is drawn. |
+| A15-5 | #905 | `<markdown>` with a base64 `data:image/png` image and an SVG `data:` image. | The PNG is drawn; the SVG `data:` url is still its alt text. |
+| A15-6 | #907 (#831) | Buttons that `NavigationBar.set()`/`push()` a style and `hidden`, with a readout of `state()`. | Android: the bar is hidden until a swipe; the buttons' colour follows `style` on three-button navigation. iOS: the `state` readout changes and nothing else. |
+| A15-7 | #863 | A card styled by `.card:has(.x:is(.p *, .y))` with a child that matches only one alternative. | The card matches on either alternative (the old behaviour needed both). |
+| A15-8 | #880 | A component with `:host:has(.on)` in its own styles and a button that adds `.on` to a child. | The host's style follows the change beneath it, where it kept what it matched before. |
+| A15-9 | #876 | A box mounted on a press, with a class added by its own `effect` and a 3 s `transition: opacity`. | The box appears at once; before it faded in from transparent. |
+| A15-10 | #864 | A `[svg]` icon with `fill="var(--typo)"` where no token `--typo` exists, beside a good one. | The app stays up and the shape is drawn with no paint of its own. |
+
+### 0.15.0 (47 rows)
+
+Source: the 0.15.0 release note (ng-native/ng-native releases). Entries with several lines take one row per line.
+
+| Ver | PR | What | Area | Expo Go | Shown | Lab touches | Verdict |
+|---|---|---|---|---|---|---|---|
+| 0.15 | #866 | A colour bound as a style and made of tokens, `color-mix(in srgb, var(--brand), white 20%)` or `color(from var(--brand) srgb r g b)`, is worked out where it is used | styles | yes | on screen + Vitest | A13-2 colour from `var()` (not modified) | PICK A15-1 |
+| 0.15 | #866 | The channels of a relative colour use `min()`, `max()`, `clamp()`; `color()` in `srgb` is worked out too | styles | yes | on screen | no | PICK A15-1 |
+| 0.15 | #875 (#852) | `ui-bottom-sheet` takes `backgroundColor` / CSS `background-color` as the sheet's colour (iOS 26 glass sheet made opaque) | expo ui | dev build (`@expo/ui` is not in the lab, no install) | not demonstrable | no | LIST |
+| 0.15 | #875 | `Engine` gains `takePaint` | renderer API | n/o | not demonstrable | no | SKIP |
+| 0.15 | #912 (#899) | A `<ui-slot name="header">` / `footer` in a `ui-section` is the section's header or footer on iOS | expo ui | dev build (`@expo/ui`) | not demonstrable | no | LIST |
+| 0.15 | #912 | A `title` wins over a header slot; an empty `title=""` counts as unset | expo ui | dev build (`@expo/ui`) | not demonstrable | no | LIST |
+| 0.15 | #901 (#895) | `<text-input rows>` is an input: no "has no prop 'rows'" in development, `rows` is not sent to native | components | yes | console only; the field in A15-2 is sized by `[rows]` | A6-3 multiline rows (not modified) | TEST-ONLY |
+| 0.15 | #903 (#858) | `(scroll)`, `(keyPress)` on a `<text-input>` and `(contentSizeChange)` on a multiline one fire on Android | components (Android) | yes (Android) | on screen (counters) | no | PICK A15-2 |
+| 0.15 | #903 | iOS is unchanged; the input docs say so | components | n/o | docs | no | SKIP |
+| 0.15 | #864 | An SVG shape whose `fill` or `stroke` has a colour React Native cannot read is drawn with no paint instead of stopping the app | icons | yes (`react-native-svg` is installed) | on screen | A13-1 and A13-7 draw icons (not modified) | PICK A15-10 |
+| 0.15 | #891 (#884) | On Android, an `<ng-icon>` that loses a `pointer-events` it had (a parked and reused `<virtual-list>` row) no longer stops the app with a NullPointerException | icons (Android) | yes (Android) | a list scrolled fast, no crash; needs the right rows to reproduce | `src/app/repro/` has no icon repro | PICK B |
+| 0.15 | #891 | A `pointerEvents` that goes away is committed as `auto`, not `null`, on every view | engine | yes | Vitest (prop) | no | TEST-ONLY |
+| 0.15 | #916 (#913) | On Android a native stack screen keeps a `statusBarStyle` / `statusBarHidden` its host binding set to the same value the `StatusBar` claim carries | status bar (Android) | yes (Android) | on screen (two screens, icon colour) | no | PICK B |
+| 0.15 | #902 (#883, #859) | A CSS transition of a size or a place and a `@keyframes` size animation animate on Android where layout animations are off (always in Expo Go) | transitions | yes | screenshot loop | A8-2, A14-2 and `src/app/repro/size-transition` | card update (A8-2, A14-2) |
+| 0.15 | #902 | `getFabricUIManager()` reads the layout-animation flag and eases from JavaScript | engine | n/o | not demonstrable | no | SKIP |
+| 0.15 | #893 (#890) | `<search-field>` draws its text in the CSS `font-family`, `font-size`, `font-weight`, `font-style` | expo module | dev build (note on 0.14: "Expo Go draws nothing for it") | not demonstrable | no | LIST |
+| 0.15 | #893 | On iOS a system font over about 21px needs a height on the field | expo module | dev build | not demonstrable | no | LIST |
+| 0.15 | #904 | A size transition restarted twice before it ends is committed where it ends from the third start; each step is drawn at once | engine perf | yes | a stepping bar; the note says it departs from CSS | the size-transition repro | SKIP |
+| 0.15 | #888 | A prop no rule asks of an element before another no longer restyles every element after it | engine perf | n/o | not demonstrable | no | SKIP |
+| 0.15 | #888 | A global sheet that asks about a prop that way restyles rows after it only while it is added | engine perf | n/o | not demonstrable | no | SKIP |
+| 0.15 | #892 (#886) | A destroyed `<native-stack-outlet>` / `<native-tabs-outlet>` clears its route's context only while it is its own (a sheet over the tab bar swiped away) | router | yes | on screen (tabs lab; a sheet with its own stack over the tab bar, swiped away) | the tabs lab has a presented page without a stack of its own | PICK B |
+| 0.15 | #885 (#882) | An ICU plural or select, or an element in an `i18n` message, renders on iOS and Android in development | i18n | yes | on screen | A9-1 | card update (A9-1) |
+| 0.15 | #885 | `mount()` makes whichever `Node` is on the global answer `true` for engine nodes | engine | n/o | not demonstrable | no | SKIP |
+| 0.15 | #876 | A class added to a view before a frame has drawn it no longer starts a transition | transitions | yes | on screen (a box mounted on a press) | A14-2 and A7-4 are the same area (not modified) | PICK A15-9 |
+| 0.15 | #907 (#831) | `NavigationBar` in `@ng-native/device`: `set()`, `push()`, `state`; `style` light / dark / auto, `hidden` | device (Android) | yes (`expo-navigation-bar` is bundled in Expo Go, see the facts above) | on screen (Android bar) | no | PICK A15-6 |
+| 0.15 | #907 | Without the module, and on iOS, the web and in Node, claims are kept in `state` and change nothing | device | yes | Vitest + readout on iOS | no | TEST-ONLY |
+| 0.15 | #907 | `EngineNode` gets an optional `writes` set; the outlet keeps a page's own `navigationBarHidden` | renderer API | n/o | not demonstrable | no | SKIP |
+| 0.15 | #865 (#850) | A `<markdown>` table wider than the page scrolls sideways, each column as wide as its widest cell (up to 280pt) | markdown | yes | on screen | A6-2 has a table in a post (not modified) | PICK A15-3 |
+| 0.15 | #865 | A table is a horizontal `scroll-view`, a cell a `view`, so a custom `th`/`td` class styles the text | markdown | yes | Vitest | no | TEST-ONLY |
+| 0.15 | #867 (#851) | `<markdown streaming>` keeps the blocks before the last and holds back a code span, emphasis, link, image, table row or fence opening line | markdown | yes | on screen | no | PICK A15-4 |
+| 0.15 | #867 | While streaming only the last block is lexed again; a block that did not change keeps its native views | markdown perf | yes | Vitest | no | TEST-ONLY |
+| 0.15 | #905 | `<markdown>` draws a base64 `data:` url of a raster picture (PNG, JPEG, GIF, WebP); other `data:` urls and schemes stay alt text | markdown | yes | on screen | no | PICK A15-5 |
+| 0.15 | #900 (#894) | A dev bundle no longer fails, and an edit hot-swaps, when a shared `styleUrl`/`templateUrl` component has an aliased `@if (x; as y)` or a `@switch` | build | n/o | not demonstrable | no | SKIP |
+| 0.15 | #900 | Only an error from the compiler stops a hot update; a warning does not | build | n/o | not demonstrable | no | SKIP |
+| 0.15 | #863 | A `:has()` argument list with an ancestor test, `.card:has(.x:is(.p *, .y))`, matches either alternative | styles | yes | on screen | no | PICK A15-7 |
+| 0.15 | #863 | A `:has()` inside a `:has()` is dropped with a warning | build | n/o (build warning) | not demonstrable | no | SKIP |
+| 0.15 | #877 | A change under many `:has()` rules walks each box's subtree once | engine perf | n/o | not demonstrable | no | SKIP |
+| 0.15 | #881 | A change beneath a box checks its `:has()` rules again without matching everything under it again | engine perf | n/o | not demonstrable | no | SKIP |
+| 0.15 | #881 | Opening a dialog under the root with a class on the root changing no longer matches every element again | engine perf | n/o | not demonstrable | no | SKIP |
+| 0.15 | #869 | `deepLinkSource()` is exported from `@ng-native/device` | device | yes | Vitest (import) | A10-2 deep link (not modified) | TEST-ONLY |
+| 0.15 | #878 | `registerExpoViews('expo-video')` registers `SurfaceVideoView` on Android; `'expo-blur'` registers `ExpoBlurView`; `viewName` takes `{ ios, android }` | expo views | dev build (`expo-video` and `expo-blur` are not in the lab, no install) | not demonstrable | no | LIST |
+| 0.15 | #878 | `videoPlayer()` gives the shared-object `id`; bind `[player]="player.id"` | expo views | dev build (`expo-video`) | not demonstrable | no | LIST |
+| 0.15 | #898 (#897) | A font or an image a DOM component's stylesheet names in a relative `url()` loads in development | DOM components | no (`@ng-native/web` and `@angular/platform-browser` are not in the lab) | not demonstrable | no | LIST |
+| 0.15 | #880 | A class changing restyles only what a class-attribute test or a `:has()` naming it can reach | engine perf | n/o | not demonstrable | no | SKIP |
+| 0.15 | #880 | A `:has()` such as `.p-floatlabel:has([class^='p-'][class$='-fluid'])` no longer restyles the screen on a root class | engine perf | n/o | not demonstrable | no | SKIP |
+| 0.15 | #880 | A `:has()` in a component's own styles, `:host:has(.on)`, follows a change beneath the host | styles | yes | on screen | no | PICK A15-8 |
+| 0.15 | #879 | `Camera.record(options)` and `stopRecording()` record video | device | dev build (`expo-camera` is not in the lab, no install) | not demonstrable | no | LIST |
+
+Totals: PICK 11 + PICK B 3 + TEST-ONLY 6 + LIST 9 + SKIP 16 + card update 2 = 47.
+
+### Needs a development build or a new package (added)
+
+| Ver | PR | Entry | Why Expo Go (with this `package.json`) cannot |
+|---|---|---|---|
+| 0.15 | #875, #912 | `ui-bottom-sheet` colour, `ui-section` header and footer slots | `@expo/ui` is not in the lab and `npm install` is out of scope for this round |
+| 0.15 | #893 | `<search-field>` font | Native code of `@ng-native/expo` ("Expo Go draws nothing for it", 0.14 note) |
+| 0.15 | #878 | `registerExpoViews('expo-video' / 'expo-blur')`, `videoPlayer().id` | `expo-video` and `expo-blur` are not installed |
+| 0.15 | #898 | DOM component `url()` assets | `@ng-native/web` and `@angular/platform-browser` (AGENTS.md rules the latter out) |
+| 0.15 | #879 | `Camera.record()` | `expo-camera` is not installed (and the iOS simulator has no camera) |
