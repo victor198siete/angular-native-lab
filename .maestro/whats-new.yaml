@@ -28,11 +28,11 @@ appId: ${APP_ID}
       visible: "Close"
     commands:
       - tapOn: "Close"
-# 1. The list of versions, and a row opens the 0.10 cases
+# 1. The list of versions is there, and the 0.10 cases open by deep link: with a row per release the 0.10 row
+# is below the fold on iOS (a shorter screen), so tapping it by position no longer works
 - assertVisible:
     id: whats-new-heading
-- tapOn:
-    id: whats-new-version-0.10
+- openLink: ${APP_URL}/--/whats-new/0.10
 - extendedWaitUntil:
     visible:
       id: whats-new-version-heading

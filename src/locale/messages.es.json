@@ -267,7 +267,7 @@
     "gestures.anim.play": "Animar",
     "gestures.anim.stop": "Detener",
     "whatsNew.title": "Novedades",
-    "whatsNew.versionCount": "{$count} casos",
+    "whatsNew.versionCount": "{VAR_PLURAL, plural, =1 {1 caso} other {{INTERPOLATION} casos}}",
     "whatsNew.heading": "Novedades: cada nota de versión, comprobada",
     "whatsNew.intro": "Cada caso toma una línea de una nota de versión de ng-native, la ejecuta en vivo y dice qué se vio en un simulador y en un emulador.",
     "whatsNew.a10_1.title": "Dialogs.choose() al cancelar",

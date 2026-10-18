@@ -28,7 +28,7 @@ describe('what is new', () => {
     // Every release in the data has its row with its case count, so a new version does not break this test.
     expect(RELEASES.length).toBeGreaterThan(0);
     for (const release of RELEASES) {
-      expect(textOf(`whats-new-version-${release.version}`)).toContain(`${release.cases().length} cases`);
+      expect(textOf(`whats-new-version-${release.version}`)).toContain(release.cases().length === 1 ? '1 case' : `${release.cases().length} cases`);
     }
     const user = userEvent.setup();
     await user.press(screen.getByTestId('whats-new-version-0.10'));

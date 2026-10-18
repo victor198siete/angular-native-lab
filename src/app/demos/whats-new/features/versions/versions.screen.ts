@@ -27,7 +27,7 @@ import { RELEASES } from '../../core/releases.ts';
             (press)="open(release.version)"
           >
             <text class="text-h2 font-bold text-ink dark:text-ink-dk">ng-native {{ release.version }}</text>
-            <text class="text-body text-ink2 dark:text-ink2-dk">{{ count(release.version) }}</text>
+            <text [testID]="'whats-new-count-' + release.version" class="text-body text-ink2 dark:text-ink2-dk" i18n="@@whatsNew.versionCount">{count(release.version), plural, =1 {1 case} other {{{ count(release.version) }} cases}}</text>
           </pressable>
         }
       </scroll-view>
@@ -39,9 +39,8 @@ export class VersionsScreen {
   protected readonly title = $localize`:@@whatsNew.title:What's new`;
   protected readonly releases = RELEASES;
 
-  protected count(version: string): string {
-    const total = RELEASES.find((release) => release.version === version)?.cases().length ?? 0;
-    return $localize`:@@whatsNew.versionCount:${total}:count: cases`;
+  protected count(version: string): number {
+    return RELEASES.find((release) => release.version === version)?.cases().length ?? 0;
   }
 
   protected open(version: string): void {
