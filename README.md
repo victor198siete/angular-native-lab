@@ -24,7 +24,7 @@ partial (see [Android](#android)).
 
 | | Version |
 |---|---|
-| `@ng-native/*` | 0.16.0 (also ran on 0.15.0, 0.14.0, 0.13.0, 0.10.0, 0.9.0, 0.5.0, 0.4.0 and 0.3.0: tags [`ng-native-0.13.0`](https://github.com/victor198siete/angular-native-lab/tree/ng-native-0.13.0), [`ng-native-0.10.0`](https://github.com/victor198siete/angular-native-lab/tree/ng-native-0.10.0), [`ng-native-0.9.0`](https://github.com/victor198siete/angular-native-lab/tree/ng-native-0.9.0), [`ng-native-0.5.0`](https://github.com/victor198siete/angular-native-lab/tree/ng-native-0.5.0), [`ng-native-0.4.0`](https://github.com/victor198siete/angular-native-lab/tree/ng-native-0.4.0) and [`ng-native-0.3.0`](https://github.com/victor198siete/angular-native-lab/tree/ng-native-0.3.0)) |
+| `@ng-native/*` | 0.17.1 (also ran on 0.16.0, 0.15.0, 0.14.0, 0.13.0, 0.10.0, 0.9.0, 0.5.0, 0.4.0 and 0.3.0: tags [`ng-native-0.13.0`](https://github.com/victor198siete/angular-native-lab/tree/ng-native-0.13.0), [`ng-native-0.10.0`](https://github.com/victor198siete/angular-native-lab/tree/ng-native-0.10.0), [`ng-native-0.9.0`](https://github.com/victor198siete/angular-native-lab/tree/ng-native-0.9.0), [`ng-native-0.5.0`](https://github.com/victor198siete/angular-native-lab/tree/ng-native-0.5.0), [`ng-native-0.4.0`](https://github.com/victor198siete/angular-native-lab/tree/ng-native-0.4.0) and [`ng-native-0.3.0`](https://github.com/victor198siete/angular-native-lab/tree/ng-native-0.3.0)) |
 | Angular | 22.2.1 |
 | Expo SDK | 57 (`expo` 57.0.30) |
 | React Native | 0.86.3 |
@@ -780,7 +780,7 @@ runs, cause not found, so the flow reads both languages). `marked` ^18.1.1 is a 
 `.md` import and `<markdown>` need it, and nothing else changed in `package.json`, `metro.config.js` or `tsconfig.json`
 (the type of a `.md` import is `src/app/demos/whats-new/markdown.d.ts`, a `/// <reference types="@ng-native/metro/markdown" />`).
 `docs/whats-new-triage.md` marks which of its A7 cases are built. A7-1 needed no `expo-router` install: Expo Go carries the
-native half, as the note says. The lab is on 0.16.0 (the badges below were seen on 0.14.0 and the flow passes on 0.16.0), so what is seen is what 0.7 brought as of 0.14.
+native half, as the note says. The lab is on 0.17.1 (the badges below were seen on 0.14.0 and the flow passes on 0.17.1), so what is seen is what 0.7 brought as of 0.14.
 
 | Case | PR | iOS | Android | What was seen |
 |---|---|---|---|---|
@@ -799,7 +799,7 @@ text. A7-1's buttons (there is no native toolbar in the fake), A7-2's `endReache
 **0.6 cases** (same devices; both apps in Spanish when the Maestro runs were made, the cases were looked at with the
 English text for the strings Metro had not translated yet). `marked` (added with 0.7) is what A6-2 imports through.
 `.md` files in `src/app/demos/whats-new/features/cases/content/` are bundled by Metro as `{ attributes, content, tokens }`.
-`docs/whats-new-triage.md` marks which A6 cases are built; B6-1 to B6-4 are not. The lab is on 0.16.0 (the badges below were seen on 0.14.0 and the flow passes on 0.16.0), so this is what
+`docs/whats-new-triage.md` marks which A6 cases are built; B6-1 to B6-4 are not. The lab is on 0.17.1 (the badges below were seen on 0.14.0 and the flow passes on 0.17.1), so this is what
 0.6's changes did as of 0.14.
 
 | Case | PR | iOS | Android | What was seen |
@@ -995,6 +995,49 @@ with a caveat, — not tested there.
 | `[animatedStyle]` | `@ng-native/components/animations` | Gestures: the native-driver and JavaScript tiles | ✅ | No | — | A loop of an `Animated.sequence` is restarted from JavaScript; use one timing in a loop. No Vitest stand-in |
 | Reactive Forms, `ControlValueAccessor` | `@angular/forms` | Compatibility check only | ✅ | No | — | Angular binds `[formControl]` and `ngModel` to the `value` model; no accessor needed. Also ✅ on the Android emulator |
 | `HttpClient` with interceptors | `@ng-native/platform/http` (`provideNativeHttpClient`) | Login: auth interceptor, mock API | ✅ | No | — | Angular's `withInterceptors()` and `provideHttpClientTesting()` work unchanged. Also ✅ on the Android emulator |
+
+## Upgrading to 0.17.1
+
+0.17.0 changes how layout is done and 0.17.1 adds Expo SDK 58 support (the template stays on 57). The lab went
+from 0.16.0 to 0.17.1, all ten `@ng-native/*` packages, with **no change to the app**: typecheck clean, the 241
+tests passing, `expo install --check` clean. With Metro restarted with `--clear`, the eight Maestro flows (Device,
+Gestures, Join, Lists, Login, Offline, What's new, What's new early) pass on the iOS simulator and the Android
+emulator, the app in English, with the retries listed below. Screenshots of Rewards (home, catalog, history, reward
+detail, join), Device, Login, Lists, Gestures, Offline and What's new (index, 0.16, 0.15, 0.14) on both platforms
+show no shifted content, collapsed heights, changed margins or cut text.
+
+- **`npm install` fails with ERESOLVE until `expo-modules-core` is a direct dependency.** `@ng-native/expo` 0.17.1
+  has the peer `expo-modules-core "^57 || ^58"`, so npm picks 58, and that version asks for
+  `react-native-worklets >=0.13` while SDK 57 ships 0.10.1. `npx expo install expo-modules-core` adds
+  `"expo-modules-core": "~57.0.23"` to `package.json`, which pins the SDK 57 one and makes the install resolve with
+  neither `--force` nor `--legacy-peer-deps`. ng-native's own examples (`examples/wallet/package.json`) do the same.
+- **Layout (`display: block`, `flow-root`, `inline-block`, `grid`, `position: fixed` and `sticky`): nothing to change.**
+  `grep` of `src/` finds no `block`, `inline-block`, `grid`, `fixed` or `sticky` in a class or a style, so no element
+  depended on being read as flex. The Tailwind warnings of the build changed accordingly: `.fixed` and `.sticky`
+  ("position: fixed is not supported") are gone, `.table` is still dropped (the message now lists `block`,
+  `inline-block`, `inline-flex` and `grid` as supported), and `.visible`, `.invisible`, `.resize` and the `blur()` of
+  `@keyframes enter` are dropped as before. Nothing new appeared.
+- **Engine node renames (`children` to `childList`, `text`, `kind`, `host`, `sheet`): do not apply.** The lab reads no
+  `EngineNode`, `HostNode`, `StyleTarget`, `ViewNameNode` or `BrowserNode` field. Its tests read `node.children` of
+  the testing library's own node, and they pass.
+- **The selector and `inline-flex` fixes, `order`, `margin: auto` with insets, `overflow: auto` as a scroll view,
+  `scrollsOverflow`, `layoutConformance`, the `browser` Tailwind option, `isNamedColor` and friends, the shorthand and
+  numeric `flex` precedence, `expo-local-llm` and the `ExpoUI` pod fix: not exercised.** The lab has no `:has()`,
+  `order`, `overflow: auto`, `@expo/ui` or `expo-local-llm`.
+- **[#883](https://github.com/ng-native/ng-native/issues/883) on iOS: still snaps on 0.17.1.**
+  `/--/repro/size-transition?v=wh&noblock=1&auto=6000` (8 s linear), 40 captures in a loop (about 0.5 s apart): the
+  box measured 180 x 88 px (60 x 30 pt) in 15 captures, then 960 x 448 px (320 x 150 pt) in the next 25, with no
+  size in between. On Android the same repro grows from 308 x 148 to 840 x 396 px in steps over about 8 s, so it still
+  animates there. The notes do not mention it and #960 did not change it.
+- **Maestro retries:** the iOS Device flow failed at `location-latitude` on its first run and passed on the second
+  (`xcrun simctl location <udid> set 4.7110,-74.0721` had been set before the first run). Android Login failed once at
+  the tap on `login-password` and passed on the second run (the iOS flows were running on the same Mac then). Android
+  Offline logged one FAILED inside its own `retry` (the first open of the page) and What's new one inside A15-4's
+  `retry`, and both passed. Everything else passed on the first run.
+- **The app language is kept in Expo Go's keychain, not read from the simulator.** The iOS simulator was in Spanish
+  when this started, and the first iOS runs were in Spanish: Gestures and What's new failed in that language (What's
+  new at the A9-4 button, which the scroll left under the header), and both pass in English. Switch it with the `ES`/`EN`
+  button on the wallet before running the flows.
 
 ## Upgrading to 0.16.0
 
