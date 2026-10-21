@@ -2,6 +2,7 @@
 #   iOS:     maestro test -e APP_ID=host.exp.Exponent -e APP_URL=exp://127.0.0.1:8081 .maestro/lists.yaml
 #   Android: adb reverse tcp:8081 tcp:8081, then the same with APP_ID=host.exp.exponent
 # Counts only: the stats strip must change with the size and the renderer, and the list must scroll.
+# Language: English at the start (the flow switches the app); add -e LANG=ES to run in Spanish.
 appId: ${APP_ID}
 ---
 - openLink: ${APP_URL}/--/lists
@@ -19,6 +20,13 @@ appId: ${APP_ID}
       visible: "Close"
     commands:
       - tapOn: "Close"
+# The app starts in a known language: English, or Spanish with -e LANG=ES. Then the route again.
+- runFlow:
+    file: subflows/set-language.yaml
+- openLink: ${APP_URL}/--/lists
+- extendedWaitUntil:
+    visible: "Lists|Listas"
+    timeout: 40000
 # The screen keeps its scroll position between runs, so look for the heading upwards
 - scrollUntilVisible:
     element:

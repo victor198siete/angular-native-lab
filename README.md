@@ -68,6 +68,11 @@ maestro test -e APP_ID=host.exp.Exponent -e APP_URL=exp://127.0.0.1:8081 .maestr
 maestro test -e APP_ID=host.exp.Exponent -e APP_URL=exp://127.0.0.1:8081 .maestro/whats-new-early.yaml
 ```
 
+Every flow starts by putting the app in a known language (`.maestro/subflows/set-language.yaml`): English, or Spanish with
+`-e LANG=ES` before the path. The language is kept in Expo Go's secure store, not read from the simulator, so the flow taps
+the wallet's `ES`/`EN` toggle when the app is in the other one, waits for the reload, and opens its own route. Do not put
+`LANG` in a flow's `env:` header: in this Maestro a header default wins over `-e`.
+
 What's new runs as two flows: `whats-new.yaml` covers 0.16 to 0.8 and `whats-new-early.yaml` covers 0.7 and
 0.6 (split on 15 Oct 2026, when one flow took 7 min on iOS and 9.5 on Android; now about 3.5 + 2.7 min on iOS
 and 5 + 2.8 min on Android, each passing on the first run on both).
@@ -1036,8 +1041,10 @@ show no shifted content, collapsed heights, changed margins or cut text.
   `retry`, and both passed. Everything else passed on the first run.
 - **The app language is kept in Expo Go's keychain, not read from the simulator.** The iOS simulator was in Spanish
   when this started, and the first iOS runs were in Spanish: Gestures and What's new failed in that language (What's
-  new at the A9-4 button, which the scroll left under the header), and both pass in English. Switch it with the `ES`/`EN`
-  button on the wallet before running the flows.
+  new at the A9-4 button, which the scroll left under the header), and both passed in English. Now every flow sets
+  the language itself (see the Maestro section: English, `-e LANG=ES` for Spanish), and A9-4 scrolls to the button, so it
+  passes in both languages on both platforms. `whats-new.yaml` as a whole still stops in Spanish at steps of other
+  cases that only read English (the `Version 0.15` heading, A15-2's `hideKeyboard` on iOS, A15-3's `.*ree coffee` on Android).
 
 ## Upgrading to 0.16.0
 

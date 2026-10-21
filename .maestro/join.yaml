@@ -4,6 +4,7 @@
 # Turn the Face ID lock off first, or the app opens on the lock screen. No hideKeyboard: on
 # Android it presses back when no keyboard is up, which leaves Expo Go. Tapping the intro
 # text closes the keyboard on both platforms.
+# Language: English at the start (the flow switches the app); add -e LANG=ES to run in Spanish.
 appId: ${APP_ID}
 ---
 - openLink: ${APP_URL}/--/join
@@ -21,6 +22,13 @@ appId: ${APP_ID}
       visible: "Close"
     commands:
       - tapOn: "Close"
+# The app starts in a known language: English, or Spanish with -e LANG=ES. Then the route again.
+- runFlow:
+    file: subflows/set-language.yaml
+- openLink: ${APP_URL}/--/join
+- extendedWaitUntil:
+    visible: "Join the program|Únete al programa"
+    timeout: 40000
 - extendedWaitUntil:
     visible:
       id: join-submit

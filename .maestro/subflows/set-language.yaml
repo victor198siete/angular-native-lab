@@ -1,0 +1,35 @@
+# Puts the app in one language before a flow starts: English by default, Spanish with -e LANG=ES.
+# The language is kept in Expo Go's secure store (key "language"), not read from the simulator, so a
+# run starts in whatever the last one left. The wallet's toggle shows the code of the language it
+# would switch TO: "ES" while the app is in English, "EN" while it is in Spanish. So the toggle is
+# tapped only when it shows LANG (as the code, or as the language's name, which is the toggle's
+# accessibility label and what iOS reads as its text), and the app then reloads its JavaScript (the language cannot change
+# in a running runtime) and comes back with the toggle showing the other code.
+# LANG is read with a typeof guard, not from an env default: in this Maestro a default in a flow header
+# (env: LANG: EN) wins over -e LANG=ES on the command line, so none can be declared.
+# Call it after the first wait and the developer menu, and open the flow's own route afterwards.
+appId: ${APP_ID}
+---
+- evalScript: "${output.language = (typeof LANG === 'undefined') ? 'EN' : LANG}"
+- evalScript: "${output.toggle = output.language == 'ES' ? 'ES|Español' : 'EN|English'}"
+- evalScript: "${output.done = output.language == 'ES' ? 'EN|English' : 'ES|Español'}"
+- openLink: ${APP_URL}/--/wallet
+- extendedWaitUntil:
+    visible:
+      id: language-toggle
+    timeout: 40000
+- runFlow:
+    when:
+      visible:
+        id: language-toggle
+        text: ${output.toggle}
+    commands:
+      - tapOn:
+          id: language-toggle
+      # The reload takes the toggle off the screen for a moment; wait for it to come back showing the
+      # other language (waiting for the old one to go would pass while the app is still restarting)
+      - extendedWaitUntil:
+          visible:
+            id: language-toggle
+            text: ${output.done}
+          timeout: 40000

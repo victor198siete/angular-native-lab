@@ -11,6 +11,7 @@
 # presented page on Android) and 0.11 (the two tab cases, in the tabs lab: Search behind a 4 s guard, and a
 # tab bar moved from org 1 to org 2). The 0.13 and 0.11 drawings, and A11-1 (it leaves the app), are screenshots.
 # The 0.7 and 0.6 sections are in whats-new-early.yaml (split on 15 Oct 2026: one flow took 7-9.5 min).
+# Language: English at the start (the flow switches the app); add -e LANG=ES to run in Spanish.
 appId: ${APP_ID}
 ---
 - openLink: ${APP_URL}/--/whats-new
@@ -28,6 +29,13 @@ appId: ${APP_ID}
       visible: "Close"
     commands:
       - tapOn: "Close"
+# The app starts in a known language: English, or Spanish with -e LANG=ES. Then the route again.
+- runFlow:
+    file: subflows/set-language.yaml
+- openLink: ${APP_URL}/--/whats-new
+- extendedWaitUntil:
+    visible: "What's new|Novedades"
+    timeout: 40000
 # 1. The list of versions is there, and the 0.10 cases open by deep link: with a row per release the 0.10 row
 # is below the fold on iOS (a shorter screen), so tapping it by position no longer works
 - assertVisible:
@@ -111,10 +119,11 @@ appId: ${APP_ID}
 - extendedWaitUntil:
     visible: "Measured: 40 / 96 / 64|Medido: 40 / 96 / 64"
     timeout: 20000
-# A9-4: after the fade, a press on the button still counts (iOS)
+# A9-4: after the fade, a press on the button still counts (iOS). Centre the button, not the counter below
+# it: in Spanish the hint is longer, and with the counter centred the button was left under the header
 - scrollUntilVisible:
     element:
-      id: whats-new-a9-4-count
+      id: whats-new-a9-4-target
     centerElement: true
 - tapOn:
     id: whats-new-a9-4-fade

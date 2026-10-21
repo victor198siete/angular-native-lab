@@ -5,6 +5,7 @@
 # Mac's network and cannot lose it alone. It is the same code path as no network, so the flow covers:
 # queued redemptions, the queue surviving a restart, sending on reconnect, a 500 that retries, and
 # Clear local data behind its confirmation. The real airplane mode is checked by hand on Android.
+# Language: English at the start (the flow switches the app); add -e LANG=ES to run in Spanish.
 appId: ${APP_ID}
 ---
 - openLink: ${APP_URL}/--/offline
@@ -22,6 +23,13 @@ appId: ${APP_ID}
       visible: "Close"
     commands:
       - tapOn: "Close"
+# The app starts in a known language: English, or Spanish with -e LANG=ES. Then the route again.
+- runFlow:
+    file: subflows/set-language.yaml
+- openLink: ${APP_URL}/--/offline
+- extendedWaitUntil:
+    visible: "Offline|Sin conexión"
+    timeout: 40000
 # The screen keeps its scroll position between runs, so look for the heading upwards
 - scrollUntilVisible:
     element:

@@ -3,6 +3,7 @@
 #   Android: adb reverse tcp:8081 tcp:8081, then the same with APP_ID=host.exp.exponent
 # Swipes need a duration of 400 ms or more: shorter ones do not move in the simulator.
 # Pinch and rotate cannot be driven from Maestro; unit tests cover them.
+# Language: English at the start (the flow switches the app); add -e LANG=ES to run in Spanish.
 appId: ${APP_ID}
 ---
 - openLink: ${APP_URL}/--/gestures
@@ -20,6 +21,13 @@ appId: ${APP_ID}
       visible: "Close"
     commands:
       - tapOn: "Close"
+# The app starts in a known language: English, or Spanish with -e LANG=ES. Then the route again.
+- runFlow:
+    file: subflows/set-language.yaml
+- openLink: ${APP_URL}/--/gestures
+- extendedWaitUntil:
+    visible: "Gestures|Gestos"
+    timeout: 40000
 - scrollUntilVisible:
     element:
       id: gestures-heading

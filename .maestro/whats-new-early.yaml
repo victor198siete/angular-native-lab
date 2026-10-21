@@ -3,6 +3,7 @@
 #            maestro test -e APP_ID=host.exp.Exponent -e APP_URL=exp://127.0.0.1:8081 .maestro/whats-new-early.yaml
 #   Android: adb reverse tcp:8081 tcp:8081, then the same with APP_ID=host.exp.exponent
 # Start with Expo Go closed. Sections 0.14 to 0.8 are in whats-new.yaml. A7-4 and A7-6 are screenshots.
+# Language: English at the start (the flow switches the app); add -e LANG=ES to run in Spanish.
 appId: ${APP_ID}
 ---
 - openLink: ${APP_URL}/--/whats-new
@@ -20,6 +21,13 @@ appId: ${APP_ID}
       visible: "Close"
     commands:
       - tapOn: "Close"
+# The app starts in a known language: English, or Spanish with -e LANG=ES. Then the route again.
+- runFlow:
+    file: subflows/set-language.yaml
+- openLink: ${APP_URL}/--/whats-new
+- extendedWaitUntil:
+    visible: "What's new|Novedades"
+    timeout: 40000
 # 10. The 0.7 cases, opened by another pushed link
 - openLink: ${APP_URL}/--/whats-new/0.7
 - extendedWaitUntil:

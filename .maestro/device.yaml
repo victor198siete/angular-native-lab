@@ -4,6 +4,7 @@
 # The four cards must render. The location permission step is best effort: the system dialog's
 # wording and buttons differ by OS version and language, and a permission granted by an earlier run
 # skips it. The live values (rotation, theme, airplane mode) are covered by the unit tests.
+# Language: English at the start (the flow switches the app); add -e LANG=ES to run in Spanish.
 appId: ${APP_ID}
 ---
 - openLink: ${APP_URL}/--/device
@@ -21,6 +22,13 @@ appId: ${APP_ID}
       visible: "Close"
     commands:
       - tapOn: "Close"
+# The app starts in a known language: English, or Spanish with -e LANG=ES. Then the route again.
+- runFlow:
+    file: subflows/set-language.yaml
+- openLink: ${APP_URL}/--/device
+- extendedWaitUntil:
+    visible: "Device|Dispositivo"
+    timeout: 40000
 # The screen keeps its scroll position between runs, so look for the heading upwards
 - scrollUntilVisible:
     element:
