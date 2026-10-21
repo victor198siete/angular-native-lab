@@ -29,14 +29,19 @@ change; both are fast.
 - **Element names are lowercase:** `<view>`, `<text>`, `<pressable>`, `<scroll-view>`,
   `<text-input>`, `<image>`, `<switch>`, `<safe-area-view>`, `<virtual-list>`, `<modal>`. Each is
   imported from `@ng-native/components` into the component's `imports`, like any Angular
-  component: `imports: [View, Text]`. `<View>` compiles to an empty template, and an element used
+  component: `imports: [View, Text]`. `<View>` matches no component and fails the build, and an element used
   without its import renders as a plain view.
-- **There is no DOM.** No `document`, no `window`, no `<div>`, `<span>`, `<button>` or `<input>`,
-  no `@angular/platform-browser`, and no `@angular/animations`. Use the native elements above.
+- **There is no DOM.** No `document`, no `window`, no `<button>`, `<a>`, `<input>` or `<img>`, no
+  `@angular/platform-browser`, and no `@angular/animations`. Use the native elements above. HTML's
+  text elements (`p`, `span`, `h1`, `strong`) draw as text and its layout elements (`div`,
+  `section`, `ul`) as plain views, with none of a browser's default styles.
 - **A component's host is a flex item.** `<app-case-list />` commits as a view of its own, with no
   `flex`, so a `flex: 1` scroll view inside it gets a height of zero and shows nothing. A component
   that fills the space it is given sets `host: { style: 'flex: 1' }` (or `:host { flex: 1; }`).
-- **Text only renders inside `<text>`.** `<view>Hello</view>` compiles and shows nothing.
+- **Text is drawn in a text element.** `<text>` is the one with inputs and outputs (`numberOfLines`,
+  `(press)`). `p`, `span` and the other HTML text elements are text while they hold only text and
+  other text elements; one that holds a view is a view. Text written straight into a view is given
+  a paragraph of its own, one per run, and never flows inline with the elements beside it.
 - **Events are native:** `(press)` on `<pressable>`, not `(click)`; `[(value)]` or `(changeText)` on
   `<text-input>`; `(scroll)`, `(layout)`. A pressable text is `<text pressable (press)="...">`.
 - **Signals, zoneless, AOT.** State is signals and `computed()`; there is no zone.js, so nothing
@@ -54,10 +59,10 @@ change; both are fast.
   (`{ padding: 16, backgroundColor: '#fff' }`).
 - A component's `styles` is real CSS, compiled at build time: type, class, id and attribute
   selectors, combinators, `:host`, `@media`, custom properties, transitions and `@keyframes`.
-  Grid, float, `::before`/`::after`, `:hover` and `:focus-visible` are dropped with a build
-  warning naming the file, line and reason - lay out with flexbox, and drive a hover or focus look
-  from a bound attribute. Everything is `display: flex`
-  with `flex-direction: column` by default, as in React Native.
+  Float, `::before`/`::after`, `:hover` and `:focus-visible` are dropped with a build warning
+  naming the file, line and reason - lay out with flexbox, grid or a block, and drive a hover or
+  focus look from a bound attribute. Everything is `display: flex` with `flex-direction: column`
+  by default, as in React Native.
 - Tailwind v4 works through `@ng-native/tailwind`, with `ios:`, `android:` and `dark:` variants.
 
 ## Lists, navigation, forms
