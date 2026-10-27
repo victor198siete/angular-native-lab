@@ -11,8 +11,8 @@ uses mock data and documents what worked and **what failed**, with the literal e
 > el simulador de iOS en unos cinco minutos.
 
 ⚠️ Angular Native is in **alpha**. This repo is pinned to exact versions and documents
-what breaks; it is not a production guide. Everything below was tested on simulators and emulators, never on a phone; Android coverage is
-partial (see [Android](#android)).
+what breaks; it is not a production guide. Everything below was tested on simulators and emulators; the one run on a phone is a short look at 0.18.2 on an
+iPhone 14 Pro (see [Upgrading to 0.18.2](#upgrading-to-0182)). Android coverage is partial (see [Android](#android)).
 
 <p>
   <img src="docs/rewards.gif" width="280" alt="The Rewards demo switching from English to Spanish, then filtering the catalog" />
@@ -24,13 +24,13 @@ partial (see [Android](#android)).
 
 | | Version |
 |---|---|
-| `@ng-native/*` | 0.17.1 (also ran on 0.16.0, 0.15.0, 0.14.0, 0.13.0, 0.10.0, 0.9.0, 0.5.0, 0.4.0 and 0.3.0: tags [`ng-native-0.13.0`](https://github.com/victor198siete/angular-native-lab/tree/ng-native-0.13.0), [`ng-native-0.10.0`](https://github.com/victor198siete/angular-native-lab/tree/ng-native-0.10.0), [`ng-native-0.9.0`](https://github.com/victor198siete/angular-native-lab/tree/ng-native-0.9.0), [`ng-native-0.5.0`](https://github.com/victor198siete/angular-native-lab/tree/ng-native-0.5.0), [`ng-native-0.4.0`](https://github.com/victor198siete/angular-native-lab/tree/ng-native-0.4.0) and [`ng-native-0.3.0`](https://github.com/victor198siete/angular-native-lab/tree/ng-native-0.3.0)) |
+| `@ng-native/*` | 0.18.2 (pinned; the cases and the Maestro flows below were last run on 0.17.1, see [Upgrading to 0.18.2](#upgrading-to-0182); also ran on 0.17.1, 0.16.0, 0.15.0, 0.14.0, 0.13.0, 0.10.0, 0.9.0, 0.5.0, 0.4.0 and 0.3.0: tags [`ng-native-0.13.0`](https://github.com/victor198siete/angular-native-lab/tree/ng-native-0.13.0), [`ng-native-0.10.0`](https://github.com/victor198siete/angular-native-lab/tree/ng-native-0.10.0), [`ng-native-0.9.0`](https://github.com/victor198siete/angular-native-lab/tree/ng-native-0.9.0), [`ng-native-0.5.0`](https://github.com/victor198siete/angular-native-lab/tree/ng-native-0.5.0), [`ng-native-0.4.0`](https://github.com/victor198siete/angular-native-lab/tree/ng-native-0.4.0) and [`ng-native-0.3.0`](https://github.com/victor198siete/angular-native-lab/tree/ng-native-0.3.0)) |
 | Angular | 22.2.1 |
-| Expo SDK | 57 (`expo` 57.0.30) |
-| React Native | 0.86.3 |
+| Expo SDK | 58 (`expo` 58.0.19) |
+| React Native | 0.88.0 |
 | TypeScript / Vitest | 6.0.3 / 5.0.3 |
 | Node | 22.22.3 |
-| Device | iOS 27 simulator (iPhone 18 Pro), Xcode 27, Expo Go; Android 16 emulator (Pixel 9), Expo Go and a development build |
+| Device | iOS 27 simulator (iPhone 18 Pro), Xcode 27, Expo Go; Android 16 emulator (Pixel 9), Expo Go and a development build; one iPhone 14 Pro in Expo Go (0.18.2, a look by hand) |
 
 ## Getting started
 
@@ -1001,6 +1001,39 @@ with a caveat, — not tested there.
 | Reactive Forms, `ControlValueAccessor` | `@angular/forms` | Compatibility check only | ✅ | No | — | Angular binds `[formControl]` and `ngModel` to the `value` model; no accessor needed. Also ✅ on the Android emulator |
 | `HttpClient` with interceptors | `@ng-native/platform/http` (`provideNativeHttpClient`) | Login: auth interceptor, mock API | ✅ | No | — | Angular's `withInterceptors()` and `provideHttpClientTesting()` work unchanged. Also ✅ on the Android emulator |
 
+## Upgrading to 0.18.2
+
+0.18.2 (peer `expo ^57 || ^58`) with Expo SDK 58. The lab went from 0.17.1 to 0.18.2 on 26 Oct 2026, all ten
+`@ng-native/*` packages, together with Expo SDK 57 to 58 (React Native 0.86.3 to 0.88.0, React 19.2.3 to 19.3.0).
+Angular stays on 22.2.1. Typecheck clean, the 241 tests passing, `expo install --check` clean.
+
+**Not run on 0.18.2 yet:** the eight Maestro flows on the iOS simulator and the Android emulator, and the What's new
+cases (0.17 and 0.18 have none). Everything marked verified in the demos above was last run on 0.17.1.
+
+- **Why SDK 58: Expo Go on iOS only supports the newest SDK.** An iPhone with the App Store's Expo Go (SDK 58.0.0)
+  opened the SDK 57 lab with "Project is incompatible with this version of Expo Go ... The project you opened uses SDK
+  57", and an older Expo Go cannot be installed on an iPhone. The iOS simulator is not bound by this.
+- **On a phone, Expo Go asks for an Expo account.** Metro logged "You need to be signed in to Expo Go and Expo CLI to
+  open your project", then "You're signed in to Expo CLI as ..., but not signed in to Expo Go". `npx expo login` on the
+  computer and the same account in Expo Go (Settings, Log in) fix it, and Metro has to be restarted after the CLI login.
+  An account created with Google has no password, and Expo Go's form only takes a username or email and a password:
+  set one on expo.dev first.
+- **Local Network access:** until Expo Go is allowed under Settings, Privacy, Local Network, it lists no servers and a
+  QR code from the Camera app says "No usable data found". `exp://<ip of the computer>:8081` typed by hand also works.
+- **A look at the lab on an iPhone 14 Pro, in Expo Go, by hand, on 26 Oct 2026:** Rewards (wallet, catalog, reward
+  detail), Join, tab and stack navigation, Login against the mock server and the EN/ES switch drew and responded, with
+  no red screen and nothing in Metro's log but the bundles. It was a look, not a test: no Maestro, no measurement, no
+  Face ID, no location, and the iOS version of the phone was not written down.
+- **`src/main.ts`: `({ rootTag }: { rootTag: number | string })` no longer type-checks.** React Native 0.88 types
+  `rootTag` as `RootTag`. The annotation is gone, as in ng-native's README (`({ rootTag }) => ...`); `Number(rootTag)`
+  still compiles.
+- **`npm install` fails with ERESOLVE until the SDK 58 set is in `package.json` together.** `expo-modules-core@~58` asks
+  for `react-native-worklets >=0.13`, and the old `package-lock.json` still held `expo-modules-core` 57 and worklets
+  0.10.1. `npx expo install --fix` writes the set (`react-native-worklets` 0.13.0, `react-native-reanimated` 4.7.1,
+  `react-native-gesture-handler` ~3.3.0, ...), one `npm install --legacy-peer-deps` rewrites the lockfile, and a plain
+  `npm install` then resolves with no flag. Deleting `package-lock.json` instead lets `@angular/core` float to 22.2.3,
+  which conflicts with `@angular/forms` pinned at 22.2.1.
+
 ## Upgrading to 0.17.1
 
 0.17.0 changes how layout is done and 0.17.1 adds Expo SDK 58 support (the template stays on 57). The lab went
@@ -1043,8 +1076,8 @@ show no shifted content, collapsed heights, changed margins or cut text.
   when this started, and the first iOS runs were in Spanish: Gestures and What's new failed in that language (What's
   new at the A9-4 button, which the scroll left under the header), and both passed in English. Now every flow sets
   the language itself (see the Maestro section: English, `-e LANG=ES` for Spanish), and A9-4 scrolls to the button, so it
-  passes in both languages on both platforms. `whats-new.yaml` as a whole still stops in Spanish at steps of other
-  cases that only read English (the `Version 0.15` heading, A15-2's `hideKeyboard` on iOS, A15-3's `.*ree coffee` on Android).
+  passes in both languages on both platforms. `whats-new.yaml` as a whole passes in Spanish and in English on the iOS
+  simulator (the steps that only read English were fixed in `98ce741`); in Spanish and English on Android it has not been run.
 
 ## Upgrading to 0.16.0
 
@@ -1287,7 +1320,7 @@ First run on the Android 16 emulator (Pixel 9, API 36), in Expo Go and in a deve
 
 On Android: history, the reward detail, the vault, the voucher, biometrics in the Login demo and a
 position in the Device demo.
-Everywhere: a release build, a physical device (Face ID
+Everywhere: a release build, a physical device beyond the look by hand at 0.18.2 on an iPhone 14 Pro (Face ID
 on a real phone included) and any performance measurement. Nothing
 in this README claims performance numbers.
 
