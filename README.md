@@ -1340,13 +1340,72 @@ First run on the Android 16 emulator (Pixel 9, API 36), in Expo Go and in a deve
 - **Tabs have no icons on Android.** Not a bug: ng-native warns that Android reads only `drawable`,
   and the lab uses SF Symbols, which are iOS only.
 
+## Angular Native vs a WebView (Capacitor): one screen, size and cold start
+
+27 Oct 2026, one iPhone 14 Pro (iOS 18.7.3), release builds, Wi-Fi at home. **One list screen, not an app**: the
+Rewards catalog of this lab. It says nothing about either technology in general.
+
+| | Capacitor (WebView) | Angular Native, that screen alone | This lab, all demos (reference) |
+|---|---|---|---|
+| App folder (`.app`, `du -sk`) | **1.7 MB** | 38.9 MB | 48.1 MB |
+| Zipped (`ditto -c -k`; a proxy, not an `.ipa`) | 0.6 MB | 10.5 MB | 14.0 MB |
+| Cold start to the first rows, median of 20 | 1.33 s | **1.25 s** | not measured |
+| Interquartile range | 1.30 to 1.64 s | 1.19 to 1.43 s | |
+
+**How to read it.** Size is a real and large difference: the WebView app is about 23 times smaller, because it uses the
+WebView iOS already has, and Angular Native ships its own engine (Hermes, React Native and the Expo runtime). Cold
+start is **not a measurable difference**: 80 ms between medians, with overlapping ranges, inside the noise of the
+method below. Memory and scroll smoothness were not measured.
+
+**The three apps.** Same Angular 22.2.1 in all. (1) `angular-capacitor-lab`: Capacitor 8.5.3, `@angular/cdk` 22.2.1
+virtual scroll, Tailwind 4.3.3, `@ng-icons/lucide`. (2) `angular-native-catalog`: ng-native 0.18.2, Expo SDK 58,
+React Native 0.88.0, the lab's own `<virtual-list>`, row, chips and tile, and only the packages that screen needs.
+(3) this lab, whose release build (48.1 MB) is only a size reference: it carries 11 demos and has no start-up marker.
+Both screens show the **same 200 rewards** (the lab's mock, copied unchanged), the same Lucide icons, the same
+Tailwind tokens, an 88 px row, in English and light mode. Left out of both: i18n, the reward detail, dark mode and any
+navigation. The two apps live in sibling folders of this repo and are **not published yet**.
+
+**Method.**
+- Builds: `xcodebuild -configuration Release`, signed with a free personal team, on the same phone.
+- Size: the `.app` folder with `du -sk`, and its zip with `ditto -c -k --keepParent`.
+- Cold start marker: when the first rows of the list are in the tree, the app sends one HTTP request to the Mac
+  (`GET /ready?app=...`, Capacitor with an `Image`, Angular Native with `fetch`). A release React Native build does not
+  forward `console.*` to the process output, so a console line could not be used. The Mac times the request from the
+  moment it starts `xcrun devicectl device process launch --terminate-existing`, so the process starts from nothing.
+- 2 rounds of 10 runs per app, alternating (Capacitor, Angular Native, Capacitor, Angular Native), 4 s between runs,
+  the phone unlocked and charging, auto-lock off.
+
+**All runs, in seconds.**
+
+| | Runs |
+|---|---|
+| Capacitor, round 1 | 2.292 1.320 1.637 1.235 1.428 2.508 1.284 1.432 1.288 1.344 |
+| Capacitor, round 2 | 2.982 1.355 1.340 1.314 1.277 3.035 1.295 1.307 1.242 1.306 |
+| Angular Native, round 1 | 2.491 1.328 1.179 1.158 1.241 2.809 1.286 1.228 1.171 1.276 |
+| Angular Native, round 2 | 3.118 1.139 1.254 1.169 1.237 3.200 1.185 1.187 1.426 1.275 |
+
+**What the number includes, and what it hides.**
+- It includes the start-up of `devicectl` and the network round trip of the request (a `.local` name, so also its
+  resolution and the Local Network check). That fixed cost is most of the 1.2 s and was not measured on its own, so the
+  method cannot see differences of a few hundred milliseconds in the apps. In the Angular Native app the `boot`
+  (JavaScript started), `tick` and `ready` requests all reached the Mac within the same tenth of a second.
+- Runs 1 and 6 of every round took 2.3 to 3.2 s, in both apps and in all four rounds: that looks like the tool or the
+  network, not the apps, and they are inside the medians. Without runs over 2 s the medians are 1.31 s (Capacitor) and
+  1.23 s (Angular Native), 16 runs each.
+- A first attempt with a console line as the marker gave 1.36 s for Capacitor and nothing for Angular Native, and was
+  discarded. A first pass of the new marker also counted the diagnostic `boot` request for Angular Native and was
+  rerun after fixing the script.
+- One screen, one phone, one day, one network. Not a statement about real apps, about other devices, or about
+  Android.
+
 ## Not tested yet
 
 On Android: history, the reward detail, the vault, the voucher, biometrics in the Login demo and a
 position in the Device demo.
 Everywhere: a release build beyond that one look on the iPhone, a physical device beyond the looks by hand at 0.18.2 on an iPhone 14 Pro (Face ID
-on a real phone included) and any performance measurement. Nothing
-in this README claims performance numbers.
+on a real phone included) and any performance measurement beyond
+the size and cold start of one screen in [Angular Native vs a WebView](#angular-native-vs-a-webview-capacitor-one-screen-size-and-cold-start).
+Memory, scroll smoothness and every other screen were not measured.
 
 ## Project structure
 
