@@ -416,7 +416,7 @@ appId: ${APP_ID}
 # first time A15-6 hides the bar Android shows "Viewing full screen" once, which the flow dismisses.
 - openLink: ${APP_URL}/--/whats-new/0.15
 - extendedWaitUntil:
-    visible: "Version 0.15"
+    visible: "Version 0.15|Versión 0.15"
     timeout: 30000
 - scrollUntilVisible:
     element:
@@ -434,8 +434,21 @@ appId: ${APP_ID}
 - tapOn:
     id: whats-new-a15-2-field
 - inputText: "hi"
-- hideKeyboard
 - assertVisible: "Keys 2 .last i. / scrolls [0-9]+ / content size changes [0-9]+|Teclas 2 .última i. / desplazamientos [0-9]+ / cambios de tamaño del contenido [0-9]+"
+# hideKeyboard does not close the keyboard of a multiline field on iOS (failed 2/2 in Spanish): a tap outside
+# the field, on the readout, closes it on both platforms
+- tapOn:
+    id: whats-new-a15-2-readout
+# in Spanish the multiline field sits at the centre of the screen, where scrollUntilVisible starts its swipe,
+# so that swipe scrolls the field and not the page (Android): move the page from the edge first. Not on iOS,
+# where it does scroll and the move takes the table away from the centre for the A15-3 sideways swipe
+- runFlow:
+    when:
+      platform: Android
+    commands:
+      - swipe:
+          start: 97%,70%
+          end: 97%,40%
 # A15-3: the table is drawn; on iOS the flow swipes it to its last column (on Android the swipe is a screenshot job: a swipe at the centre of the screen does not reach the table there)
 - scrollUntilVisible:
     element:
@@ -483,25 +496,55 @@ appId: ${APP_ID}
       id: whats-new-a15-5-drawn
     centerElement: true
 - assertVisible: "vector logo"
-# A15-6: claims on the bar
-- scrollUntilVisible:
-    element:
-      id: whats-new-a15-6-hidden
-    centerElement: true
-- tapOn:
-    id: whats-new-a15-6-hidden
-- runFlow:
-    when:
-      visible: "Got it"
+# A15-6: claims on the bar. On iOS with the app in Spanish a tap here can be lost or move the page (2/2
+# runs), so each press is retried until the readout, found again by scrolling, shows its claim
+- retry:
+    maxRetries: 2
     commands:
-      - tapOn: "Got it"
-- assertVisible: "Bar claims: style - / hidden yes|Reclamos de la barra: estilo - / oculta yes"
-- tapOn:
-    id: whats-new-a15-6-style
-- assertVisible: "Bar claims: style dark / hidden yes|Reclamos de la barra: estilo dark / oculta yes"
-- tapOn:
-    id: whats-new-a15-6-hidden
-- assertVisible: "Bar claims: style dark / hidden no|Reclamos de la barra: estilo dark / oculta no"
+      - scrollUntilVisible:
+          element:
+            id: whats-new-a15-6-hidden
+          centerElement: true
+      - waitForAnimationToEnd
+      - tapOn:
+          id: whats-new-a15-6-hidden
+      - runFlow:
+          when:
+            visible: "Got it"
+          commands:
+            - tapOn: "Got it"
+      - scrollUntilVisible:
+          element:
+            text: "Bar claims: style - / hidden yes|Reclamos de la barra: estilo - / oculta yes"
+          centerElement: true
+- retry:
+    maxRetries: 2
+    commands:
+      - scrollUntilVisible:
+          element:
+            id: whats-new-a15-6-style
+          centerElement: true
+      - waitForAnimationToEnd
+      - tapOn:
+          id: whats-new-a15-6-style
+      - scrollUntilVisible:
+          element:
+            text: "Bar claims: style dark / hidden yes|Reclamos de la barra: estilo dark / oculta yes"
+          centerElement: true
+- retry:
+    maxRetries: 2
+    commands:
+      - scrollUntilVisible:
+          element:
+            id: whats-new-a15-6-hidden
+          centerElement: true
+      - waitForAnimationToEnd
+      - tapOn:
+          id: whats-new-a15-6-hidden
+      - scrollUntilVisible:
+          element:
+            text: "Bar claims: style dark / hidden no|Reclamos de la barra: estilo dark / oculta no"
+          centerElement: true
 # A15-8: :host:has(.on) follows the class
 - scrollUntilVisible:
     element:
@@ -533,7 +576,7 @@ appId: ${APP_ID}
 # 11. The 0.16 case. A16-1 (the picture sizes) is a screenshot: the flow opens the page and checks the card is there.
 - openLink: ${APP_URL}/--/whats-new/0.16
 - extendedWaitUntil:
-    visible: "Version 0.16"
+    visible: "Version 0.16|Versión 0.16"
     timeout: 30000
 - assertVisible:
     id: whats-new-a16-1-drawn
