@@ -1007,8 +1007,21 @@ with a caveat, — not tested there.
 `@ng-native/*` packages, together with Expo SDK 57 to 58 (React Native 0.86.3 to 0.88.0, React 19.2.3 to 19.3.0).
 Angular stays on 22.2.1. Typecheck clean, the 241 tests passing, `expo install --check` clean.
 
-**Not run on 0.18.2 yet:** the eight Maestro flows on the iOS simulator and the Android emulator, and the What's new
-cases (0.17 and 0.18 have none). Everything marked verified in the demos above was last run on 0.17.1.
+**Maestro on 0.18.2, 26 and 27 Oct 2026** (Metro restarted, the eight flows, Expo Go 58.0.7 on the iOS simulator and
+58.0.5 on the Android emulator, both installed by `expo start --ios` / `--android`): the app in Spanish passes **8 of 8
+on iOS and 8 of 8 on Android**; in English it passes 7 of 8 on both, and the one that failed differs:
+
+- **iOS, English: `whats-new-early` fails at A6-1** (0.6, "display: none has no native view"), 4 runs of 4 in English,
+  and passes 2 of 2 in Spanish. The card draws `Laid out: display none 2 times / opacity 2 times` where the flow, and
+  the card's own text, expect `opacity 1 times`. Everything visible is right: the `display: none` box is back at row 1
+  and the opacity box still shows row 11. Only the count of layouts of the `opacity: 0` box went from 1 to 2. It is not
+  known whether 0.18.2, React Native 0.88 or SDK 58 causes it, or why the language matters. The flow and the card are
+  untouched: the card still says "Verified" for 0.17.1 and earlier, and it is not for 0.18.2 on iOS in English.
+- **Android, English: `offline` failed once at `Pending: 2`** in the full run (the first flow run after the emulator
+  booted) and passed 2 of 2 when repeated alone. Treated as a flake, like the ones listed under 0.17.1.
+
+**Not run on 0.18.2:** the What's new cases for 0.17 and 0.18 do not exist, and nothing was measured. Everything
+marked verified in the demos above was last checked by hand on 0.17.1.
 
 - **Why SDK 58: Expo Go on iOS only supports the newest SDK.** An iPhone with the App Store's Expo Go (SDK 58.0.0)
   opened the SDK 57 lab with "Project is incompatible with this version of Expo Go ... The project you opened uses SDK
