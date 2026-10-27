@@ -21,7 +21,7 @@ import { App } from './app/app.ts';
 
 registerPlatformComponents(Platform.OS);
 
-AppRegistry.registerRunnable('main', ({ rootTag }: { rootTag: number | string }) => {
+AppRegistry.registerRunnable('main', ({ rootTag }) => {
   const app = mount(Number(rootTag), App, getFabricUIManager(), {
     // Colours, as the integers the platform wants.
     processColor,
