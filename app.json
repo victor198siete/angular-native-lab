@@ -11,7 +11,8 @@
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "automatic",
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.victor198siete.angularnativelab"
     },
     "android": {
       "adaptiveIcon": {

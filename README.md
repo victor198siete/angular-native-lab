@@ -1020,6 +1020,17 @@ on iOS and 8 of 8 on Android**; in English it passes 7 of 8 on both, and the one
 - **Android, English: `offline` failed once at `Pending: 2`** in the full run (the first flow run after the emulator
   booted) and passed 2 of 2 when repeated alone. Treated as a flake, like the ones listed under 0.17.1.
 
+- **A release build runs on a phone (27 Oct 2026, iPhone 14 Pro, iOS 18.7.3).** No Metro and no Expo Go: `npx expo
+  prebuild --platform ios`, then `xcodebuild -configuration Release -allowProvisioningUpdates` and `xcrun devicectl
+  device install app`. It builds, installs (the `.app` folder is 48 MB, not an `.ipa` and not thinned) and opens on
+  the Rewards home, and by hand Rewards, Join, navigation, Login and the EN/ES switch looked as in Expo Go. By eye only:
+  no Maestro on it and no measurement. Things that went wrong on the way: `ios.bundleIdentifier` has to be set in
+  `app.json`; `npx expo run:ios` signed with the first certificate in the keychain, which was someone else's (set
+  `ios.appleTeamId` to your own team, which stays out of the repo); with the team set it does not pass
+  `-allowProvisioningUpdates`, so `xcodebuild` is run directly; and iOS refuses to open the app until the profile is
+  trusted under Settings, General, VPN and Device Management, then Verify App (needs internet). A free account's
+  profile expires after 7 days.
+
 **Not run on 0.18.2:** the What's new cases for 0.17 and 0.18 do not exist, and nothing was measured. Everything
 marked verified in the demos above was last checked by hand on 0.17.1.
 
@@ -1333,7 +1344,7 @@ First run on the Android 16 emulator (Pixel 9, API 36), in Expo Go and in a deve
 
 On Android: history, the reward detail, the vault, the voucher, biometrics in the Login demo and a
 position in the Device demo.
-Everywhere: a release build, a physical device beyond the look by hand at 0.18.2 on an iPhone 14 Pro (Face ID
+Everywhere: a release build beyond that one look on the iPhone, a physical device beyond the looks by hand at 0.18.2 on an iPhone 14 Pro (Face ID
 on a real phone included) and any performance measurement. Nothing
 in this README claims performance numbers.
 
