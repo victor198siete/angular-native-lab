@@ -624,3 +624,95 @@ Totals: PICK 1 + TEST-ONLY 2 + LIST 8 + SKIP 5 = 16.
 | Ver | PR | Entry | Why Expo Go (with this `package.json`) cannot |
 |---|---|---|---|
 | 0.16 | #928, #923, #927, #930, #926 | `ui-date-picker`, `ui-view-host`, header `ui-host`, `ui-picker`, `ui-image`, `ui-gauge`, `ui-label`, `ui-menu` | `@expo/ui` is not in the lab and `npm install` is out of scope for this round |
+
+## Addendum: ng-native 0.19.0, 0.19.1 and 0.19.2
+
+Date: 2026-11-01. The lab is on 0.18.2 (`006acbe`): none of the three versions is installed yet, so this is a triage of the notes only. Same method and legend as the 0.15.0 and 0.16.0 addenda: nothing below was run, and the "Shown" column is what a demo would do. The 0.17.0 and 0.18.x addenda are still pending (HANDOFF of 28 Oct 2026, step 3); this one does not cover them.
+
+Sources: the GitHub releases `v0.19.0` (28 Oct), `v0.19.1` (28 Oct) and `v0.19.2` (29 Oct) of ng-native/ng-native. All three are fixes only, plus one new package (`@ng-native/firebase-messaging`). The peer dependencies of `@ng-native/components` and `@ng-native/expo` are the same as in 0.18.2 (Angular `^22`, React Native `>=0.86`, Expo `^57 || ^58`), so the upgrade needs no new SDK or React Native.
+
+Counts (a sub-bullet or a second paragraph naming a separate change is a row):
+
+| Version | Rows | PICK | TEST-ONLY | LIST | SKIP | Cases (A + B) |
+|---|---|---|---|---|---|---|
+| 0.19.0 | 26 | 5 | 2 | 2 | 17 | 4 + 1 |
+| 0.19.1 | 3 | 0 | 0 | 2 | 1 | 0 |
+| 0.19.2 | 6 | 1 | 2 | 1 | 2 | 0 + 1 |
+| Total | 35 | 6 | 4 | 5 | 20 | 4 + 2 |
+
+Facts about the lab that shape this addendum:
+- Not in `package.json`: `@expo/ui`, `@ng-native/web-compat`, `@ng-native/web`, `@ng-native/firebase-messaging`, `@ng-native/nx`, `expo-notifications`, `react-native-webview`. The lab uses no `fileRoutes`, no `templateUrl`/`styleUrl`, no `<refresh-control>`, no `fullScreenModal` and no `<dom-component>`. Half the rows (the security review's `web-compat` bullets) are SKIP for that reason.
+- `react-native-screens` is 4.30.0, the version #1279's tab-guard change needs.
+- The tabs lab (`whats-new/tabs/:org`, Search behind a 4 s guard, A11-2 and A11-3) is the one existing demo a 0.19 change reaches. A11-2's Maestro steps tap Search for the first time, while #1279 changes a tab **that was visited**, so `.maestro/whats-new.yaml` should pass unchanged; to confirm after the upgrade.
+- Every `<virtual-list>` in the lab tracks `row.slot`; none tracks `row.key`, so none could throw NG0955 before #1265.
+
+### Proposed cases (PICK)
+
+| Id | Entries | Demo sketch | Observable proof |
+|---|---|---|---|
+| A19-1 | #1265 | A `<virtual-list>` of 200 numbered rows tracked by `row.key`, with a "Hide even rows below" switch; scroll to row 80, switch on, then off. A row counter from the window. | Every row is drawn once and the counter matches; no NG0955 in the console. Before: a row came back twice (or, with `track row.slot`, a hidden copy was kept). |
+| A19-2 | #1266 | The tabs lab opened as `whats-new/tabs/são-paulo` (and a second link `new york`): Library, open an album, tap Home, tap Library. | Library comes back on the album, not its first screen, and the url readout keeps the escaped segment. Before: the first screen. |
+| A19-3 | #1279 (router bullet 1) | In the tabs lab, open Search once (wait out the 4 s guard), go to Home, then tap Search again and watch for 4 s. | The tab bar keeps Home selected until the guard agrees, then selects Search; it no longer shows Search's kept page while the guard runs. Needs react-native-screens 4.30+ (the lab has 4.30.0). |
+| A19-4 | #1260 (#1212), iOS 26+ | A pushed stack page whose `:host` sets `justify-content: center`, `align-items: center` and `gap: 16`, with a `:host > text` rule colouring its root texts; same page on Android as control. | On the iOS 27 simulator the texts are centred with the gap and coloured, as on Android. Before (iOS 26+ only): `:host` layout and `:host >` selectors did not reach them. |
+| B19-1 | #1270 (#1253), iOS | From a tab's stack, present a page `as: 'fullScreenModal'`; in it, a button that `push()`es a top-level route and prints the boolean it resolves and the url. | On iOS it prints `false` and the url is unchanged; on Android the push goes ahead. Before: `true` with nothing shown, and the next back removed an unseen screen. |
+| B19-2 | #1298, iOS | A pushed page with a large title and a `<refresh-control>` whose `refreshing` starts true for 3 s. | The spinner starts once the push finishes and leaves no gap under the large title after it stops. Before: a gap the spinner's height stayed. |
+
+### 0.19.0 (26 rows)
+
+| Ver | PR | What | Area | Expo Go | Shown | Lab touches | Verdict |
+|---|---|---|---|---|---|---|---|
+| 0.19.0 | #1261 | On iOS `@expo/ui` modifiers are registered once per launch, not on every reload (a dev build could crash in `ViewModifierRegistry.register` on hot reload) | expo ui (iOS) | dev build (`@expo/ui`) | not observable: a crash that no longer happens | no | SKIP |
+| 0.19.0 | #1269 | On iOS a `ui-bottom-sheet` with its content in a navigation stack puts its `modifiers` on that content, so `ignoreSafeArea` reaches under the home indicator | expo ui (iOS) | dev build (`@expo/ui`) | not demonstrable | no | LIST |
+| 0.19.0 | #1265 | A `<virtual-list>` row that comes back to the window takes back its own slot (no duplicated key, no hidden copy) | lists | yes | on screen | no (lab tracks `row.slot`) | PICK A19-1 |
+| 0.19.0 | #1266 | `<native-tabs-outlet>` under a route parameter finds a url inside a tab when the parameter is escaped (`são-paulo`, `new york`) or has matrix parameters | router | yes | on screen | tabs lab (`:org`, only `1` and `2` today) | PICK A19-2 |
+| 0.19.0 | #1266 | A url that gives a tab's own segment matrix parameters (`library;sort=a/7`) is inside that tab | router | yes | Vitest (url readout) | no | TEST-ONLY |
+| 0.19.0 | #1279 | `web-compat`: `XMLSerializer` escapes the namespace in `xmlns` | web-compat | n/o (not in the lab) | not demonstrable | no | SKIP |
+| 0.19.0 | #1279 | `web-compat`: only an HTML-namespace `<iframe>` becomes a web view | web-compat | n/o | not demonstrable | no | SKIP |
+| 0.19.0 | #1279 | `web-compat`: on Android a frame reporting origin `null` arrives as `null` | web-compat | n/o | not demonstrable | no | SKIP |
+| 0.19.0 | #1279 | `web-compat`: a message posted for an origin waits for the new `src`/`srcdoc` page | web-compat | n/o | not demonstrable | no | SKIP |
+| 0.19.0 | #1279 | `web-compat`: on iOS an iframe with a host-less `src` shows an empty page instead of closing the app | web-compat | n/o | not demonstrable | no | SKIP |
+| 0.19.0 | #1279 | `web-compat`: an SVG `<img>` in inert markup is not fetched until inserted | web-compat | n/o | not demonstrable | no | SKIP |
+| 0.19.0 | #1279 | `web-compat`: an emulated frame more than ten deep stays blank | web-compat | n/o | not demonstrable | no | SKIP |
+| 0.19.0 | #1279 | `web-compat`: `DOMParser` deep namespace prefixes parse in linear time | web-compat | n/o | not demonstrable | no | SKIP |
+| 0.19.0 | #1279 | `router`: a tap on a visited tab behind a guard is selected once the guard agrees (react-native-screens 4.30+) | router | yes | on screen | tabs lab, Search guard (A11-2) | PICK A19-3 |
+| 0.19.0 | #1279 | `router`: a page `present()` shows over another tab runs the guards above it with the providers down to that route | router | yes | Vitest (which injector a guard reads) | no | TEST-ONLY |
+| 0.19.0 | #1279 | `router`: `fileRoutes` runs `canMatch` guards with the providers in `routeMeta` | router | n/o (no `fileRoutes` in the lab) | not demonstrable | no | SKIP |
+| 0.19.0 | #1279 | `components`: Markdown compares each changed block once on a new `source` | markdown | n/o (performance) | not observable | `<markdown>` used (A6-2, A15-x) | SKIP |
+| 0.19.0 | #1279 | `tailwind`: a `var()` name with a regex character no longer breaks the build; a line break in the entry's file name no longer ends the header comment | tailwind | n/o (build) | not observable | Tailwind used | SKIP |
+| 0.19.0 | #1279 | `web`: an image with `referrerPolicy` is painted with an `<img>` | web host | n/o (no web host) | not demonstrable | no | SKIP |
+| 0.19.0 | #1279 | `metro`: the dev server keeps a parked route history as sent, so a deep body cannot crash it | metro | n/o | not observable | no | SKIP |
+| 0.19.0 | #1271 | Safe HTML methods remove an `<iframe>` inside `<svg>`/`<math>` and any element registered as a web view | web-compat | n/o | not demonstrable | no | SKIP |
+| 0.19.0 | #1271 | `<dom-component>` sends a changed input only to its own page | expo | needs `react-native-webview` | not demonstrable | no | SKIP |
+| 0.19.0 | #1260 (#1212) | On iOS 26+ a stack page's `:host` layout and `:host > ...` selectors reach its root elements again | styling (iOS) | yes | on screen | no routed page sets `:host` layout today | PICK A19-4 |
+| 0.19.0 | #1270 (#1253) | On iOS a navigation to a stack hidden behind a `fullScreenModal` resolves false and changes nothing | router (iOS) | yes | on screen | no | PICK B19-1 |
+| 0.19.0 | #1259 (#1166) | A running Metro recompiles a component when its `templateUrl`/`styleUrl` file changes or is deleted | metro | n/o (dev server; the lab uses inline templates) | not demonstrable on a screen | no | SKIP |
+| 0.19.0 | #1281 (#1278) | New package `@ng-native/firebase-messaging`: registers the Firebase Installation ID with FCM | push | dev build (answers null in Expo Go) | not demonstrable | no | LIST |
+
+### 0.19.1 (3 rows)
+
+| Ver | PR | What | Area | Expo Go | Shown | Lab touches | Verdict |
+|---|---|---|---|---|---|---|---|
+| 0.19.1 | #1284 (#1282, #1283) | `FirebaseMessaging.unregister()` deletes the installation and stops re-registering until `register()` | push | dev build | not demonstrable | no | LIST |
+| 0.19.1 | #1284 | On Android a call without `google-services.json` rejects with `ERR_NO_FIREBASE_CONFIG` | push (Android) | dev build | not demonstrable | no | LIST |
+| 0.19.1 | #1284 | `FirebaseMessaging` reads nothing from `Notifications` until `register()`; docs show an `app.config.js` without the Firebase file | push / docs | n/o | not observable | no | SKIP |
+
+### 0.19.2 (6 rows)
+
+| Ver | PR | What | Area | Expo Go | Shown | Lab touches | Verdict |
+|---|---|---|---|---|---|---|---|
+| 0.19.2 | #1289 (#1287) | On iOS `Notifications` puts the data of an FCM or APNs push in `request.content.data` | push (iOS) | dev build (a real remote push; `expo-notifications` not in the lab) | not demonstrable | no | LIST |
+| 0.19.2 | #1292 | `fileRoutes` gives a lazy page's `canMatch` guards the same `routeMeta` provider instances as the page | router | n/o (no `fileRoutes`) | not demonstrable | no | SKIP |
+| 0.19.2 | #1298 | On iOS a `<refresh-control>` already refreshing when its page is pushed starts after the screen appears (no gap under a large title) | components (iOS) | yes | on screen | no | PICK B19-2 |
+| 0.19.2 | #1298 | `SCREEN_SHOWN` in `@ng-native/device`: false until native says the screen appeared | device | yes | Vitest (signal readout) | no | TEST-ONLY |
+| 0.19.2 | #1298 | In a Node test for iOS, a refresh control under an outlet commits `refreshing: false` until `topAppear` is emitted | testing | n/o | Vitest | no | TEST-ONLY |
+| 0.19.2 | #1288 (#1285, #1286) | `nx g @ng-native/nx:library` adds Babel 7 `@babel/core` to the library's dev dependencies | nx | n/o (no Nx in the lab) | not demonstrable | no | SKIP |
+
+Totals: PICK 6 + TEST-ONLY 4 + LIST 5 + SKIP 20 = 35.
+
+### Needs a development build or a new package (added)
+
+| Ver | PR | Entry | Why Expo Go (with this `package.json`) cannot |
+|---|---|---|---|
+| 0.19.0 | #1269 | `ui-bottom-sheet` modifiers inside a navigation stack | `@expo/ui` is not in the lab |
+| 0.19.0, 0.19.1 | #1281, #1284 | `@ng-native/firebase-messaging` | native Firebase; every call answers null in Expo Go |
+| 0.19.2 | #1289 | `Notifications` data of an FCM / APNs push on iOS | a real remote push needs a dev build with push entitlements; `expo-notifications` is not in the lab |
