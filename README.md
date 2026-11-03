@@ -24,7 +24,7 @@ iPhone 14 Pro (see [Upgrading to 0.18.2](#upgrading-to-0182)). Android coverage 
 
 | | Version |
 |---|---|
-| `@ng-native/*` | 0.18.2 (pinned; the cases and the Maestro flows below were last run on 0.17.1, see [Upgrading to 0.18.2](#upgrading-to-0182); also ran on 0.17.1, 0.16.0, 0.15.0, 0.14.0, 0.13.0, 0.10.0, 0.9.0, 0.5.0, 0.4.0 and 0.3.0: tags [`ng-native-0.13.0`](https://github.com/victor198siete/angular-native-lab/tree/ng-native-0.13.0), [`ng-native-0.10.0`](https://github.com/victor198siete/angular-native-lab/tree/ng-native-0.10.0), [`ng-native-0.9.0`](https://github.com/victor198siete/angular-native-lab/tree/ng-native-0.9.0), [`ng-native-0.5.0`](https://github.com/victor198siete/angular-native-lab/tree/ng-native-0.5.0), [`ng-native-0.4.0`](https://github.com/victor198siete/angular-native-lab/tree/ng-native-0.4.0) and [`ng-native-0.3.0`](https://github.com/victor198siete/angular-native-lab/tree/ng-native-0.3.0)) |
+| `@ng-native/*` | 0.19.2 (pinned; the Maestro flows were last run on 0.19.2 and the cases checked by hand on 0.17.1, see [Upgrading to 0.19.2](#upgrading-to-0192); also ran on 0.18.2, 0.17.1, 0.16.0, 0.15.0, 0.14.0, 0.13.0, 0.10.0, 0.9.0, 0.5.0, 0.4.0 and 0.3.0: tags [`ng-native-0.13.0`](https://github.com/victor198siete/angular-native-lab/tree/ng-native-0.13.0), [`ng-native-0.10.0`](https://github.com/victor198siete/angular-native-lab/tree/ng-native-0.10.0), [`ng-native-0.9.0`](https://github.com/victor198siete/angular-native-lab/tree/ng-native-0.9.0), [`ng-native-0.5.0`](https://github.com/victor198siete/angular-native-lab/tree/ng-native-0.5.0), [`ng-native-0.4.0`](https://github.com/victor198siete/angular-native-lab/tree/ng-native-0.4.0) and [`ng-native-0.3.0`](https://github.com/victor198siete/angular-native-lab/tree/ng-native-0.3.0)) |
 | Angular | 22.2.1 |
 | Expo SDK | 58 (`expo` 58.0.19) |
 | React Native | 0.88.0 |
@@ -1000,6 +1000,37 @@ with a caveat, — not tested there.
 | `[animatedStyle]` | `@ng-native/components/animations` | Gestures: the native-driver and JavaScript tiles | ✅ | No | — | A loop of an `Animated.sequence` is restarted from JavaScript; use one timing in a loop. No Vitest stand-in |
 | Reactive Forms, `ControlValueAccessor` | `@angular/forms` | Compatibility check only | ✅ | No | — | Angular binds `[formControl]` and `ngModel` to the `value` model; no accessor needed. Also ✅ on the Android emulator |
 | `HttpClient` with interceptors | `@ng-native/platform/http` (`provideNativeHttpClient`) | Login: auth interceptor, mock API | ✅ | No | — | Angular's `withInterceptors()` and `provideHttpClientTesting()` work unchanged. Also ✅ on the Android emulator |
+
+## Upgrading to 0.19.2
+
+0.19.2 (peers unchanged: Angular `^22`, React Native `>=0.86`, Expo `^57 || ^58`). The lab went from 0.18.2 to 0.19.2
+on 1 Nov 2026, all ten `@ng-native/*` packages, still pinned. Expo SDK 58, React Native 0.88.0 and Angular 22.2.1
+stay. No source change. Typecheck clean, the 241 tests passing. The three release notes (0.19.0 to 0.19.2, fixes
+only plus a new `@ng-native/firebase-messaging`) are triaged in [`docs/whats-new-triage.md`](docs/whats-new-triage.md):
+35 rows, 6 picks, no case built yet.
+
+**Maestro on 0.19.2, 1 and 2 Nov 2026** (the eight flows in English, Expo Go 58.0.7 on the iOS simulator and 58.0.5
+on the Android emulator, each failure repeated once): **8 of 8 on Android and 6 of 8 on iOS.**
+
+- **The tabs lab passes on both** (A11-2 and A11-3), and so does #1279's change: tapping Search again after it was
+  visited keeps Home selected while the 4 s guard runs, then opens Search (a screenshot on each platform; a step
+  added to a copy of the flow for this run, not to `.maestro/whats-new.yaml`).
+- **iOS, `whats-new` fails at A8-4, 2 runs of 2.** After the first tap on `whats-new-a8-4-less` (0.8 page) the stack
+  shows the end of the 0.10 page under a "Version 0.9" header, so the second tap finds no button. **Not caused by
+  0.19.2:** the same flow on 0.18.2 (installed for the check with `npm install --no-save`, Metro restarted with
+  `--clear`) fails at the same step. It passed on 26 and 27 Oct; not diagnosed.
+- **iOS, `device` fails at `location-latitude`** and **iOS, `whats-new-early` fails at A6-1**: both are the failures
+  already seen on 0.18.2 (28 Oct and above), not new.
+- **Flakes, passed when repeated:** iOS `join` (the first screen came late on the first flow of the run) and Android
+  `offline` at `Pending: 2`, as on 0.18.2.
+- **`expo install --check` now asks for `react-native` 0.88.1 and `react-native-screens` ~4.30.1.** Not caused by
+  this upgrade (`expo` is still 58.0.19; the expected versions come from Expo's servers) and not applied.
+- **The emulator matters:** the `Pixel_9_API36` AVD has Expo Go 57.0.9, which cannot open an SDK 58 project (the app
+  showed an old cached bundle and never asked Metro for one). The run used the `Pixel_9` AVD, where `npx expo start
+  --go --android` installed Expo Go 58.0.5. Maestro also needs a Java runtime: Android Studio's
+  (`JAVA_HOME="/Applications/Android Studio.app/Contents/jbr/Contents/Home"`) works.
+
+**Not run on 0.19.2:** Spanish, the release build on a phone, and the What's new cases for 0.17 to 0.19.
 
 ## Upgrading to 0.18.2
 
