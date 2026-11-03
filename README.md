@@ -1010,7 +1010,8 @@ only plus a new `@ng-native/firebase-messaging`) are triaged in [`docs/whats-new
 35 rows, 6 picks, no case built yet.
 
 **Maestro on 0.19.2, 1 and 2 Nov 2026** (the eight flows in English, Expo Go 58.0.7 on the iOS simulator and 58.0.5
-on the Android emulator, each failure repeated once): **8 of 8 on Android and 6 of 8 on iOS; 8 of 8 on iOS after the fixes below** (3 Nov).
+on the Android emulator, each failure repeated once): **8 of 8 on Android and 6 of 8 on iOS; after the fixes below, 8 of 8 on both in one full run each** (3 Nov:
+iOS in 20 min, then Android in 22 min, one after the other, with no flow repeated).
 
 - **The tabs lab passes on both** (A11-2 and A11-3), and so does #1279's change: tapping Search again after it was
   visited keeps Home selected while the 4 s guard runs, then opens Search (a screenshot on each platform; a step
@@ -1033,7 +1034,8 @@ on the Android emulator, each failure repeated once): **8 of 8 on Android and 6 
   `120.00003`); the `display: none` box still counts every one. What the card claims is unchanged.
   `whats-new-early` passes on iOS in English and in Spanish.
 - **With a clean simulator and the location set, iOS passes 8 of 8**: `whats-new`, `device` and
-  `whats-new-early` each passed alone on 3 Nov, the other five in the run above.
+  `whats-new-early` each passed alone on 3 Nov, then all eight in one run; Android passed all eight again after
+  the A6-1 change.
 - **Flakes, passed when repeated:** iOS `join` (the first screen came late on the first flow of the run) and Android
   `offline` at `Pending: 2`, as on 0.18.2.
 - **`expo install --check` now asks for `react-native` 0.88.1 and `react-native-screens` ~4.30.1.** Not caused by
