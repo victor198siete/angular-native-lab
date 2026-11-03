@@ -1010,17 +1010,23 @@ only plus a new `@ng-native/firebase-messaging`) are triaged in [`docs/whats-new
 35 rows, 6 picks, no case built yet.
 
 **Maestro on 0.19.2, 1 and 2 Nov 2026** (the eight flows in English, Expo Go 58.0.7 on the iOS simulator and 58.0.5
-on the Android emulator, each failure repeated once): **8 of 8 on Android and 6 of 8 on iOS.**
+on the Android emulator, each failure repeated once): **8 of 8 on Android and 6 of 8 on iOS, 7 of 8 on iOS once the environment was fixed** (below).
 
 - **The tabs lab passes on both** (A11-2 and A11-3), and so does #1279's change: tapping Search again after it was
   visited keeps Home selected while the 4 s guard runs, then opens Search (a screenshot on each platform; a step
   added to a copy of the flow for this run, not to `.maestro/whats-new.yaml`).
-- **iOS, `whats-new` fails at A8-4, 2 runs of 2.** After the first tap on `whats-new-a8-4-less` (0.8 page) the stack
-  shows the end of the 0.10 page under a "Version 0.9" header, so the second tap finds no button. **Not caused by
-  0.19.2:** the same flow on 0.18.2 (installed for the check with `npm install --no-save`, Metro restarted with
-  `--clear`) fails at the same step. It passed on 26 and 27 Oct; not diagnosed.
-- **iOS, `device` fails at `location-latitude`** and **iOS, `whats-new-early` fails at A6-1**: both are the failures
-  already seen on 0.18.2 (28 Oct and above), not new.
+- **iOS, `whats-new` failed at A8-4, 2 runs of 2, and on 0.18.2 too** (installed for the check with `npm install
+  --no-save`, Metro restarted with `--clear`): after the first tap on `whats-new-a8-4-less` the 0.8 page left the
+  stack, so the second tap found no button. **The environment, not the lab:** that run had iOS and Android Maestro
+  in parallel on one Mac, a simulator up for hours, and leftover `xcodebuild` drivers (load average 259 at the end).
+  After a simulator reboot, with the Mac idle, the whole `whats-new` flow passes (3 Nov), and so do its pieces
+  (the 0.8 page alone, 0.9 then 0.8, sections 1 to 6). Run the two platforms one after the other.
+- **iOS, `device` fails at `location-latitude`: the simulator had no location.** The card reads "Permission:
+  Granted" and "No position yet" while tracking; `xcrun simctl location <udid> set 37.3349,-122.0090` and it
+  passes. The same loss noted under 0.17.1, 0.15.0, 0.13.0 and 0.9.0.
+- **iOS, `whats-new-early` fails at A6-1**, as on 0.18.2 in English (see below), on a clean simulator too: the
+  `opacity: 0` box is laid out twice where the card expects once. Still not explained.
+- **With a clean simulator, iOS passes 7 of 8**: everything but A6-1.
 - **Flakes, passed when repeated:** iOS `join` (the first screen came late on the first flow of the run) and Android
   `offline` at `Pending: 2`, as on 0.18.2.
 - **`expo install --check` now asks for `react-native` 0.88.1 and `react-native-screens` ~4.30.1.** Not caused by
