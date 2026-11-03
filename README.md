@@ -1010,7 +1010,7 @@ only plus a new `@ng-native/firebase-messaging`) are triaged in [`docs/whats-new
 35 rows, 6 picks, no case built yet.
 
 **Maestro on 0.19.2, 1 and 2 Nov 2026** (the eight flows in English, Expo Go 58.0.7 on the iOS simulator and 58.0.5
-on the Android emulator, each failure repeated once): **8 of 8 on Android and 6 of 8 on iOS, 7 of 8 on iOS once the environment was fixed** (below).
+on the Android emulator, each failure repeated once): **8 of 8 on Android and 6 of 8 on iOS; 8 of 8 on iOS after the fixes below** (3 Nov).
 
 - **The tabs lab passes on both** (A11-2 and A11-3), and so does #1279's change: tapping Search again after it was
   visited keeps Home selected while the 4 s guard runs, then opens Search (a screenshot on each platform; a step
@@ -1024,9 +1024,16 @@ on the Android emulator, each failure repeated once): **8 of 8 on Android and 6 
 - **iOS, `device` fails at `location-latitude`: the simulator had no location.** The card reads "Permission:
   Granted" and "No position yet" while tracking; `xcrun simctl location <udid> set 37.3349,-122.0090` and it
   passes. The same loss noted under 0.17.1, 0.15.0, 0.13.0 and 0.9.0.
-- **iOS, `whats-new-early` fails at A6-1**, as on 0.18.2 in English (see below), on a clean simulator too: the
-  `opacity: 0` box is laid out twice where the card expects once. Still not explained.
-- **With a clean simulator, iOS passes 7 of 8**: everything but A6-1.
+- **iOS, `whats-new-early` failed at A6-1**, as on 0.18.2 in English (see below), on a clean simulator too.
+  **Explained (3 Nov):** a log of the two boxes' `(layout)` showed the `opacity: 0` box sent again at height
+  `120.00003051757812` instead of `120` when it goes out of the flow, a rounding that changes nothing on screen;
+  the `display: none` box's second layout (the view made again) came at the same height. The language only moves
+  the card on the page, and with it, presumably, the rounding (not measured in Spanish). **The case now counts a
+  layout of the `opacity: 0` box only when its frame moves by half a point or more** (a new test replays the
+  `120.00003`); the `display: none` box still counts every one. What the card claims is unchanged.
+  `whats-new-early` passes on iOS in English and in Spanish.
+- **With a clean simulator and the location set, iOS passes 8 of 8**: `whats-new`, `device` and
+  `whats-new-early` each passed alone on 3 Nov, the other five in the run above.
 - **Flakes, passed when repeated:** iOS `join` (the first screen came late on the first flow of the run) and Android
   `offline` at `Pending: 2`, as on 0.18.2.
 - **`expo install --check` now asks for `react-native` 0.88.1 and `react-native-screens` ~4.30.1.** Not caused by
@@ -1053,7 +1060,7 @@ on iOS and 8 of 8 on Android**; in English it passes 7 of 8 on both, and the one
   the card's own text, expect `opacity 1 times`. Everything visible is right: the `display: none` box is back at row 1
   and the opacity box still shows row 11. Only the count of layouts of the `opacity: 0` box went from 1 to 2. It is not
   known whether 0.18.2, React Native 0.88 or SDK 58 causes it, or why the language matters. The flow and the card are
-  untouched: the card still says "Verified" for 0.17.1 and earlier, and it is not for 0.18.2 on iOS in English.
+  untouched: the card still says "Verified" for 0.17.1 and earlier, and it is not for 0.18.2 on iOS in English (explained and fixed in the case under [Upgrading to 0.19.2](#upgrading-to-0192)).
 - **Android, English: `offline` failed once at `Pending: 2`** in the full run (the first flow run after the emulator
   booted) and passed 2 of 2 when repeated alone. Treated as a flake, like the ones listed under 0.17.1.
 

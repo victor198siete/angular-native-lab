@@ -1,4 +1,4 @@
-import { screen, userEvent } from '@ng-native/testing';
+import { fireEvent, screen, userEvent } from '@ng-native/testing';
 import { describe, expect, it } from 'vitest';
 import { renderApp } from '../rewards/features/testing.ts';
 import { textOf } from '../lists/testing.ts';
@@ -48,6 +48,20 @@ describe('what is new, 0.6', () => {
     expect(screen.queryByTestId('whats-new-a6-1-left')).toBeNull();
     await user.press(screen.getByTestId('whats-new-a6-1-hide'));
     expect(screen.getByTestId('whats-new-a6-1-left')).toBeTruthy();
+  });
+
+  it('A6-1: the opacity-0 box counts a layout only when its frame moves, the display: none box every one', async () => {
+    await openVersion();
+    const layout = (id: string, height: number, width = 159) =>
+      fireEvent(screen.getByTestId(id), 'layout', { nativeEvent: { layout: { x: 0, y: 0, width, height } } });
+    // iOS in English, 3 Nov 2026: going out of the flow, the opacity-0 box came back 120.00003 high.
+    await layout('whats-new-a6-1-left', 120);
+    await layout('whats-new-a6-1-right', 120);
+    await layout('whats-new-a6-1-right', 120.00003051757812);
+    await layout('whats-new-a6-1-left', 120.00003051757812);
+    expect(textOf('whats-new-a6-1-readout')).toBe('Laid out: display none 2 times / opacity 1 times');
+    await layout('whats-new-a6-1-right', 120, 100);
+    expect(textOf('whats-new-a6-1-readout')).toBe('Laid out: display none 2 times / opacity 2 times');
   });
 
   it('A6-2 (#509): the imported .md is drawn as native text and its link reports the url', async () => {

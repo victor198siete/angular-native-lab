@@ -2,12 +2,23 @@ import { Component, computed, signal } from '@angular/core';
 import { ScrollView, Text, View } from '@ng-native/components';
 import { WnButton } from '../shared/action-button.ts';
 
+interface Frame {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+}
+
 /**
  * Two boxes, each a scroll view of 30 numbered rows. The left one is hidden with `display: none`
  * (no native view while hidden, so its scroll offset is lost), the right one the documented way to
  * keep a view out of sight (`position: absolute; opacity: 0; pointer-events: none`). Scroll both to
  * row 11, hide, show: the left one starts at row 1 again and its `(layout)` has fired a second time
  * (the view was made again); the right one is still at row 11 and laid out once.
+ *
+ * The right box counts a layout only when its frame moves by half a point or more: going out of the
+ * flow, iOS sent it again 120.00003 high (English, 3 Nov 2026), a rounding that changes nothing on
+ * screen. The left box counts every one, since its second is the view made again at the same size.
  */
 @Component({
   selector: 'app-display-none-case',
@@ -29,7 +40,7 @@ import { WnButton } from '../shared/action-button.ts';
         <view class="gap-1 flex-1">
           <text class="text-caption font-semibold text-ink dark:text-ink-dk" i18n="@@whatsNew.a6_1.opacityTitle">opacity: 0, out of the flow</text>
           <view class="slot">
-            <scroll-view #right="scrollView" testID="whats-new-a6-1-right" class="box" [class.away]="hidden()" (layout)="rights.update((n) => n + 1)">
+            <scroll-view #right="scrollView" testID="whats-new-a6-1-right" class="box" [class.away]="hidden()" (layout)="rightLaidOut($event.nativeEvent.layout)">
               @for (row of rows; track row) {
                 <text class="row">{{ rowLabel(row) }}</text>
               }
@@ -84,6 +95,15 @@ export class DisplayNoneCase {
     const right = this.rights();
     return $localize`:@@whatsNew.a6_1.readout:Laid out: display none ${left}:left: times / opacity ${right}:right: times`;
   });
+
+  private rightFrame: Frame | null = null;
+
+  protected rightLaidOut(frame: Frame): void {
+    const last = this.rightFrame;
+    this.rightFrame = frame;
+    const moved = !last || (['x', 'y', 'width', 'height'] as const).some((key) => Math.abs(frame[key] - last[key]) >= 0.5);
+    if (moved) this.rights.update((n) => n + 1);
+  }
 
   protected scrollBoth(left: ScrollView, right: ScrollView): void {
     left.scrollTo({ y: 300, animated: false });
