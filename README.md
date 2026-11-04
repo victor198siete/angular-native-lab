@@ -24,7 +24,7 @@ iPhone 14 Pro (see [Upgrading to 0.18.2](#upgrading-to-0182)). Android coverage 
 
 | | Version |
 |---|---|
-| `@ng-native/*` | 0.19.2 (pinned; the Maestro flows were last run on 0.19.2 and the cases checked by hand on 0.17.1, see [Upgrading to 0.19.2](#upgrading-to-0192); also ran on 0.18.2, 0.17.1, 0.16.0, 0.15.0, 0.14.0, 0.13.0, 0.10.0, 0.9.0, 0.5.0, 0.4.0 and 0.3.0: tags [`ng-native-0.13.0`](https://github.com/victor198siete/angular-native-lab/tree/ng-native-0.13.0), [`ng-native-0.10.0`](https://github.com/victor198siete/angular-native-lab/tree/ng-native-0.10.0), [`ng-native-0.9.0`](https://github.com/victor198siete/angular-native-lab/tree/ng-native-0.9.0), [`ng-native-0.5.0`](https://github.com/victor198siete/angular-native-lab/tree/ng-native-0.5.0), [`ng-native-0.4.0`](https://github.com/victor198siete/angular-native-lab/tree/ng-native-0.4.0) and [`ng-native-0.3.0`](https://github.com/victor198siete/angular-native-lab/tree/ng-native-0.3.0)) |
+| `@ng-native/*` | 0.20.0 (pinned; the Maestro flows were last run on 0.20.0 and the cases checked by hand on 0.17.1, see [Upgrading to 0.20.0](#upgrading-to-0200); also ran on 0.19.2, 0.18.2, 0.17.1, 0.16.0, 0.15.0, 0.14.0, 0.13.0, 0.10.0, 0.9.0, 0.5.0, 0.4.0 and 0.3.0: tags [`ng-native-0.13.0`](https://github.com/victor198siete/angular-native-lab/tree/ng-native-0.13.0), [`ng-native-0.10.0`](https://github.com/victor198siete/angular-native-lab/tree/ng-native-0.10.0), [`ng-native-0.9.0`](https://github.com/victor198siete/angular-native-lab/tree/ng-native-0.9.0), [`ng-native-0.5.0`](https://github.com/victor198siete/angular-native-lab/tree/ng-native-0.5.0), [`ng-native-0.4.0`](https://github.com/victor198siete/angular-native-lab/tree/ng-native-0.4.0) and [`ng-native-0.3.0`](https://github.com/victor198siete/angular-native-lab/tree/ng-native-0.3.0)) |
 | Angular | 22.2.1 |
 | Expo SDK | 58 (`expo` 58.0.19) |
 | React Native | 0.88.0 |
@@ -1000,6 +1000,22 @@ with a caveat, — not tested there.
 | `[animatedStyle]` | `@ng-native/components/animations` | Gestures: the native-driver and JavaScript tiles | ✅ | No | — | A loop of an `Animated.sequence` is restarted from JavaScript; use one timing in a loop. No Vitest stand-in |
 | Reactive Forms, `ControlValueAccessor` | `@angular/forms` | Compatibility check only | ✅ | No | — | Angular binds `[formControl]` and `ngModel` to the `value` model; no accessor needed. Also ✅ on the Android emulator |
 | `HttpClient` with interceptors | `@ng-native/platform/http` (`provideNativeHttpClient`) | Login: auth interceptor, mock API | ✅ | No | — | Angular's `withInterceptors()` and `provideHttpClientTesting()` work unchanged. Also ✅ on the Android emulator |
+
+## Upgrading to 0.20.0
+
+0.20.0 (peers unchanged: Angular `^22`, React Native `>=0.86`, Expo `^57 || ^58`). The lab went from 0.19.2 to 0.20.0
+on 4 Nov 2026, all ten `@ng-native/*` packages, still pinned, as the first of three steps to 0.22.0 (one version at a
+time, each recorded). What the release changes and what the lab could show of it is in
+[docs/whats-new-triage.md](docs/whats-new-triage.md) (addendum for 0.20.0 to 0.22.0); no new case is built yet.
+
+- **No code change needed.** 242 tests pass and the typecheck is clean, as on 0.19.2.
+- **Maestro, the eight flows in English** (Expo Go 58.0.7 on the iOS simulator, 58.0.5 on the Android emulator,
+  one platform after the other): **8 of 8 on Android in one run** (21 min) and **7 of 8 on iOS** (11 min);
+  `whats-new` stopped at A8-4 (`whats-new-a8-4-less` not found on the second tap), the step that failed on 0.19.2
+  for the environment, and passed when repeated alone (264 s).
+- **The first iOS run failed all eight** at about 310 s each with "iOS driver not ready in time": Maestro's driver
+  never started on a simulator that had just failed to boot once. A simulator restart fixed it; nothing to do with
+  0.20.0.
 
 ## Upgrading to 0.19.2
 
