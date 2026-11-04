@@ -716,3 +716,115 @@ Totals: PICK 6 + TEST-ONLY 4 + LIST 5 + SKIP 20 = 35.
 | 0.19.0 | #1269 | `ui-bottom-sheet` modifiers inside a navigation stack | `@expo/ui` is not in the lab |
 | 0.19.0, 0.19.1 | #1281, #1284 | `@ng-native/firebase-messaging` | native Firebase; every call answers null in Expo Go |
 | 0.19.2 | #1289 | `Notifications` data of an FCM / APNs push on iOS | a real remote push needs a dev build with push entitlements; `expo-notifications` is not in the lab |
+
+## Addendum: ng-native 0.20.0, 0.21.0 and 0.22.0
+
+Date: 2026-11-04. The lab is on 0.19.2 (`a4507ec`): none of the three versions is installed yet, so this is a triage of the notes only. Same method and legend as the earlier addenda: nothing below was run, and the "Shown" column is what a demo would do. The 0.17.0 and 0.18.x addenda are still pending.
+
+Sources: the GitHub releases `v0.20.0` (2 Nov), `v0.21.0` (3 Nov) and `v0.22.0` (4 Nov) of ng-native/ng-native. All three are fixes and additions, no breaking section. The peer dependencies of `@ng-native/components`, `@ng-native/router` and `@ng-native/expo` still take Angular `^22`, React Native `>=0.86`, Expo `^57 || ^58` and react-native-screens `^4.26`; `@ng-native/expo` adds `expo-hinge ^58` among its optional peers. So the upgrade needs no new SDK or React Native. `npx expo install --check` (run on 0.19.2 today) asks for `react-native-safe-area-context` ~5.11.1 and `react-native-screens` ~4.30.1; that comes from Expo, not from these releases.
+
+Counts (a sub-bullet or a second paragraph naming a separate change is a row):
+
+| Version | Rows | PICK | TEST-ONLY | LIST | SKIP | Cases (A + B) |
+|---|---|---|---|---|---|---|
+| 0.20.0 | 36 | 6 | 8 | 9 | 13 | 4 + 1 |
+| 0.21.0 | 17 | 2 | 0 | 6 | 9 | 2 + 0 |
+| 0.22.0 | 5 | 0 | 1 | 2 | 2 | 0 |
+| Total | 58 | 8 | 9 | 17 | 24 | 6 + 1 |
+
+(0.20.0's PICK count includes #1322, folded into A20-3.)
+
+Facts about the lab that shape this addendum:
+- Not in the lab: `fit-content`, `max-content`, `box-sizing`, `position: fixed`, `canDeactivate`, `<native-header-item>`, `<native-search-bar>`, `<keyboard-avoiding-view>`, `<refresh-control>`, `ui-host`, `LanguageModel`, `@ng-native/web-compat`, `@ng-native/web`. Many layout rows are SKIP for that reason; they change committed layout only where those are written.
+- Reached by these releases: the tabs lab (`present()` of `library/guarded` as a `formSheet`, rows #1304, #1324, #1328, #1351); the device demo's reverse geocoding (#1307, iOS no longer asks for the permission to geocode, but the demo asks for it anyway to track); `<markdown>` with `(linkPress)` (A6-2, #1364 adds an input, nothing changes for `https`); the style-attribute and bound-units cases (#1350, #1355); the root stack with a large title (`main.ts`, #1396 and #1402).
+- `self-start` rows (`status-badge.ts`, `action-button.ts`) hold no growing item, so #1305's fitted row should not move them; to confirm after the upgrade with the Maestro flows.
+- #1393 changes the props committed for a `content-box` box; the lab sets no `box-sizing`, so its tests that read committed `width` should be unchanged.
+
+### Proposed cases (PICK)
+
+| Id | Entries | Demo sketch | Observable proof |
+|---|---|---|---|
+| A20-1 | #1305 | A segmented control: a `self-start` row of three `flex: 1` tabs, with its measured width beside it, and the same row stretched as control. | The `self-start` row is as wide as its three labels and the tabs share that; the stretched one fills the line. Before: the fitted row filled the screen too. |
+| A20-2 | #1355 (#1336, #1318) | Four boxes whose `border`, `box-shadow`, `background` and `font` come from a `style` attribute or a `[style]` binding, beside the same four from a stylesheet. | Each pair draws the same. Before: the bound or attribute shorthand reached native as text and drew nothing. |
+| A20-3 | #1350, #1322 | A bound `[style]` with `width: calc(2 * 1rem)`, `flex: 1 1 calc(10px + 10px)`, `opacity: calc(1 - 0.5)` and `translateX(1em)`, each with its measured value. | The measured values are 32, a 20 pt basis, half opacity and a 16 pt shift. Before: those values were committed as text and dropped. |
+| A20-4 | #1361 | In the tabs lab, a page with a counter ticking every second only while `injectPageFocused()` is true; switch tab, present the `formSheet`, come back. | The counter stops while another tab is in front or the sheet is up, and starts again on return; the page stays mounted throughout. |
+| A21-1 | #1376 (#1369) | A text with `font-size: 0`, one with `calc(4px - 8px)` (clamped to 0) and a normal one as control. | Android draws the screen with no `FontSize should be a positive value` error; iOS draws nothing visible for the two, not the default size. |
+| A21-2 | #1389 | A box with `box-shadow: 0 4px 12px` and no colour, in a text whose colour a button flips between the ink and an accent. | The shadow is drawn and follows the text colour. Before: the declaration was dropped with a warning. |
+| B20-1 | #1351 (#1331, #1332), iOS | Give the tabs lab's presented `formSheet` a "Keep me here" switch backed by a `canDeactivate` guard; swipe it down with the switch on and off. | Switch on: on iOS the sheet stays and the url is unchanged; switch off: it dismisses. Android dragging still dismisses (documented). Before: iOS dismissed and the router stayed on an unseen page. |
+
+### 0.20.0 (36 rows)
+
+| Ver | PR | What | Area | Expo Go | Shown | Lab touches | Verdict |
+|---|---|---|---|---|---|---|---|
+| 0.20.0 | #1308 (#1295) | `background: <gradients>, var(--token)` compiles to the gradients plus the token as `background-color` | styling | yes | on screen | no gradient over a token in the lab | LIST |
+| 0.20.0 | #1310 (#1300) | `AddressSearch` in `@ng-native/expo`: postal address suggestions and resolve, no permission or key | expo | dev build (empty in Expo Go) | not demonstrable in Expo Go | no | LIST |
+| 0.20.0 | #1309 | `<native-header-item>` with no content and `systemImageName` or `title` is a native `UIBarButtonItem` on iOS; new `hidden` input | router (iOS) | yes | on screen | no header items in the lab | LIST |
+| 0.20.0 | #1307 | `Location.geocode()` / `reverseGeocode()` no longer ask for the permission on iOS | expo (iOS) | yes | a prompt that no longer appears | device demo geocodes, but asks for the permission to track anyway | LIST |
+| 0.20.0 | #1346 (#1338) | `FontRegistry.loadSheet()` warns on a `null` sheet, once per process | fonts | n/o | console | no | SKIP |
+| 0.20.0 | #1348 (#1341–#1343) | Percentage width capped at `max-content`, `fit-content` between insets, percentage basis in a fitted box, as in a browser | layout | yes | on screen | no `fit-content`/`max-content` | SKIP |
+| 0.20.0 | #1327 (#1315) | A `fit-content` / `max-content` row stays as wide as its items when one grows | layout | yes | on screen | no | SKIP |
+| 0.20.0 | #1305 (#1295) | A row as wide as its content (`align-self: flex-start`) stays that wide when an item grows | layout | yes | on screen | `self-start` rows hold no growing item | PICK A20-1 |
+| 0.20.0 | #1305 | A `flex` of several values in a `style` attribute or `[style]` commits grow, shrink and basis | styling | yes | Vitest (committed props) | no | TEST-ONLY |
+| 0.20.0 | #1357 (#1325) | `@ng-native/expo` config plugin `pointerEvents` turns on W3C pointer events (hover from a trackpad, mouse, pencil) | expo | dev build (no effect in Expo Go) | not demonstrable in Expo Go | no | LIST |
+| 0.20.0 | #1347 (#1339) | `styleSheetOf()` and `loadFonts()` warnings in a browser build too | web | n/o (no web host) | not demonstrable | no | SKIP |
+| 0.20.0 | #1352 (#1330, #1337) | A math function below zero on a non-negative property clamps to 0; a length plus a number is refused | styling | yes | Vitest (committed props) | one `calc()` in the lab, inside `color-mix` | TEST-ONLY |
+| 0.20.0 | #1352 | A negative written out in a stylesheet (`width: -4px`) is dropped with a warning | styling | yes | console + Vitest | no negatives on such props found | SKIP |
+| 0.20.0 | #1356 (#1317) | Gradients over an unset or wrong `var()` draw nothing, as Chrome | styling | yes | on screen | no | SKIP |
+| 0.20.0 | #1290 | `web-compat`: a checked radio unchecks the other in its group | web-compat | n/o | not demonstrable | no | SKIP |
+| 0.20.0 | #1290 | `web-compat`: an `<input>` of an unknown `type` is a text field | web-compat | n/o | not demonstrable | no | SKIP |
+| 0.20.0 | #1321 (#1312) | Dev warnings: `styleSheetOf()` too early, `globalStyles: null`, `loadFonts(null)` | dev | n/o | console | no | SKIP |
+| 0.20.0 | #1301 (#1299) | `ngNative()` inlines every package that depends on `@angular/core` in Vitest (no NG0203 from libraries) | testing | n/o | Vitest | no such library in the lab | TEST-ONLY |
+| 0.20.0 | #1323 | `userEvent.type` adds the next character to the text the field shows after a refused key | testing | n/o | Vitest | lab tests type into fields (join, login) | TEST-ONLY |
+| 0.20.0 | #1349 (#1340) | `userEvent.type` types at the caret, replacing a selection | testing | n/o | Vitest | no `setSelection()` in the lab | TEST-ONLY |
+| 0.20.0 | #1303 (#1296) | Metro attaches a component's sheet as soon as the class is defined | metro | n/o | not observable | no | SKIP |
+| 0.20.0 | #1291 | `NativeNavigation.back()` during a navigation waits past a guard's redirect | router | yes | Vitest (url) | no redirecting guard | TEST-ONLY |
+| 0.20.0 | #1304 (#1280) | A page shown with `present()` over another tab shares one instance of each provider above it | router | yes | Vitest (injector) | tabs lab presents `library/guarded` | TEST-ONLY |
+| 0.20.0 | #1324 (#1313) | A presented page keeps `title`, `canDeactivate`, `runGuardsAndResolvers` and `resources` of the routes above it | router | yes | Vitest | tabs lab | LIST |
+| 0.20.0 | #1324 | `present()` of a page behind a `canLoad` guard shows it where its url puts it | router | yes | not demonstrable without `canLoad` | no | SKIP |
+| 0.20.0 | #1351 (#1331, #1332) | On iOS a swipe no longer dismisses a presented screen a `canDeactivate` guard refuses | router (iOS) | yes | on screen | tabs lab's `formSheet` (no guard yet) | PICK B20-1 |
+| 0.20.0 | #1328 | `present()` shows the page its url names, whatever was presented before | router | yes | Vitest (route order) | no `new` before `:id` | TEST-ONLY |
+| 0.20.0 | #1354 | On iOS pointer events on engine nodes reach `hovered` and `@defer (on hover)` when W3C pointer events are on | components (iOS) | dev build | not demonstrable in Expo Go | no | LIST |
+| 0.20.0 | #1364 (#1362) | `<markdown [linkSchemes]>` and `provideMarkdownLinkSchemes()` report app-scheme links | markdown | yes | on screen | A6-2 uses `(linkPress)` with `https` only | LIST |
+| 0.20.0 | #1311 | `LanguageModel.session()` with tools, on-device, iOS | expo (iOS) | needs Apple Intelligence | not demonstrable on the simulator | no | SKIP |
+| 0.20.0 | #1329 | A `<keyboard-avoiding-view behavior="height">` laid out with the keyboard up keeps its height | components | yes | on screen | no keyboard-avoiding view | SKIP |
+| 0.20.0 | #1355 (#1336, #1318) | `border`, `outline`, `box-shadow`, `background`, `font`, `text-decoration` in a `style` attribute or `[style]` draw | styling | yes | on screen | style-attribute case | PICK A20-2 |
+| 0.20.0 | #1350 (#1344, #1333–#1335) | `calc()`, `min()`, `max()`, `clamp()` in a `style` attribute or `[style]` worked out as in a stylesheet | styling | yes | on screen | bound-units case | PICK A20-3 |
+| 0.20.0 | #1322 (#1316) | A `calc()` of `px`/`rem` and numbers in a style is committed as points | styling | yes | on screen | bound-units case | in A20-3 |
+| 0.20.0 | #1361 (#1358) | `injectPageFocused()` in `@ng-native/router` | router | yes | on screen | tabs lab | PICK A20-4 |
+| 0.20.0 | #1353 | A bar button `<native-header-item>` takes a native `[menu]` and `[spacing]` on iOS | router (iOS) | yes | on screen | no header items | LIST |
+
+### 0.21.0 (17 rows)
+
+| Ver | PR | What | Area | Expo Go | Shown | Lab touches | Verdict |
+|---|---|---|---|---|---|---|---|
+| 0.21.0 | #1388 | `background: <gradient>, var(--x)` keeps or drops its gradients as Chrome for a token with a position or size; a token can hold a gradient | styling | yes | on screen | no | LIST |
+| 0.21.0 | #1388 | `[style.background-image]` draws linear gradients and `none` | styling | yes | on screen | no | SKIP |
+| 0.21.0 | #1390 | `var(--x, center / cover)` fallback keeps the gradient when `--x` is unset | styling | yes | on screen | no | SKIP |
+| 0.21.0 | #1385 | `TextRecognition` in `@ng-native/expo` (Vision, iOS) | expo (iOS) | dev build | not demonstrable in Expo Go | no | LIST |
+| 0.21.0 | #1375 (#1359) | `TabBarInsets.bottom` in `@ng-native/router` | router | iOS in Expo Go; Android dev build | on screen (iOS) | tabs lab | LIST |
+| 0.21.0 | #1389 | A `box-shadow` with no colour draws in the text colour | styling | yes | on screen | no `box-shadow` in the lab | PICK A21-2 |
+| 0.21.0 | #1389 | A stylesheet `font` shorthand resets `font-style` to `normal` | styling | yes | on screen | no `font` shorthand | SKIP |
+| 0.21.0 | #1377 | A fitted box in RTL with a physical and a logical inset sits between them | layout | yes | on screen | no RTL | SKIP |
+| 0.21.0 | #1379 (#1368) | A dev reload with a page of another tab presented comes back with it presented | router | yes (dev) | on screen | tabs lab | LIST |
+| 0.21.0 | #1378 (#1370) | `null` on `<native-toolbar-item [width]>` or a header font size is unset, not `NaN` | router | yes | not observable | no | SKIP |
+| 0.21.0 | #1381 | A percentage `flex-basis` with its own width is measured at that width in a fitted row | layout | yes | on screen | no | SKIP |
+| 0.21.0 | #1396 (#1394) | iOS: the first push of a large-title page no longer starts from the compact bar | router (iOS) | dev build (Expo Go keeps the old start) | not demonstrable in Expo Go | root stack has a large title | LIST |
+| 0.21.0 | #1386 | `aspect-ratio: 16 / 9` and `calc()` ratios in a style commit one number; an open bracket is closed | styling | yes | on screen | `aspect-ratio` used in stylesheets, not in styles | SKIP |
+| 0.21.0 | #1384 | A negative written in a style on a non-negative prop is dropped with a warning | styling | yes | console | no | SKIP |
+| 0.21.0 | #1376 (#1369) | `font-size: 0` no longer throws on Android or draws at the default size on iOS | styling | yes | on screen | no | PICK A21-1 |
+| 0.21.0 | #1380 (#1366, #1367) | A `canDeactivate` guard decides a native pop of a pushed screen | router | yes | on screen | no guard on pushed screens | LIST |
+| 0.21.0 | #1382, #1383 | `position: fixed` fitted boxes on iOS, and a `fit-content` box with a growing item overflows as in a browser | layout | yes | on screen | no | SKIP |
+
+### 0.22.0 (5 rows)
+
+| Ver | PR | What | Area | Expo Go | Shown | Lab touches | Verdict |
+|---|---|---|---|---|---|---|---|
+| 0.22.0 | #1400 (#1399, #1405) | iOS: a large title no longer drops on every push with a `ui-host` header item | router (iOS) | dev build | not demonstrable in Expo Go | no `ui-host` | SKIP |
+| 0.22.0 | #1393 | A `box-sizing` change lays the box out again; `content-box` boxes in points commit as their border box | layout | yes | Vitest (committed props) | no `box-sizing` | TEST-ONLY |
+| 0.22.0 | #1387 | A `z-index` math function in a stylesheet compiles to Chrome's integer | styling | yes | not observable alone | `z-index` used as plain numbers | SKIP |
+| 0.22.0 | #1402 (#1401) | iOS: a stack's root page with a large title launches expanded | router (iOS) | yes | on screen | root stack has a large title: check after the upgrade | LIST |
+| 0.22.0 | #1406 (#1404) | Android: a tap on an open `<native-search-bar>` no longer presses the header item under it | router (Android) | yes | on screen | no search bar | LIST |
+
+### Needs a development build or a new package (added)
+
+`AddressSearch` (#1310), the `pointerEvents` config plugin and iOS hover (#1357, #1354), `TextRecognition` (#1385), `TabBarInsets` on Android (#1375), the large-title pre-layout (#1396) and the `ui-host` header fix (#1400). `LanguageModel.session()` (#1311) also needs Apple Intelligence on a device.
