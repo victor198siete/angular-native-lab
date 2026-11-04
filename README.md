@@ -1382,7 +1382,10 @@ First run on the Android 16 emulator (Pixel 9, API 36), in Expo Go and in a deve
   `src/app/core/i18n/language-switcher.ts`): Expo's reload first, React Native's when the app is
   still running 2 s later. Checked on the Android emulator (EN → ES → EN, then a redemption to the
   voucher with Copy, so Expo's native modules survive React Native's reload) and on the iOS simulator.
-  Not reported yet.
+  **Still the case on 0.19.2** (Expo SDK 58, Expo Go 58.0.5, Android emulator, 3 Nov 2026): with the
+  fallback turned off, `reloadAppAsync` resolves and nothing reloads in 20 s, the toggle stays
+  "Español, busy". ng-native 0.19.2 still carries its own workaround (`reloadThroughExpo`). Not reported
+  upstream, by decision: the lab documents it here and keeps the fallback.
 - **Tabs have no icons on Android.** Not a bug: ng-native warns that Android reads only `drawable`,
   and the lab uses SF Symbols, which are iOS only.
 
