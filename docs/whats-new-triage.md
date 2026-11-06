@@ -828,3 +828,18 @@ Facts about the lab that shape this addendum:
 ### Needs a development build or a new package (added)
 
 `AddressSearch` (#1310), the `pointerEvents` config plugin and iOS hover (#1357, #1354), `TextRecognition` (#1385), `TabBarInsets` on Android (#1375), the large-title pre-layout (#1396) and the `ui-host` header fix (#1400). `LanguageModel.session()` (#1311) also needs Apple Intelligence on a device.
+
+## Addendum: ng-native 0.22.1
+
+Date: 2026-11-06. Source: the GitHub release `v0.22.1` (5 Nov) of ng-native/ng-native, one entry, no breaking section, peers unchanged. Triaged from the notes when the lab moved to 0.22.1; same legend as above.
+
+The lab reads its design tokens once in `src/main.ts` (`deviceTokens` from `@ng-native/device`) and passes literal colours where a value is needed in TypeScript or as an input, as on `<ng-icon color="#ffffff">`. `injectToken` is the way to read such a token as a signal that follows the colour scheme.
+
+| Ver | PR | What | Area | Expo Go | Shown | Lab touches | Verdict |
+|---|---|---|---|---|---|---|---|
+| 0.22.1 | #1411 (#1410) | `injectToken('--accent')` reads a custom property's resolved value as a signal that follows the colour scheme, media conditions and stylesheet changes; `Engine.token` and `Engine.watchToken` do it without Angular | device | yes | on screen | literal colours where a token exists (`ng-icon` `color`) | PICK A22-1 |
+| 0.22.1 | #1411 | A shape's `fill` or `stroke` written as `var()` on the shape resolves against the tokens in scope | icons / shapes | yes | on screen | shape cases use `currentColor` and literals | LIST |
+
+| Id | Entries | Demo sketch | Observable proof |
+|---|---|---|---|
+| A22-1 | #1411 (#1410) | An `<ng-icon>` whose `color` is `injectToken('--accent')()`, with the token's value as text beside it, and an SVG with `fill="var(--accent)"`; switch the app between light and dark. | The text, the icon and the shape change with the scheme, without a reload. Before: the token had to be copied as a literal and stayed the same in both schemes. |
