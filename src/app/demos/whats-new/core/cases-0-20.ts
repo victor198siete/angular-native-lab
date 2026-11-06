@@ -1,0 +1,30 @@
+import type { Case } from './case.ts';
+
+/**
+ * ng-native 0.20.0. Each status is what was seen on the iOS simulator and the Android emulator
+ * (Expo Go), never what the note says. A case nobody has run stays `not-checked`: none of these
+ * has been run on a device yet.
+ */
+export const cases020 = (): readonly Case[] => [
+  {
+    id: 'a20-1',
+    prs: ['#1305'],
+    title: $localize`:@@whatsNew.a20_1.title:A row as wide as its content`,
+    note: $localize`:@@whatsNew.a20_1.note:A row sized to its content (align-self: flex-start) stays that wide when one of its items grows.`,
+    status: { kind: 'not-checked' },
+  },
+  {
+    id: 'a20-2',
+    prs: ['#1355', '#1336', '#1318'],
+    title: $localize`:@@whatsNew.a20_2.title:Shorthands in a style attribute and a binding`,
+    note: $localize`:@@whatsNew.a20_2.note:border, outline, box-shadow, background, font and text-decoration written in a style attribute or a [style] binding are drawn, as they are from a stylesheet.`,
+    status: { kind: 'not-checked' },
+  },
+  {
+    id: 'a20-3',
+    prs: ['#1350', '#1322'],
+    title: $localize`:@@whatsNew.a20_3.title:calc() in a bound style`,
+    note: $localize`:@@whatsNew.a20_3.note:calc(), min(), max() and clamp() in a style attribute or a [style] binding are worked out as in a stylesheet, and a calc() of px, rem and numbers is committed as points.`,
+    status: { kind: 'not-checked' },
+  },
+];

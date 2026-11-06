@@ -91,7 +91,7 @@ and 5 + 2.8 min on Android, each passing on the first run on both).
 | [Lists](#lists-virtual-list-vs-scroll-view) | `<virtual-list>` against `<scroll-view>` at 200 and 2,000 rows, with a live count of the row components actually mounted | ✅ iOS, Android |
 | [Gestures](#gestures-drag-pinch-swipe-and-three-ways-to-animate) | Drag that springs back, pinch and rotate, swipe-to-delete rows inside a scrolling list, and the same slide animated by CSS, `Animated`, a worklet and the JavaScript thread, with a button that blocks it | ✅ iOS, Android (pinch and rotate: iOS simulator and Node) |
 | [Offline](#offline-sqlite-cache-and-a-queue-of-redemptions) | Catalog and history in SQLite shown with no network and dated, redemptions queued offline that survive a restart and are sent once on reconnect, a fake API with duplicates (409) and failures (500) | ✅ iOS, Android (real airplane mode on Android) |
-| [What's new](#whats-new-each-release-note-checked) | One screen per ng-native version, each case a line of the release notes run live, with a badge for what was seen on the iOS simulator and the Android emulator (0.16 to 0.6) | ✅ iOS, Android |
+| [What's new](#whats-new-each-release-note-checked) | One screen per ng-native version, each case a line of the release notes run live, with a badge for what was seen on the iOS simulator and the Android emulator (0.20, then 0.16 to 0.6) | ✅ iOS, Android |
 
 ### Rewards
 
@@ -599,7 +599,7 @@ internet), the queue sent from the background.
 
 A demo that takes the lines of the ng-native release notes and runs them, so the notes can be
 confirmed or contradicted on a device. Reached by deep link: `exp://127.0.0.1:8081/--/whats-new`
-(a list of versions), and `exp://127.0.0.1:8081/--/whats-new/0.16`, `.../0.15`, `.../0.14`, `.../0.13`, `.../0.11`, `.../0.10`, `.../0.9` or `.../0.8` for one version's cases. Spanish:
+(a list of versions), and `exp://127.0.0.1:8081/--/whats-new/0.20`, `.../0.16`, `.../0.15`, `.../0.14`, `.../0.13`, `.../0.11`, `.../0.10`, `.../0.9` or `.../0.8` for one version's cases. Spanish:
 "Novedades".
 
 How it grows, one version at a time (`src/app/demos/whats-new/`):
@@ -779,6 +779,16 @@ template does not compile: no screen can show it, so it is SKIP.
 | A markdown picture at its own size | #922 | ✅ | ✅ | A 32 x 32 PNG and a 600 x 100 PNG written as `data:` urls. iOS (402 pt wide): the icon is 32 pt, the strip about 314 pt wide by 52 pt high. Android (411 dp): the icon is 32 dp, the strip about 322 dp by 53 dp. The icon keeps its size and the strip is narrowed to the card keeping its 6 to 1 shape; neither fills the card at 200 pt high. The "before" (0.15) was not run. Sizes read from screenshots |
 
 In Node, 2 tests (`whats-new-0-16.test.ts`) assert the card and, by sending the `load` and `layout` events by hand, the committed props (the icon 32 wide with ratio 1, the strip at 50 high from a 300-wide document). The Maestro section for 0.16 only opens the page and checks the card (A16-1 is a screenshot case). The whole `whats-new.yaml` passed on iOS (1 run, attempt 1) and on Android (2 runs, both passed). On Android the first tap of A15-4's Next chunk is lost in every run and the step's `retry` covers it, so the log prints one FAILED line inside a passing run. The 0.16 row pushed the 0.10 row off the first iOS screen, so step 1 now opens 0.10 by deep link instead of tapping its row.
+
+**0.20 cases (A20-1 to A20-3)** (built on 0.22.1; the badges say "Not checked": **none has been run on the iOS simulator or the Android emulator yet**). `docs/whats-new-triage.md` has the triage of 0.20.0 to 0.22.0; these are its first three PICK rows. What each card shows and would prove on a device:
+
+| Case | PR | iOS | Android | What the card shows |
+|---|---|---|---|---|
+| A row as wide as its content | #1305 | not run | not run | A segmented control (`align-self: flex-start`, three `flex: 1` tabs) beside the same row stretched, and the measured width of each and of the line. Expected: the first is only as wide as its labels |
+| Shorthands in a style attribute and a binding | #1355 | not run | not run | `border`, `box-shadow`, `background` and `font` written in a stylesheet, in a `style` attribute and in a `[style]` binding: three rows that should look the same |
+| `calc()` in a bound style | #1350, #1322 | not run | not run | `width: calc(2 * 1rem)` (32), `flex: 1 1 calc(10px + 10px)` (a 20 pt basis, read as the height of the item in an auto-height column), `opacity: calc(1 - 0.5)` and `translateX(1em)` at 16 pt. The shift has no measured readout, since a transform does not change layout: it is judged against a 16 pt ruler |
+
+In Node, 4 tests (`whats-new-0-20.test.ts`): the three cards and their "Not checked" badges, the committed props of A20-1 (`alignSelf` on the fitted row only, `flex: 1` tabs; the widths are layout events sent by hand), A20-2 (the same border widths, shadow, gradient and font from the sheet, the attribute and the binding) and A20-3 (width 32, a 20 pt height from the basis, opacity 0.5, `translateX` 16). The version-count tests now include 0.20. The Maestro flow does not cover 0.20.
 
 **0.7 cases** (same devices; Android in Spanish; the iOS app switched to Spanish between the case runs and the Maestro
 runs, cause not found, so the flow reads both languages). `marked` ^18.1.1 is a new dependency (`npx expo install marked`): the

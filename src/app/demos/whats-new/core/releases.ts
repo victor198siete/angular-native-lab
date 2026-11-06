@@ -3,6 +3,7 @@ import { cases011 } from './cases-0-11.ts';
 import { cases010 } from './cases-0-10.ts';
 import { cases013 } from './cases-0-13.ts';
 import { cases014 } from './cases-0-14.ts';
+import { cases020 } from './cases-0-20.ts';
 import { cases016 } from './cases-0-16.ts';
 import { cases015 } from './cases-0-15.ts';
 import { cases06 } from './cases-0-6.ts';
@@ -15,6 +16,7 @@ import { cases09 } from './cases-0-9.ts';
  * `version.screen.ts`; nothing else changes.
  */
 export const RELEASES: readonly Release[] = [
+  { version: '0.20', cases: cases020 },
   { version: '0.16', cases: cases016 },
   { version: '0.15', cases: cases015 },
   { version: '0.14', cases: cases014 },

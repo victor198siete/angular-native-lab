@@ -67,6 +67,9 @@ import { ListHeaderFooterCase } from '../cases/list-header-footer-case.ts';
 import { MarkdownPostCase } from '../cases/markdown-post-case.ts';
 import { MultilineRowsCase } from '../cases/multiline-rows-case.ts';
 import { VarFallbackCase } from '../cases/var-fallback-case.ts';
+import { BoundCalcCase } from '../cases/bound-calc-case.ts';
+import { FittedRowCase } from '../cases/fitted-row-case.ts';
+import { StyleShorthandCase } from '../cases/style-shorthand-case.ts';
 import { CaseCard } from '../shared/case-card.ts';
 
 /**
@@ -84,7 +87,7 @@ import { CaseCard } from '../shared/case-card.ts';
     ScrollView, SpacingTransitionCase, TabsLabCase, Text, TransitionsBlockCase, ZIndexCase,
     DisplayNoneCase, FlexBasisCase, InvisibleBackdropCase, KeyframesBlockCase, LightDarkMixCase, ListHeaderFooterCase,
     MarkdownPostCase, MultilineRowsCase, VarFallbackCase,
-    MarkdownImageSizeCase,
+    MarkdownImageSizeCase, BoundCalcCase, FittedRowCase, StyleShorthandCase,
     FirstDrawCase, HasEitherCase, HostHasCase, MarkdownDataImageCase, MarkdownStreamingCase, MarkdownTableCase,
     NavigationBarCase, SvgBadPaintCase, TextInputEventsCase, TokenColorsCase,
     InheritedLineHeightCase, InitialValueTransitionCase, LinkOnStackCase, MarkdownEntitiesCase, ShortListCase, ToolbarCase,
@@ -113,6 +116,9 @@ import { CaseCard } from '../shared/case-card.ts';
               @case ('a7-4') { <app-initial-value-transition-case /> }
               @case ('a7-5') { <app-inherited-line-height-case /> }
               @case ('a7-6') { <app-markdown-entities-case /> }
+              @case ('a20-1') { <app-fitted-row-case /> }
+              @case ('a20-2') { <app-style-shorthand-case /> }
+              @case ('a20-3') { <app-bound-calc-case /> }
               @case ('a16-1') { <app-markdown-image-size-case /> }
               @case ('a15-1') { <app-token-colors-case /> }
               @case ('a15-2') { <app-text-input-events-case /> }

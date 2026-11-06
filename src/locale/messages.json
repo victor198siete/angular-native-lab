@@ -690,6 +690,20 @@
     "whatsNew.a15_1.hint": "Expected: four swatches, none blank. The second is paler than the first, the third equals the first, the fourth has more red; all follow the button.",
     "whatsNew.a16_1.title": "A markdown picture at its own size",
     "whatsNew.a16_1.note": "A markdown image is drawn at its own size once it loads, as a browser draws it, and is narrowed to the document's width, keeping its shape, only when it is wider; a small icon keeps its size.",
-    "whatsNew.a16_1.hint": "Expected: the small icon keeps its own 32 pt size, and the wide strip is narrowed to the card's width, keeping its 6 to 1 shape. Before, both filled the card's width."
+    "whatsNew.a16_1.hint": "Expected: the small icon keeps its own 32 pt size, and the wide strip is narrowed to the card's width, keeping its 6 to 1 shape. Before, both filled the card's width.",
+    "whatsNew.a20_1.title": "A row as wide as its content",
+    "whatsNew.a20_1.note": "A row sized to its content (align-self: flex-start) stays that wide when one of its items grows.",
+    "whatsNew.a20_1.readout": "Fitted {$fitted} / stretched {$stretched} / line {$line}",
+    "whatsNew.a20_1.hint": "Expected: the first control is only as wide as its three labels, with the tabs sharing that width; the second one fills the line. Before, the fitted row filled the screen too.",
+    "whatsNew.a20_2.title": "Shorthands in a style attribute and a binding",
+    "whatsNew.a20_2.note": "border, outline, box-shadow, background, font and text-decoration written in a style attribute or a [style] binding are drawn, as they are from a stylesheet.",
+    "whatsNew.a20_2.sheet": "Stylesheet",
+    "whatsNew.a20_2.attribute": "Style attribute",
+    "whatsNew.a20_2.bound": "Style binding",
+    "whatsNew.a20_2.hint": "Expected: the three rows look the same, a crimson border, a soft shadow, a gold to crimson gradient and an italic bold serif word. Before, the attribute and bound shorthands drew nothing.",
+    "whatsNew.a20_3.title": "calc() in a bound style",
+    "whatsNew.a20_3.note": "calc(), min(), max() and clamp() in a style attribute or a [style] binding are worked out as in a stylesheet, and a calc() of px, rem and numbers is committed as points.",
+    "whatsNew.a20_3.readout": "Width {$width} / basis {$basis}",
+    "whatsNew.a20_3.hint": "Expected: width 32, basis 20, the second block at half opacity, and the gold mark moved 16 pt to the right of the ruler's left end. Before, these values were committed as text and dropped."
   }
 }
