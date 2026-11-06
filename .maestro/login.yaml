@@ -71,12 +71,31 @@ env:
 - tapOn: "Sign in to see your account.*|Inicia sesión para ver tu cuenta.*"
 - tapOn:
     id: login-submit
+# iOS offers to save the password after a sign-in (the field declares textContentType="password", as a
+# login form should). Its dialog is the system's, so Maestro cannot see it, only that it hides the
+# account, and it comes a moment before or after the account shows. So, while the token countdown is
+# not visible, tap its "Not Now" by position and wait. That point is empty on the sign-in screen; on the
+# account it is the Lock button, which the loop never reaches once the countdown shows.
+- repeat:
+    while:
+      notVisible:
+        id: account-countdown
+    times: 4
+    commands:
+      - runFlow:
+          when:
+            platform: iOS
+          commands:
+            - tapOn:
+                point: "32%,63%"
+      - waitForAnimationToEnd:
+          timeout: 3000
 - extendedWaitUntil:
     visible:
-      id: account-name
+      id: account-countdown
     timeout: 10000
 - assertVisible:
-    id: account-countdown
+    id: account-name
 # 3. Log out returns to an empty form
 - tapOn:
     id: account-logout
