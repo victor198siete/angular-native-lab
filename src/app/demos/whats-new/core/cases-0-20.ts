@@ -27,4 +27,18 @@ export const cases020 = (): readonly Case[] => [
     note: $localize`:@@whatsNew.a20_3.note:calc(), min(), max() and clamp() in a style attribute or a [style] binding are worked out as in a stylesheet, and a calc() of px, rem and numbers is committed as points.`,
     status: { kind: 'not-checked' },
   },
+  {
+    id: 'a20-4',
+    prs: ['#1361'],
+    title: $localize`:@@whatsNew.a20_4.title:A page that works only while it is in front`,
+    note: $localize`:@@whatsNew.a20_4.note:injectPageFocused() is true while the page is the screen showing, and false while another screen covers it or its tab is not selected; the page stays mounted.`,
+    status: { kind: 'not-checked' },
+  },
+  {
+    id: 'b20-1',
+    prs: ['#1351', '#1331', '#1332'],
+    title: $localize`:@@whatsNew.b20_1.title:A canDeactivate guard answers a swipe down`,
+    note: $localize`:@@whatsNew.b20_1.note:On iOS, a swipe down on a presented formSheet runs the canDeactivate guard of its route: if the guard refuses, the sheet stays up and the url does not change. On Android, dragging the sheet still dismisses it. Only a device shows this.`,
+    status: { kind: 'not-checked' },
+  },
 ];

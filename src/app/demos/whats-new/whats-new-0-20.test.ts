@@ -1,5 +1,5 @@
-import { fireEvent, screen } from '@ng-native/testing';
-import { describe, expect, it } from 'vitest';
+import { fireEvent, screen, userEvent } from '@ng-native/testing';
+import { describe, expect, it, vi } from 'vitest';
 import { renderApp } from '../rewards/features/testing.ts';
 import { textOf } from '../lists/testing.ts';
 import { cases020 } from './core/cases-0-20.ts';
@@ -23,11 +23,11 @@ async function openVersion() {
 
 /** Node has no layout engine: the layout events are sent by hand, with the sizes a device would report. */
 describe('what is new, 0.20', () => {
-  it('is in the list of releases, and its three cases have a PR and a "Not checked" badge (no device run yet)', async () => {
+  it('is in the list of releases, and its five cases have a PR and a "Not checked" badge (no device run yet)', async () => {
     expect(RELEASES.map((release) => release.version)).toContain('0.20');
     await openVersion();
     const cases = cases020();
-    expect(cases.map((c) => c.id)).toEqual(['a20-1', 'a20-2', 'a20-3']);
+    expect(cases.map((c) => c.id)).toEqual(['a20-1', 'a20-2', 'a20-3', 'a20-4', 'b20-1']);
     for (const item of cases) {
       expect(screen.getByTestId(`whats-new-${item.id}-title`)).toBeTruthy();
       expect(textOf(`whats-new-${item.id}-prs`)).toBe(item.prs.join(' · '));
@@ -80,5 +80,44 @@ describe('what is new, 0.20', () => {
     await send(nodeOf('whats-new-a20-3-width'), 'layout', layoutOf(32, 12));
     await send(nodeOf('whats-new-a20-3-basis'), 'layout', layoutOf(40, 20));
     expect(textOf('whats-new-a20-3-readout')).toBe('Width 32 / basis 20');
+  });
+});
+
+describe('what is new, 0.20: the tabs lab', () => {
+  it('A20-4 (#1361): the count goes up while Home is in front, stops while a sheet covers it, and goes on from the same number', async () => {
+    const user = userEvent.setup();
+    await renderApp('whats-new/tabs/1/home');
+    await screen.findByTestId('whats-new-lab-ticks');
+    const ticks = () => Number(/(\d+)$/.exec(textOf('whats-new-lab-ticks'))![1]);
+    await vi.waitFor(() => expect(ticks()).toBeGreaterThanOrEqual(1), { timeout: 4000 });
+    await user.press(screen.getByTestId('whats-new-lab-present'));
+    await screen.findByTestId('whats-new-lab-album-title');
+    // The change that covers Home may let one more tick in; after that the number holds.
+    await new Promise((resolve) => setTimeout(resolve, 100));
+    const held = ticks();
+    await new Promise((resolve) => setTimeout(resolve, 2300));
+    expect(ticks()).toBe(held);
+    await user.press(screen.getByTestId('whats-new-lab-album-close'));
+    await vi.waitFor(() => expect(ticks()).toBeGreaterThan(held), { timeout: 4000 });
+    // Home was only covered: its title was never removed from the tree.
+    expect(screen.getByTestId('whats-new-lab-home-title')).toBeTruthy();
+  }, 15000);
+
+  it('B20-1 (#1351): with Keep me here on, the sheet refuses to be left and the url holds; with it off, it goes', async () => {
+    const user = userEvent.setup();
+    await renderApp('whats-new/tabs/1/home');
+    await screen.findByTestId('whats-new-lab-present-keep');
+    await user.press(screen.getByTestId('whats-new-lab-present-keep'));
+    await screen.findByTestId('whats-new-lab-keep-title');
+    const url = textOf('whats-new-lab-keep-url');
+    // A swipe is native; Close asks the same canDeactivate guard through back().
+    await fireEvent(screen.getByTestId('whats-new-lab-keep-switch'), 'change', { value: true });
+    await user.press(screen.getByTestId('whats-new-lab-keep-close'));
+    await new Promise((resolve) => setTimeout(resolve, 300));
+    expect(screen.getByTestId('whats-new-lab-keep-title')).toBeTruthy();
+    expect(textOf('whats-new-lab-keep-url')).toBe(url);
+    await fireEvent(screen.getByTestId('whats-new-lab-keep-switch'), 'change', { value: false });
+    await user.press(screen.getByTestId('whats-new-lab-keep-close'));
+    await vi.waitFor(() => expect(screen.queryByTestId('whats-new-lab-keep-title')).toBeNull());
   });
 });

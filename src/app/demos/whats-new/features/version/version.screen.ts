@@ -119,6 +119,8 @@ import { CaseCard } from '../shared/case-card.ts';
               @case ('a20-1') { <app-fitted-row-case /> }
               @case ('a20-2') { <app-style-shorthand-case /> }
               @case ('a20-3') { <app-bound-calc-case /> }
+              @case ('a20-4') { <app-tabs-lab-case caseId="a20-4" [steps]="steps204" [expected]="expected204" /> }
+              @case ('b20-1') { <app-tabs-lab-case caseId="b20-1" [steps]="steps2b1" [expected]="expected2b1" /> }
               @case ('a16-1') { <app-markdown-image-size-case /> }
               @case ('a15-1') { <app-token-colors-case /> }
               @case ('a15-2') { <app-text-input-events-case /> }
@@ -190,5 +192,9 @@ export class VersionScreen {
   protected readonly expected113 = $localize`:@@whatsNew.a11_3.expected:Expected: Library opens at org 2's first page, not at org 1's album x. Before: it went back to org 1's url.`;
   protected readonly steps813 = $localize`:@@whatsNew.a13_8.steps:Android. Open the lab. On Home press Present a Library page, then press the system Back button.`;
   protected readonly expected813 = $localize`:@@whatsNew.a13_8.expected:Expected: the sheet stays up and Back refused goes to 1; Close leaves. Before: Back closed the sheet.`;
+  protected readonly steps204 = $localize`:@@whatsNew.a20_4.steps:Open the lab. On Home watch Seconds in front count up. Press Search, wait a few seconds and press Home; then press Present a Library page and close it.`;
+  protected readonly expected204 = $localize`:@@whatsNew.a20_4.expected:Expected: the count stops while Search or the sheet covers Home and goes on from the same number when Home is back. Home is never unmounted.`;
+  protected readonly steps2b1 = $localize`:@@whatsNew.b20_1.steps:iOS only, on a device. Open the lab. On Home press Present a sheet that can stay, turn on Keep me here and swipe the sheet down. Then turn it off and swipe again. On Android, drag the sheet down.`;
+  protected readonly expected2b1 = $localize`:@@whatsNew.b20_1.expected:Expected on iOS: with the switch on the sheet stays up and the url does not change; with it off the sheet closes. On Android the drag closes it either way. Node cannot show a swipe, so this case is Not checked until a device runs it.`;
   protected readonly title = computed(() => $localize`:@@whatsNew.versionTitle:Version ${this.version()}:version:`);
 }

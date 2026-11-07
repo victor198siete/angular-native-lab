@@ -704,6 +704,14 @@
     "whatsNew.a20_3.title": "calc() en un estilo enlazado",
     "whatsNew.a20_3.note": "calc(), min(), max() y clamp() en un atributo style o en un enlace [style] se resuelven como en una hoja de estilos, y un calc() de px, rem y números se envía en puntos.",
     "whatsNew.a20_3.readout": "Ancho {$width} / base {$basis}",
-    "whatsNew.a20_3.hint": "Esperado: ancho 32, base 20, el segundo bloque a media opacidad, y la marca dorada desplazada 16 pt a la derecha del extremo izquierdo de la regla. Antes, estos valores se enviaban como texto y se descartaban."
+    "whatsNew.a20_3.hint": "Esperado: ancho 32, base 20, el segundo bloque a media opacidad, y la marca dorada desplazada 16 pt a la derecha del extremo izquierdo de la regla. Antes, estos valores se enviaban como texto y se descartaban.",
+    "whatsNew.a20_4.title": "Una página que trabaja solo mientras está al frente",
+    "whatsNew.a20_4.note": "injectPageFocused() es true mientras la página es la pantalla visible, y false mientras otra pantalla la cubre o su pestaña no está seleccionada; la página sigue montada.",
+    "whatsNew.b20_1.title": "Un guard canDeactivate responde a un deslizamiento hacia abajo",
+    "whatsNew.b20_1.note": "En iOS, deslizar hacia abajo un formSheet presentado ejecuta el guard canDeactivate de su ruta: si el guard rechaza, la hoja sigue arriba y la url no cambia. En Android, arrastrar la hoja la sigue cerrando. Solo un dispositivo lo muestra.",
+    "whatsNew.a20_4.steps": "Abre el laboratorio. En Home mira cómo sube Seconds in front. Pulsa Search, espera unos segundos y pulsa Home; luego pulsa Present a Library page y ciérrala.",
+    "whatsNew.a20_4.expected": "Esperado: la cuenta se detiene mientras Search o la hoja cubren Home y sigue desde el mismo número cuando Home vuelve. Home nunca se desmonta.",
+    "whatsNew.b20_1.steps": "Solo iOS, en un dispositivo. Abre el laboratorio. En Home pulsa Present a sheet that can stay, activa Keep me here y desliza la hoja hacia abajo. Luego apágalo y desliza otra vez. En Android, arrastra la hoja hacia abajo.",
+    "whatsNew.b20_1.expected": "Esperado en iOS: con el interruptor encendido la hoja sigue arriba y la url no cambia; apagado, la hoja se cierra. En Android el arrastre la cierra en ambos casos. Node no puede mostrar un deslizamiento, así que este caso queda Sin comprobar hasta que un dispositivo lo ejecute."
   }
 }

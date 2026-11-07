@@ -1,5 +1,6 @@
 import type { Routes } from '@angular/router';
 import { reuseScreen } from '@ng-native/router';
+import { keepMeHereGuard } from './keep-guard.ts';
 import { TabsLabShell } from './tabs-lab.shell.ts';
 
 /** How long the Search tab's guard keeps the tab from opening, long enough to tap another tab. */
@@ -29,6 +30,11 @@ export const tabsLabRoutes: Routes = [
         loadComponent: () => import('./tabs-lab.pages.ts').then((m) => m.TabsLabLibraryStack),
         children: [
           { path: '', loadComponent: () => import('./tabs-lab.pages.ts').then((m) => m.TabsLabLibrary) },
+          {
+            path: 'keep',
+            canDeactivate: [keepMeHereGuard],
+            loadComponent: () => import('./tabs-lab.pages.ts').then((m) => m.TabsLabKeep),
+          },
           { path: ':id', loadComponent: () => import('./tabs-lab.pages.ts').then((m) => m.TabsLabAlbum) },
         ],
       },
