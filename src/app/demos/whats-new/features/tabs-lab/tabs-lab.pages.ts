@@ -1,11 +1,15 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, DestroyRef, effect, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { SafeAreaView, Text, View } from '@ng-native/components';
-import { NativeNavigation, NativeStackOutlet } from '@ng-native/router';
+import { SafeAreaView, Switch, Text, View } from '@ng-native/components';
+import { injectPageFocused, NativeNavigation, NativeStackOutlet } from '@ng-native/router';
 import { WnButton } from '../shared/action-button.ts';
+import { KeepMeHere } from './keep-guard.ts';
 import { orgOf, urlSignal } from './lab-url.ts';
 
 const BASE = '/whats-new/tabs';
+
+/** How often Home's counter advances while the page is in front (#1361). */
+export const TICK_MS = 1000;
 
 /**
  * Home: where the lab starts. "Go to org 2" moves the same bar to another account (#774), "Present a
@@ -22,6 +26,8 @@ const BASE = '/whats-new/tabs';
         <text testID="whats-new-lab-home-org" class="text-body font-semibold text-ink dark:text-ink-dk">org: {{ org() }}</text>
         <app-wn-button testId="whats-new-lab-org" [label]="'Go to org ' + otherOrg()" (act)="switchOrg()" />
         <app-wn-button testId="whats-new-lab-present" label="Present a Library page" (act)="presentGuarded()" />
+        <app-wn-button testId="whats-new-lab-present-keep" label="Present a sheet that can stay" (act)="presentKeep()" />
+        <text testID="whats-new-lab-ticks" class="text-body font-semibold text-ink dark:text-ink-dk">Seconds in front: {{ ticks() }}</text>
         <app-wn-button testId="whats-new-lab-leave" label="Leave the lab" (act)="leave()" />
       </view>
     </safe-area-view>
@@ -33,6 +39,17 @@ export class TabsLabHome {
   protected readonly url = urlSignal();
   protected readonly org = () => orgOf(this.url());
   protected readonly otherOrg = () => (this.org() === '1' ? '2' : '1');
+  protected readonly ticks = signal(0);
+  private readonly focused = injectPageFocused();
+
+  constructor() {
+    // The page is never unmounted: the timer lives only while it is in front (#1361).
+    effect((onCleanup) => {
+      if (!this.focused()) return;
+      const timer = setInterval(() => this.ticks.update((n) => n + 1), TICK_MS);
+      onCleanup(() => clearInterval(timer));
+    });
+  }
 
   protected switchOrg(): void {
     void this.router.navigateByUrl(`${BASE}/${this.otherOrg()}/home`);
@@ -40,6 +57,10 @@ export class TabsLabHome {
 
   protected presentGuarded(): void {
     void this.nav.present(`${BASE}/${this.org()}/library/guarded`, { as: 'formSheet' });
+  }
+
+  protected presentKeep(): void {
+    void this.nav.present(`${BASE}/${this.org()}/library/keep`, { as: 'formSheet' });
   }
 
   protected leave(): void {
@@ -125,6 +146,44 @@ export class TabsLabAlbum {
   protected readonly guarded = this.id === 'guarded';
   protected readonly attempts = signal(0);
   protected readonly url = urlSignal();
+
+  protected close(): void {
+    this.nav.back();
+  }
+}
+
+/**
+ * The sheet with "Keep me here": a `canDeactivate` guard on its route (`keepMeHereGuard`) answers a
+ * swipe down on iOS, so with the switch on the sheet stays and the url does not change (#1351). On
+ * Android dragging a formSheet down dismisses it whatever the guard says. "Close" leaves through `back()`
+ * and is asked too. The switch is turned off again when the page goes, so the next sheet opens unlocked.
+ */
+@Component({
+  selector: 'app-tabs-lab-keep',
+  imports: [SafeAreaView, Switch, Text, View, WnButton],
+  template: `
+    <safe-area-view [edges]="['top', 'bottom']" class="flex-1 bg-canvas dark:bg-canvas-dk">
+      <view class="gap-3 p-5">
+        <text testID="whats-new-lab-keep-title" accessibilityRole="header" class="text-h1 font-black text-ink dark:text-ink-dk">Sheet</text>
+        <text testID="whats-new-lab-keep-url" class="text-body font-semibold text-ink dark:text-ink-dk">url: {{ url() }}</text>
+        <view class="flex-row items-center gap-3">
+          <switch testID="whats-new-lab-keep-switch" accessibilityLabel="Keep me here" [checked]="state.keep()" (checkedChange)="state.keep.set($event)" />
+          <text class="text-body font-semibold text-ink dark:text-ink-dk">Keep me here</text>
+        </view>
+        <app-wn-button testId="whats-new-lab-keep-close" label="Close" (act)="close()" />
+      </view>
+    </safe-area-view>
+  `,
+})
+export class TabsLabKeep {
+  private readonly nav = inject(NativeNavigation);
+  protected readonly state = inject(KeepMeHere);
+  protected readonly url = urlSignal();
+
+  constructor() {
+    this.state.keep.set(false);
+    inject(DestroyRef).onDestroy(() => this.state.keep.set(false));
+  }
 
   protected close(): void {
     this.nav.back();

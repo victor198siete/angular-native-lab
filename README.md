@@ -91,7 +91,7 @@ and 5 + 2.8 min on Android, each passing on the first run on both).
 | [Lists](#lists-virtual-list-vs-scroll-view) | `<virtual-list>` against `<scroll-view>` at 200 and 2,000 rows, with a live count of the row components actually mounted | ✅ iOS, Android |
 | [Gestures](#gestures-drag-pinch-swipe-and-three-ways-to-animate) | Drag that springs back, pinch and rotate, swipe-to-delete rows inside a scrolling list, and the same slide animated by CSS, `Animated`, a worklet and the JavaScript thread, with a button that blocks it | ✅ iOS, Android (pinch and rotate: iOS simulator and Node) |
 | [Offline](#offline-sqlite-cache-and-a-queue-of-redemptions) | Catalog and history in SQLite shown with no network and dated, redemptions queued offline that survive a restart and are sent once on reconnect, a fake API with duplicates (409) and failures (500) | ✅ iOS, Android (real airplane mode on Android) |
-| [What's new](#whats-new-each-release-note-checked) | One screen per ng-native version, each case a line of the release notes run live, with a badge for what was seen on the iOS simulator and the Android emulator (0.16 to 0.6) | ✅ iOS, Android |
+| [What's new](#whats-new-each-release-note-checked) | One screen per ng-native version, each case a line of the release notes run live, with a badge for what was seen on the iOS simulator and the Android emulator (0.22 to 0.20, then 0.16 to 0.6) | ✅ iOS, Android |
 
 ### Rewards
 
@@ -599,7 +599,7 @@ internet), the queue sent from the background.
 
 A demo that takes the lines of the ng-native release notes and runs them, so the notes can be
 confirmed or contradicted on a device. Reached by deep link: `exp://127.0.0.1:8081/--/whats-new`
-(a list of versions), and `exp://127.0.0.1:8081/--/whats-new/0.16`, `.../0.15`, `.../0.14`, `.../0.13`, `.../0.11`, `.../0.10`, `.../0.9` or `.../0.8` for one version's cases. Spanish:
+(a list of versions), and `exp://127.0.0.1:8081/--/whats-new/0.22`, `.../0.21`, `.../0.20`, `.../0.16`, `.../0.15`, `.../0.14`, `.../0.13`, `.../0.11`, `.../0.10`, `.../0.9` or `.../0.8` for one version's cases. Spanish:
 "Novedades".
 
 How it grows, one version at a time (`src/app/demos/whats-new/`):
@@ -779,6 +779,35 @@ template does not compile: no screen can show it, so it is SKIP.
 | A markdown picture at its own size | #922 | ✅ | ✅ | A 32 x 32 PNG and a 600 x 100 PNG written as `data:` urls. iOS (402 pt wide): the icon is 32 pt, the strip about 314 pt wide by 52 pt high. Android (411 dp): the icon is 32 dp, the strip about 322 dp by 53 dp. The icon keeps its size and the strip is narrowed to the card keeping its 6 to 1 shape; neither fills the card at 200 pt high. The "before" (0.15) was not run. Sizes read from screenshots |
 
 In Node, 2 tests (`whats-new-0-16.test.ts`) assert the card and, by sending the `load` and `layout` events by hand, the committed props (the icon 32 wide with ratio 1, the strip at 50 high from a 300-wide document). The Maestro section for 0.16 only opens the page and checks the card (A16-1 is a screenshot case). The whole `whats-new.yaml` passed on iOS (1 run, attempt 1) and on Android (2 runs, both passed). On Android the first tap of A15-4's Next chunk is lost in every run and the step's `retry` covers it, so the log prints one FAILED line inside a passing run. The 0.16 row pushed the 0.10 row off the first iOS screen, so step 1 now opens 0.10 by deep link instead of tapping its row.
+
+**0.20 cases (A20-1 to A20-4 and B20-1)** (built on 0.22.1; the badges say "Not checked": **none has been run on the iOS simulator or the Android emulator yet**). `docs/whats-new-triage.md` has the triage of 0.20.0 to 0.22.0; these are its first five PICK rows. What each card shows and would prove on a device:
+
+| Case | PR | iOS | Android | What the card shows |
+|---|---|---|---|---|
+| A row as wide as its content | #1305 | not run | not run | A segmented control (`align-self: flex-start`, three `flex: 1` tabs) beside the same row stretched, and the measured width of each and of the line. Expected: the first is only as wide as its labels |
+| Shorthands in a style attribute and a binding | #1355 | not run | not run | `border`, `box-shadow`, `background` and `font` written in a stylesheet, in a `style` attribute and in a `[style]` binding: three rows that should look the same |
+| `calc()` in a bound style | #1350, #1322 | not run | not run | `width: calc(2 * 1rem)` (32), `flex: 1 1 calc(10px + 10px)` (a 20 pt basis, read as the height of the item in an auto-height column), `opacity: calc(1 - 0.5)` and `translateX(1em)` at 16 pt. The shift has no measured readout, since a transform does not change layout: it is judged against a 16 pt ruler |
+| A page that works only while it is in front | #1361 | not run | not run | Tabs lab, Home: "Seconds in front" counts up with `injectPageFocused()`. Search or the presented sheet covers Home and the count should stop, then go on from the same number. Home is never unmounted |
+| A `canDeactivate` guard answers a swipe down (B case: only a device shows it) | #1351, #1331, #1332 | not run | not run | Tabs lab, Home, "Present a sheet that can stay": a `formSheet` of `library/keep` with a "Keep me here" switch behind a `canDeactivate` guard (it reads a root service, since a presented page has no component to pass). Expected on iOS: switch on, a swipe down leaves the sheet up and the url unchanged; off, it closes. Android: dragging a `formSheet` closes it whatever the guard says. It is a new route, not `library/guarded`: that page binds `preventNativeDismiss` (A13-8), and while the binding is true the guard is not asked |
+
+In Node, 6 tests (`whats-new-0-20.test.ts`): the five cards and their "Not checked" badges, the committed props of A20-1 (`alignSelf` on the fitted row only, `flex: 1` tabs; the widths are layout events sent by hand), A20-2 (the same border widths, shadow, gradient and font from the sheet, the attribute and the binding) and A20-3 (width 32, a 20 pt height from the basis, opacity 0.5, `translateX` 16), A20-4 (the count rises, holds while the sheet covers Home, rises again) and B20-1 (with the switch on, `Close` is refused by the guard and the url holds; off, it leaves; a swipe cannot be sent in Node, so `back()` stands in for it). The version-count tests now include 0.20. The Maestro flow does not cover 0.20.
+
+**0.21 cases (A21-1 and A21-2)** (built on 0.22.1; the badges say "Not checked": **none has been run on the iOS simulator or the Android emulator yet**). Rows 7 and 8 of the PICK table in `docs/whats-new-triage.md`. What each card shows and would prove on a device:
+
+| Case | PR | iOS | Android | What the card shows |
+|---|---|---|---|---|
+| A font size of zero | #1376, #1369 | not run | not run | Three lines: `font-size: 0`, `font-size: calc(4px - 8px)` (clamped to 0) and a 16 pt control, each with a grey label. Expected: on Android the screen draws with no `FontSize should be a positive value` error; on iOS the first two show no text, not text at the default size |
+| A shadow with no colour | #1389 | not run | not run | A white box with `box-shadow: 0 4px 12px` and no colour, in a view whose `color` a button flips between the ink (`#12131a`) and crimson (`#be123c`), with a text beside it. Expected: the shadow is drawn and takes the colour of the text. Before, the declaration was dropped with a warning. The box sits in a view with a `color`, not inside a `<text>`, since a text that holds a view is itself a view |
+
+In Node, 3 tests (`whats-new-0-21.test.ts`): the two cards and their "Not checked" badges, A21-1 (`font-size: 0` and the clamped `calc()` are committed as `0.001`, a positive size too small to see, and the control as 16; a literal 0 is never sent) and A21-2 (the committed `boxShadow` is `0 4 12` in `#12131a`, then in `#be123c` after the button). The version-count tests now include 0.21. The Maestro flow does not cover 0.21.
+
+**0.22 case (A22-1, arrived in 0.22.1)** (the badge says "Not checked": **not run on a device**). The last row of the PICK table.
+
+| Case | PR | iOS | Android | What the card shows |
+|---|---|---|---|---|
+| A token read as a value | #1411, #1410 | not run | not run | An `<ng-icon>` with `[color]="injectToken('--accent')()"` and the token's text beside it, and an SVG square with `fill="var(--accent)"`; a button toggles dark mode. Expected: the text, the pin and the square change with the scheme, with no reload. The lab has **no accent token** (its colours are `@theme` pairs substituted at build time and `src/styles.css` and `src/main.ts` were not touched), so the case defines `--accent: light-dark(#be123c, #ff6b85)` on its own host and reads it with `injectToken('--accent', { at: inject(ElementRef).nativeElement })`: a `:root` rule in a component's styles is not global, and `injectToken` at a node has a value only once the node is committed, so the text shows `-` for a moment |
+
+In Node, 2 tests (`whats-new-0-22.test.ts`): the card, its two PRs and the "Not checked" badge, and A22-1 (the text, the icon `color` and the shape `fill` in light, then `engine.updateConditions` to dark, which is what `watchConditions` does on a device: all three change). The version-count tests now include 0.22. The Maestro flow does not cover 0.22.
 
 **0.7 cases** (same devices; Android in Spanish; the iOS app switched to Spanish between the case runs and the Maestro
 runs, cause not found, so the flow reads both languages). `marked` ^18.1.1 is a new dependency (`npx expo install marked`): the
