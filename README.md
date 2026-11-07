@@ -24,7 +24,7 @@ iPhone 14 Pro (see [Upgrading to 0.18.2](#upgrading-to-0182)). Android coverage 
 
 | | Version |
 |---|---|
-| `@ng-native/*` | 0.22.0 (pinned; the Maestro flows were last run on 0.22.0 and the cases checked by hand on 0.17.1, see [Upgrading to 0.22.0](#upgrading-to-0220); also ran on 0.21.0, 0.20.0, 0.19.2, 0.18.2, 0.17.1, 0.16.0, 0.15.0, 0.14.0, 0.13.0, 0.10.0, 0.9.0, 0.5.0, 0.4.0 and 0.3.0: tags [`ng-native-0.13.0`](https://github.com/victor198siete/angular-native-lab/tree/ng-native-0.13.0), [`ng-native-0.10.0`](https://github.com/victor198siete/angular-native-lab/tree/ng-native-0.10.0), [`ng-native-0.9.0`](https://github.com/victor198siete/angular-native-lab/tree/ng-native-0.9.0), [`ng-native-0.5.0`](https://github.com/victor198siete/angular-native-lab/tree/ng-native-0.5.0), [`ng-native-0.4.0`](https://github.com/victor198siete/angular-native-lab/tree/ng-native-0.4.0) and [`ng-native-0.3.0`](https://github.com/victor198siete/angular-native-lab/tree/ng-native-0.3.0)) |
+| `@ng-native/*` | 0.22.1 (pinned; the Maestro flows were last run on 0.22.1 (iOS, Spanish) and 0.22.0 (both, English), and the cases checked by hand on 0.17.1, see [Upgrading to 0.22.1](#upgrading-to-0221); also ran on 0.22.0, 0.21.0, 0.20.0, 0.19.2, 0.18.2, 0.17.1, 0.16.0, 0.15.0, 0.14.0, 0.13.0, 0.10.0, 0.9.0, 0.5.0, 0.4.0 and 0.3.0: tags [`ng-native-0.13.0`](https://github.com/victor198siete/angular-native-lab/tree/ng-native-0.13.0), [`ng-native-0.10.0`](https://github.com/victor198siete/angular-native-lab/tree/ng-native-0.10.0), [`ng-native-0.9.0`](https://github.com/victor198siete/angular-native-lab/tree/ng-native-0.9.0), [`ng-native-0.5.0`](https://github.com/victor198siete/angular-native-lab/tree/ng-native-0.5.0), [`ng-native-0.4.0`](https://github.com/victor198siete/angular-native-lab/tree/ng-native-0.4.0) and [`ng-native-0.3.0`](https://github.com/victor198siete/angular-native-lab/tree/ng-native-0.3.0)) |
 | Angular | 22.2.1 |
 | Expo SDK | 58 (`expo` 58.0.19) |
 | React Native | 0.88.0 |
@@ -1000,6 +1000,24 @@ with a caveat, — not tested there.
 | `[animatedStyle]` | `@ng-native/components/animations` | Gestures: the native-driver and JavaScript tiles | ✅ | No | — | A loop of an `Animated.sequence` is restarted from JavaScript; use one timing in a loop. No Vitest stand-in |
 | Reactive Forms, `ControlValueAccessor` | `@angular/forms` | Compatibility check only | ✅ | No | — | Angular binds `[formControl]` and `ngModel` to the `value` model; no accessor needed. Also ✅ on the Android emulator |
 | `HttpClient` with interceptors | `@ng-native/platform/http` (`provideNativeHttpClient`) | Login: auth interceptor, mock API | ✅ | No | — | Angular's `withInterceptors()` and `provideHttpClientTesting()` work unchanged. Also ✅ on the Android emulator |
+
+## Upgrading to 0.22.1
+
+0.22.1 (peers unchanged), installed on 6 Nov 2026, a day after its release. Its one entry, `injectToken` (#1411), is
+triaged in [docs/whats-new-triage.md](docs/whats-new-triage.md) as case A22-1, not built yet.
+
+- **No code change needed.** 242 tests pass and the typecheck is clean.
+- **Maestro, the eight flows in Spanish on the iOS simulator** (Expo Go 58.0.7, location set, simulator restarted
+  after a first run lost every flow to "iOS driver not ready in time" under a load of 130): **5 of 8 in the run, 6 of
+  8 with the failures repeated alone.** Android and English were not run on 0.22.1; 0.22.0 passed 8 of 8 on both in
+  English.
+  - `join` failed at its first step, the first-flow flake seen before; alone it passed (88 s).
+  - `device` passed: its failure in Spanish on 28 Oct (0.18.2) was the simulator's missing location.
+  - **`whats-new-early` fails at A8-2 in Spanish on iOS**, in the run and alone: the card reads "El fondo oyó 0 / el
+    botón oyó 0" where the flow expects 2 presses on the invisible backdrop. It is the same step that failed on 28
+    Oct, so three runs of three in Spanish since then, and it passed in English on 0.22.0. Not diagnosed.
+  - **`whats-new` fails in Spanish on iOS at a different case each time**, a counter left at 0 both times: "Reclamos
+    de la barra" (the bar claims) in the run, "Cargador consultado 0 veces" (the icon loader) alone. Not diagnosed.
 
 ## Upgrading to 0.22.0
 
