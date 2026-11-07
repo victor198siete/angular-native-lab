@@ -712,6 +712,20 @@
     "whatsNew.a20_4.steps": "Abre el laboratorio. En Home mira cómo sube Seconds in front. Pulsa Search, espera unos segundos y pulsa Home; luego pulsa Present a Library page y ciérrala.",
     "whatsNew.a20_4.expected": "Esperado: la cuenta se detiene mientras Search o la hoja cubren Home y sigue desde el mismo número cuando Home vuelve. Home nunca se desmonta.",
     "whatsNew.b20_1.steps": "Solo iOS, en un dispositivo. Abre el laboratorio. En Home pulsa Present a sheet that can stay, activa Keep me here y desliza la hoja hacia abajo. Luego apágalo y desliza otra vez. En Android, arrastra la hoja hacia abajo.",
-    "whatsNew.b20_1.expected": "Esperado en iOS: con el interruptor encendido la hoja sigue arriba y la url no cambia; apagado, la hoja se cierra. En Android el arrastre la cierra en ambos casos. Node no puede mostrar un deslizamiento, así que este caso queda Sin comprobar hasta que un dispositivo lo ejecute."
+    "whatsNew.b20_1.expected": "Esperado en iOS: con el interruptor encendido la hoja sigue arriba y la url no cambia; apagado, la hoja se cierra. En Android el arrastre la cierra en ambos casos. Node no puede mostrar un deslizamiento, así que este caso queda Sin comprobar hasta que un dispositivo lo ejecute.",
+    "whatsNew.a21_1.title": "Un tamaño de fuente de cero",
+    "whatsNew.a21_1.note": "font-size: 0, o un calc() recortado a 0, ya no lanza error en Android (\"FontSize should be a positive value\") y no se dibuja con el tamaño por defecto en iOS.",
+    "whatsNew.a21_1.control": "tamaño normal",
+    "whatsNew.a21_1.hint": "Esperado: la pantalla se dibuja sin error rojo en Android; las dos primeras líneas solo muestran su etiqueta gris, sin texto al tamaño por defecto. La línea de control se lee bien.",
+    "whatsNew.a21_2.title": "Una sombra sin color",
+    "whatsNew.a21_2.note": "Un box-shadow escrito sin color se dibuja con el color del texto y lo sigue, en vez de descartarse con una advertencia.",
+    "whatsNew.a21_2.flip": "Cambiar el color del texto",
+    "whatsNew.a21_2.readout": "Color del texto {$color}",
+    "whatsNew.a21_2.hint": "Esperado: una sombra suave bajo la caja, del color del texto de al lado, oscura con la tinta y carmesí con el acento; el botón cambia ambos a la vez.",
+    "whatsNew.a22_1.title": "Un token leído como valor, en 0.22.1",
+    "whatsNew.a22_1.note": "Llegó en 0.22.1. injectToken('--accent') devuelve el valor resuelto de una propiedad personalizada como una señal que sigue el esquema de color, y el fill=\"var(--accent)\" de una forma se resuelve con los tokens del ámbito.",
+    "whatsNew.a22_1.toggle": "Cambiar modo oscuro",
+    "whatsNew.a22_1.readout": "--accent es {$accent}",
+    "whatsNew.a22_1.hint": "Esperado: el valor, el pin y el cuadrado cambian de color cuando cambia el esquema, sin recargar. Antes, el token había que copiarlo como literal y quedaba igual en ambos esquemas."
   }
 }

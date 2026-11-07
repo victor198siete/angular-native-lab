@@ -15,6 +15,8 @@ beforeAll(() => {
 it('the list says "1 caso" and "N casos" in Spanish', async () => {
   await render(VersionsScreen, { providers: [{ provide: LOCALE_ID, useValue: 'es' }, provideNativeRouter([])] });
   await screen.findByTestId('whats-new-heading');
+  expect(textOf('whats-new-count-0.22')).toBe('1 caso');
+  expect(textOf('whats-new-count-0.21')).toBe('2 casos');
   expect(textOf('whats-new-count-0.20')).toBe('5 casos');
   expect(textOf('whats-new-count-0.16')).toBe('1 caso');
   expect(textOf('whats-new-count-0.15')).toBe('10 casos');
