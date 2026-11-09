@@ -66,6 +66,7 @@ maestro test -e APP_ID=host.exp.Exponent -e APP_URL=exp://127.0.0.1:8081 .maestr
 maestro test -e APP_ID=host.exp.Exponent -e APP_URL=exp://127.0.0.1:8081 .maestro/gestures.yaml
 maestro test -e APP_ID=host.exp.Exponent -e APP_URL=exp://127.0.0.1:8081 .maestro/whats-new.yaml
 maestro test -e APP_ID=host.exp.Exponent -e APP_URL=exp://127.0.0.1:8081 .maestro/whats-new-early.yaml
+maestro test -e APP_ID=host.exp.Exponent -e APP_URL=exp://127.0.0.1:8081 .maestro/whats-new-latest.yaml
 ```
 
 Every flow starts by putting the app in a known language (`.maestro/subflows/set-language.yaml`): English, or Spanish with
@@ -75,7 +76,10 @@ the wallet's `ES`/`EN` toggle when the app is in the other one, waits for the re
 
 What's new runs as two flows: `whats-new.yaml` covers 0.16 to 0.8 and `whats-new-early.yaml` covers 0.7 and
 0.6 (split on 15 Oct 2026, when one flow took 7 min on iOS and 9.5 on Android; now about 3.5 + 2.7 min on iOS
-and 5 + 2.8 min on Android, each passing on the first run on both).
+and 5 + 2.8 min on Android, each passing on the first run on both). `whats-new-latest.yaml` (9 Nov 2026) covers 0.20 to 0.22 in a
+flow of its own rather than lengthening the first: it reads A20-1, A20-3, A20-4, B20-1 (Close, and the swipe down on
+iOS), A21-2 and A22-1; A20-2, A21-1 and A21-2's shadow are drawings. On 0.22.1 it passed on the first run on iOS (93 s
+English, 83 s Spanish) and Android (99 s, 106 s), once A20-3 was fixed (below).
 
 ## Demos
 
@@ -780,7 +784,11 @@ template does not compile: no screen can show it, so it is SKIP.
 
 In Node, 2 tests (`whats-new-0-16.test.ts`) assert the card and, by sending the `load` and `layout` events by hand, the committed props (the icon 32 wide with ratio 1, the strip at 50 high from a 300-wide document). The Maestro section for 0.16 only opens the page and checks the card (A16-1 is a screenshot case). The whole `whats-new.yaml` passed on iOS (1 run, attempt 1) and on Android (2 runs, both passed). On Android the first tap of A15-4's Next chunk is lost in every run and the step's `retry` covers it, so the log prints one FAILED line inside a passing run. The 0.16 row pushed the 0.10 row off the first iOS screen, so step 1 now opens 0.10 by deep link instead of tapping its row.
 
-**0.20 cases (A20-1 to A20-4 and B20-1)** (built on 0.22.1; the badges say "Not checked": **none has been run on the iOS simulator or the Android emulator yet**). `docs/whats-new-triage.md` has the triage of 0.20.0 to 0.22.0; these are its first five PICK rows. What each card shows and would prove on a device:
+**0.20 cases (A20-1 to A20-4 and B20-1)** (built on 0.22.1; the badges still say "Not checked"). `whats-new-latest.yaml`
+passed on the iOS simulator and the Android emulator in both languages on 9 Nov 2026 for what it reads: A20-1, A20-3, A20-4
+and B20-1 (the swipe down on iOS only). **A20-3's first device run read a basis of 40, not 20**: the measured block sat in
+a row beside a 40 pt block and grew to its height, even with its column `self-start`; Vitest read 20 because its layout is
+not Yoga's. In a column of its own it reads 20 on both platforms. `docs/whats-new-triage.md` has the triage of 0.20.0 to 0.22.0; these are its first five PICK rows. What each card shows and would prove on a device:
 
 | Case | PR | iOS | Android | What the card shows |
 |---|---|---|---|---|

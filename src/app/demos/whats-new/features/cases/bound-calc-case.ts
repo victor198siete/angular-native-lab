@@ -3,7 +3,8 @@ import { Text, View } from '@ng-native/components';
 
 /**
  * `calc()` in a bound `[style]`: a width of `calc(2 * 1rem)`, a flex basis of `calc(10px + 10px)`
- * (measured as the height of an item in an auto-height column, where the basis is all there is), an
+ * (measured as the height of an item in an auto-height column of its own, where the basis is all there
+ * is; in a row beside a taller block the item grew to that block's height on iOS), an
  * opacity of `calc(1 - 0.5)` and a shift of `translateX(1em)` at a 16 pt font. A translation does not
  * change layout, so the shift is judged by eye against the ruler and by the committed props in Node.
  */
@@ -14,12 +15,11 @@ import { Text, View } from '@ng-native/components';
     <view class="gap-2">
       <view testID="whats-new-a20-3-scope" class="gap-2" [style]="scope">
         <view testID="whats-new-a20-3-width" class="bar" [style]="width" (layout)="measured.set($event.nativeEvent.layout.width)"></view>
-        <view class="flex-row gap-3">
-          <view>
-            <view testID="whats-new-a20-3-basis" class="basis-block" [style]="basis" (layout)="basisHeight.set($event.nativeEvent.layout.height)"></view>
-          </view>
-          <view testID="whats-new-a20-3-opacity" class="bar-block" [style]="opacity"></view>
+        <!-- A column of its own: beside the 40 pt block in a row it grew to 40 on iOS, even self-start -->
+        <view>
+          <view testID="whats-new-a20-3-basis" class="basis-block" [style]="basis" (layout)="basisHeight.set($event.nativeEvent.layout.height)"></view>
         </view>
+        <view testID="whats-new-a20-3-opacity" class="bar-block" [style]="opacity"></view>
         <view class="ruler"></view>
         <view testID="whats-new-a20-3-shift" class="mark" [style]="shift"></view>
       </view>

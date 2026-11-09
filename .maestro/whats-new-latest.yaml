@@ -1,0 +1,175 @@
+# What's new demo, the 0.20 to 0.22 cases, end to end in Expo Go, on iOS or Android, in English or Spanish:
+#   iOS:     maestro test -e APP_ID=host.exp.Exponent -e APP_URL=exp://127.0.0.1:8081 .maestro/whats-new-latest.yaml
+#   Android: adb reverse tcp:8081 tcp:8081, then the same with APP_ID=host.exp.exponent
+# A flow of its own, not more sections in whats-new.yaml: that one already takes 6 to 7 min, and the early
+# versions were split out of it for the same reason (whats-new-early.yaml, 15 Oct 2026).
+# Covers what prints a value: A20-1 and A20-3 (measured layout), A20-4 (a page that ticks only in front),
+# B20-1 (a sheet kept by a canDeactivate guard: Close everywhere, the swipe down on iOS only), A21-2 (the text
+# colour flipped) and A22-1 (the accent token follows the scheme). A20-2, A21-1 and the shadow of A21-2 are
+# drawings: their screenshots are the evidence. The lab's own texts are English in both languages.
+# Language: English at the start (the flow switches the app); add -e LANG=ES to run in Spanish.
+appId: ${APP_ID}
+---
+- openLink: ${APP_URL}/--/whats-new
+- extendedWaitUntil:
+    visible: "What's new|Novedades|Continue|Close"
+    timeout: 40000
+# Expo Go's developer menu can open on a fresh install
+- runFlow:
+    when:
+      visible: "Continue"
+    commands:
+      - tapOn: "Continue"
+- runFlow:
+    when:
+      visible: "Close"
+    commands:
+      - tapOn: "Close"
+- runFlow:
+    file: subflows/set-language.yaml
+# 1. The 0.20 cases. A20-1: the fitted row is narrower than the line, the stretched one as wide as it.
+- openLink: ${APP_URL}/--/whats-new/0.20
+- extendedWaitUntil:
+    visible: "Version 0.20|Versión 0.20"
+    timeout: 30000
+- scrollUntilVisible:
+    element:
+      id: whats-new-a20-1-readout
+    centerElement: true
+- extendedWaitUntil:
+    visible: "Fitted [0-9].*|Ajustada [0-9].*"
+    timeout: 10000
+- copyTextFrom:
+    id: whats-new-a20-1-readout
+- evalScript: ${output.a201 = maestro.copiedText.match(/[0-9.]+/g).map(Number)}
+- assertTrue: ${output.a201[0] < output.a201[2] && Math.abs(output.a201[1] - output.a201[2]) < 1}
+# A20-3: calc(2 * 1rem) is 32 points wide and calc(10px + 10px) a 20 point basis
+- scrollUntilVisible:
+    element:
+      id: whats-new-a20-3-readout
+    centerElement: true
+- extendedWaitUntil:
+    visible: "Width 32 / basis 20|Ancho 32 / base 20"
+    timeout: 10000
+# A20-4: Home counts seconds only while it is in front. With the sheet up for 10 s the count barely moves
+# (the taps around it take a few seconds); a count that kept going would add at least 10.
+- scrollUntilVisible:
+    element:
+      id: whats-new-a20-4-open
+    centerElement: true
+- tapOn:
+    id: whats-new-a20-4-open
+- extendedWaitUntil:
+    visible: "Seconds in front: [2-9].*|Seconds in front: [1-9][0-9].*"
+    timeout: 20000
+- copyTextFrom:
+    id: whats-new-lab-ticks
+- evalScript: ${output.ticksBefore = Number(maestro.copiedText.match(/[0-9]+/)[0])}
+- tapOn:
+    id: whats-new-lab-present-keep
+- extendedWaitUntil:
+    visible:
+      id: whats-new-lab-keep-title
+    timeout: 20000
+- extendedWaitUntil:
+    visible: "never shown, a 10 s wait"
+    timeout: 10000
+    optional: true
+- tapOn:
+    id: whats-new-lab-keep-close
+- extendedWaitUntil:
+    visible:
+      id: whats-new-lab-ticks
+    timeout: 20000
+- copyTextFrom:
+    id: whats-new-lab-ticks
+- evalScript: ${output.ticksAfter = Number(maestro.copiedText.match(/[0-9]+/)[0])}
+- assertTrue: ${output.ticksAfter - output.ticksBefore < 8}
+# B20-1: with "Keep me here" on, Close (and on iOS a swipe down) leaves the sheet up; off, Close dismisses it
+- tapOn:
+    id: whats-new-lab-present-keep
+- extendedWaitUntil:
+    visible:
+      id: whats-new-lab-keep-title
+    timeout: 20000
+- tapOn:
+    id: whats-new-lab-keep-switch
+- tapOn:
+    id: whats-new-lab-keep-close
+- waitForAnimationToEnd:
+    timeout: 3000
+- assertVisible:
+    id: whats-new-lab-keep-title
+- runFlow:
+    when:
+      platform: iOS
+    commands:
+      - swipe:
+          start: "50%,35%"
+          end: "50%,95%"
+          duration: 600
+      - waitForAnimationToEnd:
+          timeout: 3000
+      - assertVisible:
+          id: whats-new-lab-keep-title
+- tapOn:
+    id: whats-new-lab-keep-switch
+- tapOn:
+    id: whats-new-lab-keep-close
+- extendedWaitUntil:
+    visible:
+      id: whats-new-lab-leave
+    timeout: 20000
+- tapOn:
+    id: whats-new-lab-leave
+- extendedWaitUntil:
+    visible:
+      id: whats-new-a20-4-open
+    timeout: 20000
+# 2. The 0.21 cases. A21-1 is a drawing; A21-2's button flips the text colour, and the shadow with it.
+- openLink: ${APP_URL}/--/whats-new/0.21
+- extendedWaitUntil:
+    visible: "Version 0.21|Versión 0.21"
+    timeout: 30000
+- assertVisible:
+    id: whats-new-a21-1-control
+- scrollUntilVisible:
+    element:
+      id: whats-new-a21-2-flip
+    centerElement: true
+- assertVisible: "Text colour #12131a|Color del texto #12131a"
+- tapOn:
+    id: whats-new-a21-2-flip
+- assertVisible: "Text colour #be123c|Color del texto #be123c"
+- tapOn:
+    id: whats-new-a21-2-flip
+- assertVisible: "Text colour #12131a|Color del texto #12131a"
+# 3. The 0.22 case. A22-1: the token's value changes with the scheme and comes back, with no reload.
+- openLink: ${APP_URL}/--/whats-new/0.22
+- extendedWaitUntil:
+    visible: "Version 0.22|Versión 0.22"
+    timeout: 30000
+- scrollUntilVisible:
+    element:
+      id: whats-new-a22-1-toggle
+    centerElement: true
+- extendedWaitUntil:
+    visible: "--accent (is|es) rgb.*"
+    timeout: 10000
+- copyTextFrom:
+    id: whats-new-a22-1-readout
+- evalScript: ${output.accentBefore = maestro.copiedText}
+- tapOn:
+    id: whats-new-a22-1-toggle
+- waitForAnimationToEnd:
+    timeout: 3000
+- copyTextFrom:
+    id: whats-new-a22-1-readout
+- assertTrue: ${maestro.copiedText != output.accentBefore}
+- tapOn:
+    id: whats-new-a22-1-toggle
+- waitForAnimationToEnd:
+    timeout: 3000
+- copyTextFrom:
+    id: whats-new-a22-1-readout
+- assertTrue: ${maestro.copiedText == output.accentBefore}
