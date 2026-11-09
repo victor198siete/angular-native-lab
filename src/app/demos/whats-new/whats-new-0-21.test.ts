@@ -19,7 +19,7 @@ async function openVersion() {
 }
 
 describe('what is new, 0.21', () => {
-  it('is in the list of releases, and its two cases have a PR and a "Not checked" badge (no device run yet)', async () => {
+  it('is in the list of releases, and its two cases have a PR and a badge verified on both platforms (9 Nov)', async () => {
     expect(RELEASES.map((release) => release.version)).toContain('0.21');
     await openVersion();
     const cases = cases021();
@@ -27,7 +27,7 @@ describe('what is new, 0.21', () => {
     for (const item of cases) {
       expect(screen.getByTestId(`whats-new-${item.id}-title`)).toBeTruthy();
       expect(textOf(`whats-new-${item.id}-prs`)).toBe(item.prs.join(' · '));
-      expect(textOf(`whats-new-${item.id}-status`)).toBe('Not checked');
+      expect(textOf(`whats-new-${item.id}-status`)).toBe('Verified · iOS · Android');
     }
   });
 

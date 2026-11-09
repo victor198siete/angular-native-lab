@@ -23,7 +23,7 @@ async function openVersion() {
 
 /** Node has no layout engine: the layout events are sent by hand, with the sizes a device would report. */
 describe('what is new, 0.20', () => {
-  it('is in the list of releases, and its five cases have a PR and a "Not checked" badge (no device run yet)', async () => {
+  it('is in the list of releases, and its five cases have a PR and the badge seen on 9 Nov (B20-1 is iOS only)', async () => {
     expect(RELEASES.map((release) => release.version)).toContain('0.20');
     await openVersion();
     const cases = cases020();
@@ -31,7 +31,7 @@ describe('what is new, 0.20', () => {
     for (const item of cases) {
       expect(screen.getByTestId(`whats-new-${item.id}-title`)).toBeTruthy();
       expect(textOf(`whats-new-${item.id}-prs`)).toBe(item.prs.join(' · '));
-      expect(textOf(`whats-new-${item.id}-status`)).toBe('Not checked');
+      expect(textOf(`whats-new-${item.id}-status`)).toBe(item.id === 'b20-1' ? 'Verified · iOS' : 'Verified · iOS · Android');
     }
   });
 

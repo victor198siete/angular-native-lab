@@ -28,7 +28,7 @@ class AccentProbe {
 const conditions = (colorScheme: 'light' | 'dark'): Conditions => ({ width: 400, height: 800, colorScheme });
 
 describe('what is new, 0.22', () => {
-  it('is in the list of releases, and its case has two PRs and a "Not checked" badge (no device run yet)', async () => {
+  it('is in the list of releases, and its case has two PRs and a badge verified on both platforms (9 Nov)', async () => {
     expect(RELEASES.map((release) => release.version)).toContain('0.22');
     await renderApp('whats-new/0.22', []);
     await screen.findByTestId('whats-new-version-heading', undefined, { timeout: 15000 });
@@ -36,7 +36,7 @@ describe('what is new, 0.22', () => {
     expect(cases022().map((c) => c.id)).toEqual(['a22-1']);
     expect(screen.getByTestId('whats-new-a22-1-title')).toBeTruthy();
     expect(textOf('whats-new-a22-1-prs')).toBe(item!.prs.join(' · '));
-    expect(textOf('whats-new-a22-1-status')).toBe('Not checked');
+    expect(textOf('whats-new-a22-1-status')).toBe('Verified · iOS · Android');
   });
 
   it('A22-1 (#1411, #1410): the token text, the icon colour and the shape fill all change when the scheme goes from light to dark', async () => {
