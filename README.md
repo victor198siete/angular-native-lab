@@ -1050,11 +1050,23 @@ triaged in [docs/whats-new-triage.md](docs/whats-new-triage.md) as case A22-1, n
   English.
   - `join` failed at its first step, the first-flow flake seen before; alone it passed (88 s).
   - `device` passed: its failure in Spanish on 28 Oct (0.18.2) was the simulator's missing location.
-  - **`whats-new-early` fails at A8-2 in Spanish on iOS**, in the run and alone: the card reads "El fondo oyó 0 / el
-    botón oyó 0" where the flow expects 2 presses on the invisible backdrop. It is the same step that failed on 28
-    Oct, so three runs of three in Spanish since then, and it passed in English on 0.22.0. Not diagnosed.
-  - **`whats-new` fails in Spanish on iOS at a different case each time**, a counter left at 0 both times: "Reclamos
-    de la barra" (the bar claims) in the run, "Cargador consultado 0 veces" (the icon loader) alone. Not diagnosed.
+  - **`whats-new-early` failed at A6-8 in Spanish on iOS** (the card read "El fondo oyó 0 / el botón oyó 0"; the
+    README said A8-2 until 9 Nov, which was wrong), three runs of three since 28 Oct. **Diagnosed and fixed on 9 Nov**:
+    the scroll left the invisible backdrop half above the screen (bounds y -21 to -28 in all three failures, 238 to 454
+    in the passes) and the tap at its centre missed it. Maestro counts an element under iOS's native header as visible,
+    and `centerElement` centres only when it has to scroll, so nothing moved it.
+  - **`whats-new` failed in Spanish on iOS at two cases.** A15-6 (the bar claims) is the same thing: the toggle sat at y
+    70 to 114, under the header, and the tap pressed Back (the failure screenshot is "Versión 0.14"). A13-4 (the icon
+    loader, "Cargador consultado 0 veces") is a different one: `withCaching()` provides a single `Map` made when the
+    module loads, so its cache lasts as long as the app's JavaScript, while the case's count starts at 0 on each mount.
+    A second visit to 0.13 without a reload (two `whats-new` runs in a row, with nothing to reload the app between
+    them) drew every icon from the first visit's cache and counted 0. The claim itself holds: one call per name.
+  - **Fixes:** a subflow, `.maestro/subflows/bring-into-view.yaml`, drags the content down a third of the screen and
+    then scrolls to the element centred, before the taps in A6-8 and A15-6; the A13-4 case gives each mount its own
+    cache (`{ provide: NgIconCacheToken, useFactory: () => new Map() }` after `withCaching()`), with a Node test that
+    opens 0.13 twice. In Spanish on iOS, `whats-new-early` then passed once and `whats-new` twice in a row, with no
+    retry used. Before the fix, in the same session, `whats-new-early` passed 2 of 2 with a simpler scroll change and
+    `whats-new` failed 2 of 2. Not rerun yet: English, and Android.
 
 ## Upgrading to 0.22.0
 

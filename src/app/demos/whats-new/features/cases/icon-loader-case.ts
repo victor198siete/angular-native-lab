@@ -1,5 +1,5 @@
 import { Component, Injectable, inject, signal } from '@angular/core';
-import { provideNgIconLoader, withCaching } from '@ng-icons/core';
+import { NgIconCacheToken, provideNgIconLoader, withCaching } from '@ng-icons/core';
 import { NgIcon } from '@ng-native/icons';
 import { Text, View } from '@ng-native/components';
 import { WnButton } from '../shared/action-button.ts';
@@ -26,6 +26,10 @@ export class LoaderLog {
  * `withCaching()` it is asked once per name. Three icons are drawn, two of them with the same name, and
  * the log shows how many times the loader was asked. "Draw again" mounts them a second time: the loader
  * should not be asked again.
+ *
+ * `withCaching()` provides one `Map`, made when the module loads, so its cache lasts as long as the app's
+ * JavaScript does: a second visit to this page drew from the first visit's cache and read "asked 0 times"
+ * (iOS, 9 Nov 2026). The case gives each mount a cache of its own, so the count is the same on every visit.
  */
 @Component({
   selector: 'app-icon-loader-case',
@@ -33,6 +37,8 @@ export class LoaderLog {
   providers: [
     LoaderLog,
     provideNgIconLoader((name) => inject(LoaderLog).answer(name), withCaching()),
+    // After withCaching(), so it wins: a new Map for each mount instead of the one made at module load
+    { provide: NgIconCacheToken, useFactory: () => new Map() },
   ],
   template: `
     <view class="gap-2">

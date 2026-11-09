@@ -152,6 +152,17 @@ describe('what is new, 0.13', () => {
     expect(textOf('whats-new-a13-4-readout')).toBe('Loader asked 2 times: loaded-pin, loaded-ring');
   });
 
+  it('A13-4: a second visit in the same runtime starts a cache of its own, so the loader is asked twice again', async () => {
+    // withCaching() makes one Map when the module loads; the case gives each mount its own, or a second
+    // visit would draw from the first visit's cache and read "asked 0 times" (iOS, 9 Nov 2026).
+    for (let visit = 0; visit < 2; visit++) {
+      const user = await openVersion('0.13');
+      await user.press(screen.getByTestId('whats-new-a13-4-draw'));
+      await vi.waitFor(() => expect(findAll(nodeOf('whats-new-a13-4-ring'), 'RNSVGCircle').length).toBeGreaterThan(0));
+      expect(textOf('whats-new-a13-4-readout')).toBe('Loader asked 2 times: loaded-pin, loaded-ring');
+    }
+  }, 30000);
+
   it('A13-5: a static aria-label makes the icon an image with that label; the other is decorative', async () => {
     await openVersion('0.13');
     const labelled = nodeOf('whats-new-a13-5-labelled').props;

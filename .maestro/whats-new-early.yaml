@@ -192,12 +192,12 @@ appId: ${APP_ID}
     centerElement: true
 - assertVisible: "Green box at x 24 / y 0|Caja verde en x 24 / y 0"
 # A6-8: a press anywhere on the invisible backdrop counts for it and not for the button under it
-- scrollUntilVisible:
-    element:
-      id: whats-new-a6-8-reset
-    centerElement: true
-# the swipe that centred the card can still be coasting: wait for it to stop before pressing
-- waitForAnimationToEnd
+# By the subflow, not a scroll to Reset: centred on Reset the stage was sometimes left above the screen
+# (y -21 to -28 in the 3 iOS Spanish failures since 28 Oct) and the tap missed it
+- runFlow:
+    file: subflows/bring-into-view.yaml
+    env:
+      ID: whats-new-a6-8-backdrop
 - tapOn:
     id: whats-new-a6-8-backdrop
 - tapOn:

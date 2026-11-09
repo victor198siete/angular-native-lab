@@ -501,11 +501,10 @@ appId: ${APP_ID}
 - retry:
     maxRetries: 2
     commands:
-      - scrollUntilVisible:
-          element:
-            id: whats-new-a15-6-hidden
-          centerElement: true
-      - waitForAnimationToEnd
+      - runFlow:
+          file: subflows/bring-into-view.yaml
+          env:
+            ID: whats-new-a15-6-hidden
       - tapOn:
           id: whats-new-a15-6-hidden
       - runFlow:
@@ -520,11 +519,10 @@ appId: ${APP_ID}
 - retry:
     maxRetries: 2
     commands:
-      - scrollUntilVisible:
-          element:
-            id: whats-new-a15-6-style
-          centerElement: true
-      - waitForAnimationToEnd
+      - runFlow:
+          file: subflows/bring-into-view.yaml
+          env:
+            ID: whats-new-a15-6-style
       - tapOn:
           id: whats-new-a15-6-style
       - scrollUntilVisible:
@@ -534,11 +532,10 @@ appId: ${APP_ID}
 - retry:
     maxRetries: 2
     commands:
-      - scrollUntilVisible:
-          element:
-            id: whats-new-a15-6-hidden
-          centerElement: true
-      - waitForAnimationToEnd
+      - runFlow:
+          file: subflows/bring-into-view.yaml
+          env:
+            ID: whats-new-a15-6-hidden
       - tapOn:
           id: whats-new-a15-6-hidden
       - scrollUntilVisible:

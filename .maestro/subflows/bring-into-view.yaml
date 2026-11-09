@@ -1,0 +1,20 @@
+# Brings an element (by id: -e ID or runFlow env ID) to the middle of the screen before a tap.
+# scrollUntilVisible's centerElement centres only when it has to scroll. On iOS the native header is
+# see-through to Maestro, so an element under it already counts as visible: nothing scrolls, and the tap
+# at its centre lands on the header (the Back button in A15-6) or above the screen (A6-8 at y -28), both in
+# the iOS Spanish runs of Oct and Nov 2026. A slow drag first moves the content down by a third of the
+# screen, so the element is either clear of the header or below the fold, where the scroll centres it.
+appId: ${APP_ID}
+---
+- swipe:
+    start: "50%,40%"
+    end: "50%,70%"
+    duration: 800
+- waitForAnimationToEnd:
+    timeout: 3000
+- scrollUntilVisible:
+    element:
+      id: ${ID}
+    centerElement: true
+- waitForAnimationToEnd:
+    timeout: 3000
