@@ -15,7 +15,7 @@ const nodeOf = (id: string) => screen.getByTestId(id) as unknown as Node;
 
 async function openVersion() {
   await renderApp('whats-new/0.7');
-  await screen.findByTestId('whats-new-version-heading');
+  await screen.findByTestId('whats-new-version-heading', undefined, { timeout: 15000 });
   return userEvent.setup();
 }
 

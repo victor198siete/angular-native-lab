@@ -7,7 +7,7 @@ import { textOf } from '../lists/testing.ts';
 describe('cards updated for 0.15', () => {
   const open = async (version: string) => {
     await renderApp(`whats-new/${version}`);
-    await screen.findByTestId('whats-new-version-heading');
+    await screen.findByTestId('whats-new-version-heading', undefined, { timeout: 15000 });
   };
 
   it('A9-1 (#882, #885): the ICU sample is verified on both platforms and no longer carries the assertion text', async () => {

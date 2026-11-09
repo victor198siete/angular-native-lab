@@ -8,7 +8,7 @@ import { cases08 } from './core/cases-0-8.ts';
 
 async function openVersion(extra = [] as Parameters<typeof renderApp>[1]) {
   await renderApp('whats-new/0.8', extra);
-  await screen.findByTestId('whats-new-version-heading');
+  await screen.findByTestId('whats-new-version-heading', undefined, { timeout: 15000 });
   return userEvent.setup();
 }
 

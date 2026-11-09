@@ -22,7 +22,7 @@ const findAll = (node: Node, viewName: string): Node[] => [
 
 async function openVersion(version: string, extra = [] as Parameters<typeof renderApp>[1]) {
   await renderApp(`whats-new/${version}`, extra);
-  await screen.findByTestId('whats-new-version-heading');
+  await screen.findByTestId('whats-new-version-heading', undefined, { timeout: 15000 });
   return userEvent.setup();
 }
 

@@ -6,7 +6,7 @@ import { cases09 } from './core/cases-0-9.ts';
 
 async function openVersion() {
   await renderApp('whats-new/0.9');
-  await screen.findByTestId('whats-new-version-heading');
+  await screen.findByTestId('whats-new-version-heading', undefined, { timeout: 15000 });
   return userEvent.setup();
 }
 

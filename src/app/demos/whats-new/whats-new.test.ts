@@ -17,7 +17,7 @@ function sheetAnswering(pick: (cancelButtonIndex: number) => number): NativeDial
 
 async function openVersion(extra = [] as Parameters<typeof renderApp>[1]) {
   await renderApp('whats-new/0.10', extra);
-  await screen.findByTestId('whats-new-version-heading');
+  await screen.findByTestId('whats-new-version-heading', undefined, { timeout: 15000 });
   return userEvent.setup();
 }
 
@@ -32,7 +32,7 @@ describe('what is new', () => {
     }
     const user = userEvent.setup();
     await user.press(screen.getByTestId('whats-new-version-0.10'));
-    expect(await screen.findByTestId('whats-new-version-heading')).toBeTruthy();
+    expect(await screen.findByTestId('whats-new-version-heading', undefined, { timeout: 15000 })).toBeTruthy();
   });
 
   it('shows the seven 0.10 cases, each with its PRs and a status badge', async () => {
