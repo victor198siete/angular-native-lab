@@ -48,10 +48,10 @@ appId: ${APP_ID}
 - assertVisible:
     id: whats-new-a10-1-status
 # 2. Dialogs.choose: Cancel resolves null, Save the index 0
-- scrollUntilVisible:
-    element:
-      id: whats-new-a10-1-open
-    centerElement: true
+- runFlow:
+    file: subflows/bring-into-view.yaml
+    env:
+      ID: whats-new-a10-1-open
 - tapOn:
     id: whats-new-a10-1-open
 - tapOn: "Cancel|Cancelar"
@@ -100,20 +100,20 @@ appId: ${APP_ID}
 # A9-1: the ICU sample is mounted on a press and, in Expo Go in development, throws while it renders:
 # its texts never appear, so this flow does not assert them (the Vitest tests do).
 # A9-2: both squares start from a press and stop at their own last frame
-- scrollUntilVisible:
-    element:
-      id: whats-new-a9-2-toggle
-    centerElement: true
+- runFlow:
+    file: subflows/bring-into-view.yaml
+    env:
+      ID: whats-new-a9-2-toggle
 - tapOn:
     id: whats-new-a9-2-toggle
 - extendedWaitUntil:
     visible: "Reset|Reiniciar"
     timeout: 20000
 # A9-3: each panel opens to the height set on it: 40, 96 and 64 points
-- scrollUntilVisible:
-    element:
-      id: whats-new-a9-3-toggle
-    centerElement: true
+- runFlow:
+    file: subflows/bring-into-view.yaml
+    env:
+      ID: whats-new-a9-3-toggle
 - tapOn:
     id: whats-new-a9-3-toggle
 - extendedWaitUntil:
@@ -156,20 +156,20 @@ appId: ${APP_ID}
 - assertVisible: "Permission: .*|Permiso: .*"
 # A8-2: the transitions are 10 s and are judged from a screen recording, not from this flow
 # A8-3: padding and margin end at 20 after Open (a 2 s transition)
-- scrollUntilVisible:
-    element:
-      id: whats-new-a8-3-toggle
-    centerElement: true
+- runFlow:
+    file: subflows/bring-into-view.yaml
+    env:
+      ID: whats-new-a8-3-toggle
 - tapOn:
     id: whats-new-a8-3-toggle
 - extendedWaitUntil:
     visible: "Padding 20 / margin 20"
     timeout: 20000
 # A8-4: the middle stop moves with the buttons
-- scrollUntilVisible:
-    element:
-      id: whats-new-a8-4-less
-    centerElement: true
+- runFlow:
+    file: subflows/bring-into-view.yaml
+    env:
+      ID: whats-new-a8-4-less
 - tapOn:
     id: whats-new-a8-4-less
 - tapOn:
@@ -193,10 +193,10 @@ appId: ${APP_ID}
       id: whats-new-a13-2-next
     timeout: 30000
 # A13-2: the pin follows --accent
-- scrollUntilVisible:
-    element:
-      id: whats-new-a13-2-next
-    centerElement: true
+- runFlow:
+    file: subflows/bring-into-view.yaml
+    env:
+      ID: whats-new-a13-2-next
 - tapOn:
     id: whats-new-a13-2-next
 - assertVisible: "--accent is #0369a1|--accent es #0369a1"
@@ -207,10 +207,10 @@ appId: ${APP_ID}
     centerElement: true
 - assertVisible: "Drawn: 28 / 44 points|Dibujados: 28 / 44 puntos"
 # A13-4: the loader is asked once per name, and not again on a second draw
-- scrollUntilVisible:
-    element:
-      id: whats-new-a13-4-draw
-    centerElement: true
+- runFlow:
+    file: subflows/bring-into-view.yaml
+    env:
+      ID: whats-new-a13-4-draw
 - tapOn:
     id: whats-new-a13-4-draw
 - extendedWaitUntil:
@@ -274,10 +274,10 @@ appId: ${APP_ID}
       id: whats-new-a11-1-open
     timeout: 30000
 # A11-1 opens the system Settings and leaves the app: the Vitest test and the README cover it
-- scrollUntilVisible:
-    element:
-      id: whats-new-a11-2-open
-    centerElement: true
+- runFlow:
+    file: subflows/bring-into-view.yaml
+    env:
+      ID: whats-new-a11-2-open
 - tapOn:
     id: whats-new-a11-2-open
 - extendedWaitUntil:
@@ -332,17 +332,17 @@ appId: ${APP_ID}
     id: whats-new-a14-1-toggle
 - assertVisible: "Font 16 / 2em 32 / 2rem 32 / 50vw [0-9]+ / icon 32|Fuente 16 / 2em 32 / 2rem 32 / 50vw [0-9]+ / icono 32"
 # A14-2: the fade is judged from the host-clock screenshot loop, not from this flow; one press starts it
-- scrollUntilVisible:
-    element:
-      id: whats-new-a14-2-toggle
-    centerElement: true
+- runFlow:
+    file: subflows/bring-into-view.yaml
+    env:
+      ID: whats-new-a14-2-toggle
 - tapOn:
     id: whats-new-a14-2-toggle
 # A14-3: the borders are a screenshot (seagreen, not black, on Android)
-- scrollUntilVisible:
-    element:
-      id: whats-new-a14-3-toggle
-    centerElement: true
+- runFlow:
+    file: subflows/bring-into-view.yaml
+    env:
+      ID: whats-new-a14-3-toggle
 - tapOn:
     id: whats-new-a14-3-toggle
 # A14-4 to A14-8: what each measured
@@ -543,10 +543,10 @@ appId: ${APP_ID}
             text: "Bar claims: style dark / hidden no|Reclamos de la barra: estilo dark / oculta no"
           centerElement: true
 # A15-8: :host:has(.on) follows the class
-- scrollUntilVisible:
-    element:
-      id: whats-new-a15-8-toggle
-    centerElement: true
+- runFlow:
+    file: subflows/bring-into-view.yaml
+    env:
+      ID: whats-new-a15-8-toggle
 - tapOn:
     id: whats-new-a15-8-toggle
 - assertVisible: "inner has .on"
@@ -554,13 +554,16 @@ appId: ${APP_ID}
     id: whats-new-a15-8-toggle
 - assertVisible: "inner has no .on"
 # A15-9: one press starts the fade of the late box; the screenshot loop judges it
-- scrollUntilVisible:
-    element:
-      id: whats-new-a15-9-early-button
-    centerElement: true
+- runFlow:
+    file: subflows/bring-into-view.yaml
+    env:
+      ID: whats-new-a15-9-early-button
 - tapOn:
     id: whats-new-a15-9-early-button
-# A15-10: the typo leaves the app running (the last card: no centring at the scroll's end)
+# A15-10: the typo leaves the app running (the last card: no centring at the scroll's end). One scroll
+# first: after A15-9's bring-into-view the button sat at y 826 to 870, below the scroll view's edge, and
+# counted as visible, so nothing scrolled and the tap missed (iOS, English and Spanish, 10 Nov 2026)
+- scroll
 - scrollUntilVisible:
     element:
       id: whats-new-a15-10-break

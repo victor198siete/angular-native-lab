@@ -1066,7 +1066,16 @@ triaged in [docs/whats-new-triage.md](docs/whats-new-triage.md) as case A22-1, n
     cache (`{ provide: NgIconCacheToken, useFactory: () => new Map() }` after `withCaching()`), with a Node test that
     opens 0.13 twice. In Spanish on iOS, `whats-new-early` then passed once and `whats-new` twice in a row, with no
     retry used. Before the fix, in the same session, `whats-new-early` passed 2 of 2 with a simpler scroll change and
-    `whats-new` failed 2 of 2. Not rerun yet: English, and Android.
+    `whats-new` failed 2 of 2.
+  - **English on iOS, 10 Nov:** `whats-new` failed at A8-4 the same way (the button at y 92, the tap pressed Back), so
+    every tap that follows a centred scroll to the same element now goes through the subflow (16 of them in the three
+    What's new flows). A15-6 then failed again in English: the toggle started further above the screen and one drag
+    left it at y 72, so the subflow repeats the drag, up to 3 times, while the element is not below the header's
+    "Version x.y" title. Moving A15-9 left the last card's button at y 826 to 870, below the scroll view's edge and
+    still "visible", so A15-10 scrolls once first. Then `whats-new` passed in English and in Spanish, and
+    `whats-new-early` (English) and `whats-new-latest` (Spanish) passed with the subflow. **Not rerun on Android**:
+    the English Android runs on 9 Nov failed at load 21 to 24 (the emulator just booted, other work on the machine)
+    before reaching any changed step.
 
 ## Upgrading to 0.22.0
 

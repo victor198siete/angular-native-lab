@@ -53,10 +53,10 @@ appId: ${APP_ID}
     timeout: 10000
 # A20-4: Home counts seconds only while it is in front. With the sheet up for 10 s the count barely moves
 # (the taps around it take a few seconds); a count that kept going would add at least 10.
-- scrollUntilVisible:
-    element:
-      id: whats-new-a20-4-open
-    centerElement: true
+- runFlow:
+    file: subflows/bring-into-view.yaml
+    env:
+      ID: whats-new-a20-4-open
 - tapOn:
     id: whats-new-a20-4-open
 - extendedWaitUntil:

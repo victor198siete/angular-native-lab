@@ -52,10 +52,10 @@ appId: ${APP_ID}
     commands:
       - assertNotVisible: "Add|Añadir"
 # A7-2: three rows are shorter than the list, and with no drag it fills itself to 12 rows and fires 4 times
-- scrollUntilVisible:
-    element:
-      id: whats-new-a7-2-again
-    centerElement: true
+- runFlow:
+    file: subflows/bring-into-view.yaml
+    env:
+      ID: whats-new-a7-2-again
 - tapOn:
     id: whats-new-a7-2-again
 - extendedWaitUntil:
@@ -110,10 +110,10 @@ appId: ${APP_ID}
     visible: "Copies of this page on the stack: 1|Copias de esta página en la pila: 1"
     timeout: 20000
 # A7-4: one press starts the fades; the easing is judged from the host-clock screenshot loop
-- scrollUntilVisible:
-    element:
-      id: whats-new-a7-4-toggle
-    centerElement: true
+- runFlow:
+    file: subflows/bring-into-view.yaml
+    env:
+      ID: whats-new-a7-4-toggle
 - tapOn:
     id: whats-new-a7-4-toggle
 # A7-5: the unitless 2 is inherited as the number: 3 lines of 40 is 120, the fixed 20 gives about 60
@@ -179,10 +179,10 @@ appId: ${APP_ID}
     id: whats-new-a6-5-end
 - assertVisible: "Scrolled [1-9][0-9]* points|Desplazado [1-9][0-9]* puntos"
 # A6-6: one press starts the squares and the block; the fades are judged from the host-clock screenshot loop
-- scrollUntilVisible:
-    element:
-      id: whats-new-a6-6-both
-    centerElement: true
+- runFlow:
+    file: subflows/bring-into-view.yaml
+    env:
+      ID: whats-new-a6-6-both
 - tapOn:
     id: whats-new-a6-6-both
 # A6-7 is a screenshot, with its measured margin: the green box at x 24 and y 0

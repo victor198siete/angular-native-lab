@@ -4,6 +4,9 @@
 # at its centre lands on the header (the Back button in A15-6) or above the screen (A6-8 at y -28), both in
 # the iOS Spanish runs of Oct and Nov 2026. A slow drag first moves the content down by a third of the
 # screen, so the element is either clear of the header or below the fold, where the scroll centres it.
+# An element that started further above the screen can still land under the header after one drag (A15-6 at
+# y 72 in English, 10 Nov 2026), so the drag is repeated while the element is not below the header's title.
+# Only for the version pages, whose header title is "Version x.y" ("Versión x.y" in Spanish).
 appId: ${APP_ID}
 ---
 - swipe:
@@ -18,3 +21,22 @@ appId: ${APP_ID}
     centerElement: true
 - waitForAnimationToEnd:
     timeout: 3000
+- repeat:
+    times: 3
+    while:
+      notVisible:
+        id: ${ID}
+        below: "Version [0-9.]+|Versión [0-9.]+"
+    commands:
+      - swipe:
+          start: "50%,40%"
+          end: "50%,70%"
+          duration: 800
+      - waitForAnimationToEnd:
+          timeout: 3000
+      - scrollUntilVisible:
+          element:
+            id: ${ID}
+          centerElement: true
+      - waitForAnimationToEnd:
+          timeout: 3000
