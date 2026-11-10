@@ -24,7 +24,7 @@ iPhone 14 Pro (see [Upgrading to 0.18.2](#upgrading-to-0182)). Android coverage 
 
 | | Version |
 |---|---|
-| `@ng-native/*` | 0.22.1 (pinned; the Maestro flows were last run on 0.22.1 (iOS, Spanish) and 0.22.0 (both, English), and the cases checked by hand on 0.17.1, see [Upgrading to 0.22.1](#upgrading-to-0221); also ran on 0.22.0, 0.21.0, 0.20.0, 0.19.2, 0.18.2, 0.17.1, 0.16.0, 0.15.0, 0.14.0, 0.13.0, 0.10.0, 0.9.0, 0.5.0, 0.4.0 and 0.3.0: tags [`ng-native-0.13.0`](https://github.com/victor198siete/angular-native-lab/tree/ng-native-0.13.0), [`ng-native-0.10.0`](https://github.com/victor198siete/angular-native-lab/tree/ng-native-0.10.0), [`ng-native-0.9.0`](https://github.com/victor198siete/angular-native-lab/tree/ng-native-0.9.0), [`ng-native-0.5.0`](https://github.com/victor198siete/angular-native-lab/tree/ng-native-0.5.0), [`ng-native-0.4.0`](https://github.com/victor198siete/angular-native-lab/tree/ng-native-0.4.0) and [`ng-native-0.3.0`](https://github.com/victor198siete/angular-native-lab/tree/ng-native-0.3.0)) |
+| `@ng-native/*` | 0.22.2 (pinned; on 0.22.2 only `whats-new-latest` has run (iOS, English), the other Maestro flows were last run on 0.22.1 (iOS, English and Spanish) and 0.22.0 (both, English), and the cases checked by hand on 0.17.1, see [Upgrading to 0.22.2](#upgrading-to-0222); also ran on 0.22.1, 0.22.0, 0.21.0, 0.20.0, 0.19.2, 0.18.2, 0.17.1, 0.16.0, 0.15.0, 0.14.0, 0.13.0, 0.10.0, 0.9.0, 0.5.0, 0.4.0 and 0.3.0: tags [`ng-native-0.13.0`](https://github.com/victor198siete/angular-native-lab/tree/ng-native-0.13.0), [`ng-native-0.10.0`](https://github.com/victor198siete/angular-native-lab/tree/ng-native-0.10.0), [`ng-native-0.9.0`](https://github.com/victor198siete/angular-native-lab/tree/ng-native-0.9.0), [`ng-native-0.5.0`](https://github.com/victor198siete/angular-native-lab/tree/ng-native-0.5.0), [`ng-native-0.4.0`](https://github.com/victor198siete/angular-native-lab/tree/ng-native-0.4.0) and [`ng-native-0.3.0`](https://github.com/victor198siete/angular-native-lab/tree/ng-native-0.3.0)) |
 | Angular | 22.2.1 |
 | Expo SDK | 58 (`expo` 58.0.19) |
 | React Native | 0.88.0 |
@@ -1037,6 +1037,16 @@ with a caveat, — not tested there.
 | `[animatedStyle]` | `@ng-native/components/animations` | Gestures: the native-driver and JavaScript tiles | ✅ | No | — | A loop of an `Animated.sequence` is restarted from JavaScript; use one timing in a loop. No Vitest stand-in |
 | Reactive Forms, `ControlValueAccessor` | `@angular/forms` | Compatibility check only | ✅ | No | — | Angular binds `[formControl]` and `ngModel` to the `value` model; no accessor needed. Also ✅ on the Android emulator |
 | `HttpClient` with interceptors | `@ng-native/platform/http` (`provideNativeHttpClient`) | Login: auth interceptor, mock API | ✅ | No | — | Angular's `withInterceptors()` and `provideHttpClientTesting()` work unchanged. Also ✅ on the Android emulator |
+
+## Upgrading to 0.22.2
+
+0.22.2 (6 Nov, fixes only, peers unchanged), installed on 10 Nov 2026 for all ten `@ng-native/*` packages.
+`npm test` (254) and `npm run typecheck` pass unchanged. On the iOS simulator in English, `whats-new-latest` passed
+(135 s) and A20-1 read "Fitted 174 / stretched 330 / line 330", as on 0.22.1: #1403 changes how `flex-1` tabs share a
+row fitted to its content, and the fitted row stays narrower than the line. The other flows and Android were not run
+on 0.22.2. The triage is in `docs/whats-new-triage.md` ("Addendum: ng-native 0.22.2"): A20-1 to recheck by eye, two
+proposed cases (A22-2, a `text-shadow` with no colour; A22-3, `background-image: var()`), not built yet. #1414 reaches
+the rewards voucher's `ScreenCapture.protectAppSwitcher()`, which in Expo Go on Android now resolves doing nothing.
 
 ## Upgrading to 0.22.1
 

@@ -843,3 +843,21 @@ The lab reads its design tokens once in `src/main.ts` (`deviceTokens` from `@ng-
 | Id | Entries | Demo sketch | Observable proof |
 |---|---|---|---|
 | A22-1 | #1411 (#1410) | An `<ng-icon>` whose `color` is `injectToken('--accent')()`, with the token's value as text beside it, and an SVG with `fill="var(--accent)"`; switch the app between light and dark. | The text, the icon and the shape change with the scheme, without a reload. Before: the token had to be copied as a literal and stayed the same in both schemes. |
+
+## Addendum: ng-native 0.22.2
+
+Date: 2026-11-10. Source: the GitHub release `v0.22.2` (6 Nov) of ng-native/ng-native, fixes only, no breaking section; all ten `@ng-native/*` packages moved to 0.22.2 together. `npm test` (254) and `npm run typecheck` pass unchanged. Same legend as above. Nothing is built yet: the PICK rows are proposals.
+
+| Ver | PR | What | Area | Expo Go | Shown | Lab touches | Verdict |
+|---|---|---|---|---|---|---|---|
+| 0.22.2 | #1403 | `flex-1` tabs in a row fitted to its content share its width evenly (held at their longest word), as in Chrome, where each had the width of its own text | layout | yes | on screen | A20-1's fitted segmented control: its tabs change width; the readout (fitted < line) should still hold | RECHECK A20-1 |
+| 0.22.2 | #1398 | A `text-shadow` with no colour (or `currentColor`, in a token or a `var()` fallback) is drawn in the text colour and follows it, where it was dropped | text / styling | yes | on screen | A21-2 is the same fix for `box-shadow` | PICK A22-2 |
+| 0.22.2 | #1395 | `background-image: var(--g)` draws the token's gradients; `currentColor` in a background token's last layer is the text colour; `background: platform-color(...)` resets a weaker rule's image | styling | yes | on screen | no `var()` background in the lab | PICK A22-3 |
+| 0.22.2 | #1409 (#1408) | `null` bound to an optional number or boolean input is unset, as `undefined` is, where numbers sent `NaN` and booleans `false` (`[editable]`, `[scrollEnabled]`, `[animating]` now keep their defaults) | components | yes | on screen | grep the lab for inputs bound to a value that can be `null` | LIST |
+| 0.22.2 | #1414 (#1413) | `ScreenCapture.protectAppSwitcher()` hides the recents snapshot on Android 13+ without blocking screenshots; in Expo Go on Android it resolves doing nothing, where it rejected | device | no (dev build) | device | the rewards voucher calls it | LIST |
+| 0.22.2 | #1397 | An inherited property (`color`) eases in children while the parent transitions or animates it, where the text jumped or kept no colour | animation | yes | on screen | transition cases colour boxes, not text | LIST |
+
+| Id | Entries | Demo sketch | Observable proof |
+|---|---|---|---|
+| A22-2 | #1398 | A text with `text-shadow: 0 2px 4px` and no colour, in a view whose `color` a button flips, as A21-2 does for a box. | The shadow is drawn and takes the text's colour, and changes with it. Before: dropped with a warning. |
+| A22-3 | #1395 | A box with `--g: linear-gradient(...)` and `background-image: var(--g)`, and one whose background token ends in `currentColor`, beside a text whose colour a button flips. | The gradient is drawn; the second box's colour follows the text colour. Before: both dropped. |
