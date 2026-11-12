@@ -72,6 +72,8 @@ import { FittedRowCase } from '../cases/fitted-row-case.ts';
 import { AccentTokenCase } from '../cases/accent-token-case.ts';
 import { FontSizeZeroCase } from '../cases/font-size-zero-case.ts';
 import { ShadowTextColorCase } from '../cases/shadow-text-color-case.ts';
+import { TextShadowColorCase } from '../cases/text-shadow-color-case.ts';
+import { BackgroundTokenCase } from '../cases/background-token-case.ts';
 import { StyleShorthandCase } from '../cases/style-shorthand-case.ts';
 import { CaseCard } from '../shared/case-card.ts';
 
@@ -90,7 +92,7 @@ import { CaseCard } from '../shared/case-card.ts';
     ScrollView, SpacingTransitionCase, TabsLabCase, Text, TransitionsBlockCase, ZIndexCase,
     DisplayNoneCase, FlexBasisCase, InvisibleBackdropCase, KeyframesBlockCase, LightDarkMixCase, ListHeaderFooterCase,
     MarkdownPostCase, MultilineRowsCase, VarFallbackCase,
-    AccentTokenCase, FontSizeZeroCase, ShadowTextColorCase,
+    AccentTokenCase, FontSizeZeroCase, ShadowTextColorCase, TextShadowColorCase, BackgroundTokenCase,
     MarkdownImageSizeCase, BoundCalcCase, FittedRowCase, StyleShorthandCase,
     FirstDrawCase, HasEitherCase, HostHasCase, MarkdownDataImageCase, MarkdownStreamingCase, MarkdownTableCase,
     NavigationBarCase, SvgBadPaintCase, TextInputEventsCase, TokenColorsCase,
@@ -121,6 +123,8 @@ import { CaseCard } from '../shared/case-card.ts';
               @case ('a7-5') { <app-inherited-line-height-case /> }
               @case ('a7-6') { <app-markdown-entities-case /> }
               @case ('a22-1') { <app-accent-token-case /> }
+              @case ('a22-2') { <app-text-shadow-color-case /> }
+              @case ('a22-3') { <app-background-token-case /> }
               @case ('a21-1') { <app-font-size-zero-case /> }
               @case ('a21-2') { <app-shadow-text-color-case /> }
               @case ('a20-1') { <app-fitted-row-case /> }

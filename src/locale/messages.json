@@ -726,6 +726,16 @@
     "whatsNew.a22_1.note": "Arrived in 0.22.1. injectToken('--accent') returns a custom property's resolved value as a signal that follows the colour scheme, and a shape's fill=\"var(--accent)\" resolves against the tokens in scope.",
     "whatsNew.a22_1.toggle": "Toggle dark mode",
     "whatsNew.a22_1.readout": "--accent is {$accent}",
-    "whatsNew.a22_1.hint": "Expected: the value, the pin and the square change colour when the scheme changes, with no reload. Before, the token had to be copied as a literal and stayed the same in both schemes."
+    "whatsNew.a22_1.hint": "Expected: the value, the pin and the square change colour when the scheme changes, with no reload. Before, the token had to be copied as a literal and stayed the same in both schemes.",
+    "whatsNew.a22_2.title": "A text shadow with no colour, in 0.22.2",
+    "whatsNew.a22_2.note": "Arrived in 0.22.2. A text-shadow with no colour (or currentColor) is drawn in the text colour and follows it, as box-shadow does since 0.21; before, the declaration was dropped with a warning.",
+    "whatsNew.a22_3.title": "A background from a token, in 0.22.2",
+    "whatsNew.a22_3.note": "Arrived in 0.22.2. background-image: var(--g) draws the gradient the token holds, and currentColor in a background token is the text colour; before, both were dropped.",
+    "whatsNew.a22_2.flip": "Flip the text colour",
+    "whatsNew.a22_2.readout": "Text colour {$color}",
+    "whatsNew.a22_2.hint": "Expected: a soft shadow under the first word in its own colour, dark for the ink and crimson for the accent, and one under the blue word in blue; the button flips the first one. Before, the shadow was dropped.",
+    "whatsNew.a22_3.flip": "Flip the text colour",
+    "whatsNew.a22_3.readout": "Text colour {$color}",
+    "whatsNew.a22_3.hint": "Expected: the first box is filled with a gradient, and the second box is the colour of the text beside it, dark for the ink and crimson for the accent; the button flips both together. Before, both were left empty."
   }
 }

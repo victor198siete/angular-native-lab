@@ -726,6 +726,16 @@
     "whatsNew.a22_1.note": "Llegó en 0.22.1. injectToken('--accent') devuelve el valor resuelto de una propiedad personalizada como una señal que sigue el esquema de color, y el fill=\"var(--accent)\" de una forma se resuelve con los tokens del ámbito.",
     "whatsNew.a22_1.toggle": "Cambiar modo oscuro",
     "whatsNew.a22_1.readout": "--accent es {$accent}",
-    "whatsNew.a22_1.hint": "Esperado: el valor, el pin y el cuadrado cambian de color cuando cambia el esquema, sin recargar. Antes, el token había que copiarlo como literal y quedaba igual en ambos esquemas."
+    "whatsNew.a22_1.hint": "Esperado: el valor, el pin y el cuadrado cambian de color cuando cambia el esquema, sin recargar. Antes, el token había que copiarlo como literal y quedaba igual en ambos esquemas.",
+    "whatsNew.a22_2.title": "Una sombra de texto sin color, en 0.22.2",
+    "whatsNew.a22_2.note": "Llegó en 0.22.2. Un text-shadow sin color (o con currentColor) se dibuja en el color del texto y lo sigue, como box-shadow desde 0.21; antes, la declaración se descartaba con una advertencia.",
+    "whatsNew.a22_2.flip": "Cambiar el color del texto",
+    "whatsNew.a22_2.readout": "Color del texto {$color}",
+    "whatsNew.a22_2.hint": "Esperado: una sombra suave bajo la primera palabra, en su propio color, oscura para la tinta y carmesí para el acento, y otra bajo la palabra azul, en azul; el botón cambia la primera. Antes, la sombra se descartaba.",
+    "whatsNew.a22_3.title": "Un fondo desde un token, en 0.22.2",
+    "whatsNew.a22_3.note": "Llegó en 0.22.2. background-image: var(--g) dibuja el degradado que guarda el token, y currentColor en un token de fondo es el color del texto; antes, ambos se descartaban.",
+    "whatsNew.a22_3.flip": "Cambiar el color del texto",
+    "whatsNew.a22_3.readout": "Color del texto {$color}",
+    "whatsNew.a22_3.hint": "Esperado: la primera caja se rellena con un degradado y la segunda tiene el color del texto de al lado, oscuro para la tinta y carmesí para el acento; el botón cambia ambos a la vez. Antes, ambas quedaban vacías."
   }
 }

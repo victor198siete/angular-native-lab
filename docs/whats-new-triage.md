@@ -846,7 +846,7 @@ The lab reads its design tokens once in `src/main.ts` (`deviceTokens` from `@ng-
 
 ## Addendum: ng-native 0.22.2
 
-Date: 2026-11-10. Source: the GitHub release `v0.22.2` (6 Nov) of ng-native/ng-native, fixes only, no breaking section; all ten `@ng-native/*` packages moved to 0.22.2 together. `npm test` (254) and `npm run typecheck` pass unchanged. Same legend as above. Nothing is built yet: the PICK rows are proposals.
+Date: 2026-11-10. Source: the GitHub release `v0.22.2` (6 Nov) of ng-native/ng-native, fixes only, no breaking section; all ten `@ng-native/*` packages moved to 0.22.2 together. `npm test` (254) and `npm run typecheck` pass unchanged. Same legend as above. A22-2 and A22-3 are built (11 Nov), badge "Not checked": not seen on a device yet. The other rows are not built.
 
 | Ver | PR | What | Area | Expo Go | Shown | Lab touches | Verdict |
 |---|---|---|---|---|---|---|---|
