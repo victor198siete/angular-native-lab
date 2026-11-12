@@ -42,8 +42,8 @@ describe('what is new, 0.22', () => {
     expect(screen.getByTestId('whats-new-a22-1-title')).toBeTruthy();
     expect(textOf('whats-new-a22-1-prs')).toBe(item!.prs.join(' · '));
     expect(textOf('whats-new-a22-1-status')).toBe('Verified · iOS · Android');
-    expect(textOf('whats-new-a22-2-status')).toBe('Not checked');
-    expect(textOf('whats-new-a22-3-status')).toBe('Not checked');
+    expect(textOf('whats-new-a22-2-status')).toBe('Verified · iOS · Android');
+    expect(textOf('whats-new-a22-3-status')).toBe('Verified · iOS · Android');
   });
 
   it('A22-1 (#1411, #1410): the token text, the icon colour and the shape fill all change when the scheme goes from light to dark', async () => {
