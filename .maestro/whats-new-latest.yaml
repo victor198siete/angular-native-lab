@@ -5,8 +5,9 @@
 # versions were split out of it for the same reason (whats-new-early.yaml, 15 Oct 2026).
 # Covers what prints a value: A20-1 and A20-3 (measured layout), A20-4 (a page that ticks only in front),
 # B20-1 (a sheet kept by a canDeactivate guard: Close everywhere, the swipe down on iOS only), A21-2 (the text
-# colour flipped) and A22-1 (the accent token follows the scheme). A20-2, A21-1 and the shadow of A21-2 are
-# drawings: their screenshots are the evidence. The lab's own texts are English in both languages.
+# colour flipped), A22-1 (the accent token follows the scheme), and A22-2 and A22-3 (the text colour each one
+# flips). A20-2, A21-1, the shadow of A21-2 and the shadow, gradient and box of A22-2 and A22-3 are drawings:
+# their screenshots are the evidence. The lab's own texts are English in both languages.
 # Language: English at the start (the flow switches the app); add -e LANG=ES to run in Spanish.
 appId: ${APP_ID}
 ---
@@ -144,7 +145,7 @@ appId: ${APP_ID}
 - tapOn:
     id: whats-new-a21-2-flip
 - assertVisible: "Text colour #12131a|Color del texto #12131a"
-# 3. The 0.22 case. A22-1: the token's value changes with the scheme and comes back, with no reload.
+# 3. The 0.22 cases. A22-1: the token's value changes with the scheme and comes back, with no reload.
 - openLink: ${APP_URL}/--/whats-new/0.22
 - extendedWaitUntil:
     visible: "Version 0.22|Versión 0.22"
@@ -173,3 +174,40 @@ appId: ${APP_ID}
 - copyTextFrom:
     id: whats-new-a22-1-readout
 - assertTrue: ${maestro.copiedText == output.accentBefore}
+# A22-2: the button flips the colour the text and its shadow take, and flips it back. Both readouts on this page
+# say "Text colour", so each assertion names its id.
+- runFlow:
+    file: subflows/bring-into-view.yaml
+    env:
+      ID: whats-new-a22-2-flip
+- assertVisible:
+    id: whats-new-a22-2-readout
+    text: "Text colour #12131a|Color del texto #12131a"
+- tapOn:
+    id: whats-new-a22-2-flip
+- assertVisible:
+    id: whats-new-a22-2-readout
+    text: "Text colour #be123c|Color del texto #be123c"
+- tapOn:
+    id: whats-new-a22-2-flip
+- assertVisible:
+    id: whats-new-a22-2-readout
+    text: "Text colour #12131a|Color del texto #12131a"
+# A22-3: the same flip for the box whose background token ends in currentColor
+- runFlow:
+    file: subflows/bring-into-view.yaml
+    env:
+      ID: whats-new-a22-3-flip
+- assertVisible:
+    id: whats-new-a22-3-readout
+    text: "Text colour #12131a|Color del texto #12131a"
+- tapOn:
+    id: whats-new-a22-3-flip
+- assertVisible:
+    id: whats-new-a22-3-readout
+    text: "Text colour #be123c|Color del texto #be123c"
+- tapOn:
+    id: whats-new-a22-3-flip
+- assertVisible:
+    id: whats-new-a22-3-readout
+    text: "Text colour #12131a|Color del texto #12131a"
