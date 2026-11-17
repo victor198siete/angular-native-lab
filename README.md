@@ -24,7 +24,7 @@ iPhone 14 Pro (see [Upgrading to 0.18.2](#upgrading-to-0182)). Android coverage 
 
 | | Version |
 |---|---|
-| `@ng-native/*` | 0.23.0 (pinned; Node tests and typecheck pass, iOS in English 8 of 9 flows and Face ID by hand, Android in English 6 of 9 in one run and the other 3 alone, Android in Spanish 9 of 9, see [Upgrading to 0.23.0](#upgrading-to-0230); the Maestro flows were last run on 0.22.2 (both, English: 9 of 9 on iOS, 8 of 9 on Android with `join` passing alone), and the cases checked by hand on 0.17.1, see [Upgrading to 0.22.2](#upgrading-to-0222); also ran on 0.22.2, 0.22.1, 0.22.0, 0.21.0, 0.20.0, 0.19.2, 0.18.2, 0.17.1, 0.16.0, 0.15.0, 0.14.0, 0.13.0, 0.10.0, 0.9.0, 0.5.0, 0.4.0 and 0.3.0: tags [`ng-native-0.13.0`](https://github.com/victor198siete/angular-native-lab/tree/ng-native-0.13.0), [`ng-native-0.10.0`](https://github.com/victor198siete/angular-native-lab/tree/ng-native-0.10.0), [`ng-native-0.9.0`](https://github.com/victor198siete/angular-native-lab/tree/ng-native-0.9.0), [`ng-native-0.5.0`](https://github.com/victor198siete/angular-native-lab/tree/ng-native-0.5.0), [`ng-native-0.4.0`](https://github.com/victor198siete/angular-native-lab/tree/ng-native-0.4.0) and [`ng-native-0.3.0`](https://github.com/victor198siete/angular-native-lab/tree/ng-native-0.3.0)) |
+| `@ng-native/*` | 0.23.0 (pinned; Node tests and typecheck pass, iOS in English 8 of 9 flows and Face ID by hand, Android in English 6 of 9 in one run and the other 3 alone, Android in Spanish 9 of 9, iOS in Spanish 8 of 9 and `login` alone, see [Upgrading to 0.23.0](#upgrading-to-0230); the Maestro flows were last run on 0.22.2 (both, English: 9 of 9 on iOS, 8 of 9 on Android with `join` passing alone), and the cases checked by hand on 0.17.1, see [Upgrading to 0.22.2](#upgrading-to-0222); also ran on 0.22.2, 0.22.1, 0.22.0, 0.21.0, 0.20.0, 0.19.2, 0.18.2, 0.17.1, 0.16.0, 0.15.0, 0.14.0, 0.13.0, 0.10.0, 0.9.0, 0.5.0, 0.4.0 and 0.3.0: tags [`ng-native-0.13.0`](https://github.com/victor198siete/angular-native-lab/tree/ng-native-0.13.0), [`ng-native-0.10.0`](https://github.com/victor198siete/angular-native-lab/tree/ng-native-0.10.0), [`ng-native-0.9.0`](https://github.com/victor198siete/angular-native-lab/tree/ng-native-0.9.0), [`ng-native-0.5.0`](https://github.com/victor198siete/angular-native-lab/tree/ng-native-0.5.0), [`ng-native-0.4.0`](https://github.com/victor198siete/angular-native-lab/tree/ng-native-0.4.0) and [`ng-native-0.3.0`](https://github.com/victor198siete/angular-native-lab/tree/ng-native-0.3.0)) |
 | Angular | 22.2.1 |
 | Expo SDK | 58 (`expo` 58.0.19) |
 | React Native | 0.88.0 |
@@ -1067,8 +1067,10 @@ relaunched: `Biometrics` asks again when the app comes back to the front, not wh
 On the Android emulator (`Pixel_9`) in English the same day: **6 of 9** in one run, and the other three passed
 alone: `login` (the password field not found after typing the email), `whats-new` (A8-3's toggle not brought into
 view; alone it passed whole, A15-6 included, in 614 s) and `whats-new-latest` (A20-4's count moved 8 or more with the
-sheet up; alone it passed). In Spanish on Android: **9 of 9 in one run**, with nothing repeated (25 min). iOS in
-Spanish not yet run on 0.23.0.
+sheet up; alone it passed). In Spanish on Android: **9 of 9 in one run**, with nothing repeated (25 min). In Spanish
+on iOS: **8 of 9 in one run**, and `login` passed alone. It failed at its start: the simulator timed out opening the
+link (NSPOSIXErrorDomain 60) with the load average at 84, just after the emulator was shut and the simulator booted.
+`whats-new` passed whole in Spanish on iOS, A15-6 included, so the English failure there is not a steady one.
 
 ## Upgrading to 0.22.2
 
