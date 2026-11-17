@@ -24,7 +24,7 @@ iPhone 14 Pro (see [Upgrading to 0.18.2](#upgrading-to-0182)). Android coverage 
 
 | | Version |
 |---|---|
-| `@ng-native/*` | 0.23.0 (pinned; Node tests and typecheck pass, not yet run on a device, see [Upgrading to 0.23.0](#upgrading-to-0230); the Maestro flows were last run on 0.22.2 (both, English: 9 of 9 on iOS, 8 of 9 on Android with `join` passing alone), and the cases checked by hand on 0.17.1, see [Upgrading to 0.22.2](#upgrading-to-0222); also ran on 0.22.2, 0.22.1, 0.22.0, 0.21.0, 0.20.0, 0.19.2, 0.18.2, 0.17.1, 0.16.0, 0.15.0, 0.14.0, 0.13.0, 0.10.0, 0.9.0, 0.5.0, 0.4.0 and 0.3.0: tags [`ng-native-0.13.0`](https://github.com/victor198siete/angular-native-lab/tree/ng-native-0.13.0), [`ng-native-0.10.0`](https://github.com/victor198siete/angular-native-lab/tree/ng-native-0.10.0), [`ng-native-0.9.0`](https://github.com/victor198siete/angular-native-lab/tree/ng-native-0.9.0), [`ng-native-0.5.0`](https://github.com/victor198siete/angular-native-lab/tree/ng-native-0.5.0), [`ng-native-0.4.0`](https://github.com/victor198siete/angular-native-lab/tree/ng-native-0.4.0) and [`ng-native-0.3.0`](https://github.com/victor198siete/angular-native-lab/tree/ng-native-0.3.0)) |
+| `@ng-native/*` | 0.23.0 (pinned; Node tests and typecheck pass, iOS in English 8 of 9 flows and Face ID by hand, Android not yet, see [Upgrading to 0.23.0](#upgrading-to-0230); the Maestro flows were last run on 0.22.2 (both, English: 9 of 9 on iOS, 8 of 9 on Android with `join` passing alone), and the cases checked by hand on 0.17.1, see [Upgrading to 0.22.2](#upgrading-to-0222); also ran on 0.22.2, 0.22.1, 0.22.0, 0.21.0, 0.20.0, 0.19.2, 0.18.2, 0.17.1, 0.16.0, 0.15.0, 0.14.0, 0.13.0, 0.10.0, 0.9.0, 0.5.0, 0.4.0 and 0.3.0: tags [`ng-native-0.13.0`](https://github.com/victor198siete/angular-native-lab/tree/ng-native-0.13.0), [`ng-native-0.10.0`](https://github.com/victor198siete/angular-native-lab/tree/ng-native-0.10.0), [`ng-native-0.9.0`](https://github.com/victor198siete/angular-native-lab/tree/ng-native-0.9.0), [`ng-native-0.5.0`](https://github.com/victor198siete/angular-native-lab/tree/ng-native-0.5.0), [`ng-native-0.4.0`](https://github.com/victor198siete/angular-native-lab/tree/ng-native-0.4.0) and [`ng-native-0.3.0`](https://github.com/victor198siete/angular-native-lab/tree/ng-native-0.3.0)) |
 | Angular | 22.2.1 |
 | Expo SDK | 58 (`expo` 58.0.19) |
 | React Native | 0.88.0 |
@@ -1056,7 +1056,15 @@ pass. `npx @ng-native/migrate` (the `available-signal` migration) was not run: t
 and it rewrites the reads, not the "false until answered". The other changes that could reach the lab do not: there
 is no `<image>` (#1442 makes one cover its box), no comparison with `'ios'` or `OS_VERSION` (#1435 adds `'macos'`) and
 no boolean input bound to `null` (#1426). The triage is in `docs/whats-new-triage.md` ("Addendum: ng-native 0.23.0").
-Not yet run on a device on 0.23.0.
+On the iOS simulator in English (17 Nov), the nine flows: **8 of 9**. `join` failed waiting for its first
+screen and passed alone (57 s); `whats-new` failed 2 of 2 at A15-6: after the "Hide the bar" tap the stack was on the
+0.14 page. The same tap alone, from the 0.15 page, reads "hidden yes" and stays there; not diagnosed (it passed on
+0.22.2). Face ID, which Maestro cannot drive, checked by hand with Face ID enrolled and a matched face
+(`notifyutil`): the vault switch asks and turns on; a relaunch opens on the lock screen, which asks by itself and
+lets the match into the wallet; and after Lock on the account the login asks by itself on arrival ("Face ID passed,
+session refreshed"). Enrolling with the app already open leaves "Not available on this phone" until the app is
+relaunched: `Biometrics` asks again when the app comes back to the front, not when the enrolment changes.
+Android and Spanish not yet run on 0.23.0.
 
 ## Upgrading to 0.22.2
 
