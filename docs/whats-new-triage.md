@@ -861,3 +861,24 @@ Date: 2026-11-10. Source: the GitHub release `v0.22.2` (6 Nov) of ng-native/ng-n
 |---|---|---|---|
 | A22-2 | #1398 | A text with `text-shadow: 0 2px 4px` and no colour, in a view whose `color` a button flips, as A21-2 does for a box. | The shadow is drawn and takes the text's colour, and changes with it. Before: dropped with a warning. |
 | A22-3 | #1395 | A box with `--g: linear-gradient(...)` and `background-image: var(--g)`, and one whose background token ends in `currentColor`, beside a text whose colour a button flips. | The gradient is drawn; the second box's colour follows the text colour. Before: both dropped. |
+
+## Addendum: ng-native 0.23.0
+
+Date: 2026-11-17. Source: the GitHub release `v0.23.0` (17 Nov) of ng-native/ng-native, features and fixes, no breaking section, though #1436 changes a type the lab reads. The peers of `@ng-native/components`, `@ng-native/router` and `@ng-native/expo` are the same as in 0.22.2. All ten `@ng-native/*` packages moved to 0.23.0 together. Most of the 56 entries are the macOS desktop host (`@ng-native/desktop`, `ng-native-desktop`, the `NgNative*` modules on macOS, VoiceOver on macOS, windows, menus, Dock, tray, drag and drop, packaging); they are summed up in one row, as the lab runs on iOS and Android in Expo Go. Same legend as above. No case is built.
+
+| Ver | PR | What | Area | Expo Go | Shown | Lab touches | Verdict |
+|---|---|---|---|---|---|---|---|
+| 0.23.0 | #1436 | Every service's `available` is a `Signal<boolean>`; `Biometrics`, `AppleSignIn`, `ScreenCapture` and `StoreReview` had a method that resolved and are `false` until the platform answers; a sensor's is `false`, not `null`, until then; `HardwareBack`, `NavigationBar`, `StatusBar`, `Keyboard` and `Vibration` gain one | device / expo | yes | on screen | the login's Face ID and the rewards vault awaited `Biometrics.available()`: 5 tests red, fixed by reading the signal (README, "Upgrading to 0.23.0") | FIXED |
+| 0.23.0 | #1442 | An `<image>` covers its box by default on iOS, as on Android, where it was stretched | components | yes | on screen | the lab has no `<image>` | LIST |
+| 0.23.0 | #1435 | `OS` is `'macos'` on a Mac, with `DESKTOP` and `APPLE` tokens; the `os-comparisons-on-macos` migration notes `=== 'ios'` checks | device | yes | none on a phone | no comparison with `'ios'` or `OS_VERSION` in the lab | LIST |
+| 0.23.0 | #1426 (#1425) | A boolean input whose default is `true`, bound to `null` or `undefined`, takes the default (`[enabled]`, `[showDragIndicator]`, `[reportInsets]`, `[cancelable]`) | components | yes | on screen | none of those inputs is bound in the lab | LIST |
+| 0.23.0 | #1489 (#1475) | On Android `<ui-date-picker>` no longer marks its Signal Forms field touched when Compose first draws it | expo | yes | on screen | no `<ui-date-picker>` in the lab | LIST |
+| 0.23.0 | #1448 | On Android a `(longPress)` inside a `[contextMenu]` keeps its press; the menu opens after the system's long-press delay | components | yes | on screen | no `[contextMenu]` in the lab | LIST |
+| 0.23.0 | #1442 | `cursor` takes every keyword; `scrollbar-width: none` hides a scroll view's indicators on iOS and Android | styling | yes | on screen | not used in the lab | LIST |
+| 0.23.0 | #1442 | A box whose size and colour transition together eases its size from JavaScript, where it jumped on the colour's first frame | animation | yes | on screen | transition cases change one property | LIST |
+| 0.23.0 | #1442 | `(mouseenter)` and the other mouse events listen for pointer events; a build warns of a DOM event no device sends, such as `(click)` on a `<view>` | components | yes | build | no mouse or `(click)` binding in the lab | LIST |
+| 0.23.0 | #1467 (#1460) | Interaction observers hear the `@expo/ui` controls and the native tab bar and header buttons | device | yes | none | no interaction observer in the lab | LIST |
+| 0.23.0 | #1449 | `cameraPermission()`, `microphonePermission()`, `recordingPermission()` and `setAudioMode()` in `@ng-native/expo` | expo | yes | device | no camera or audio demo | LIST |
+| 0.23.0 | #1436 | `DocumentPicker.save()` and `pickDirectory()`; `FileSystem.pickDirectory()` deprecated | expo | yes | device | not used | LIST |
+| 0.23.0 | many | The macOS desktop host and everything it answers (#1435, #1443, #1446, #1449, #1450, #1451, #1488, #1517, #1519) | desktop | no | macOS | the lab has no macOS target | SKIP |
+

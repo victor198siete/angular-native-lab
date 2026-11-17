@@ -1,4 +1,4 @@
-import { Component, computed, inject } from '@angular/core';
+import { Component, computed, effect, inject, untracked } from '@angular/core';
 import { Router } from '@angular/router';
 import { Pressable, SafeAreaView, Text, View } from '@ng-native/components';
 import { NgIcon } from '@ng-native/icons';
@@ -78,13 +78,17 @@ export class LockScreen {
   });
   protected readonly unavailableText = $localize`:@@vault.lock.unavailable:Biometrics are not available on this phone right now.`;
 
-  constructor() {
-    void this.start();
-  }
+  private askedOnArrival = false;
 
-  private async start(): Promise<void> {
-    await this.lock.check();
-    if (this.lock.available()) await this.unlock();
+  constructor() {
+    void this.lock.check();
+    // Asks once by itself, as soon as the sensor says a prompt can succeed (a signal since 0.23.0,
+    // which can answer after check()); after that, the button.
+    effect(() => {
+      if (this.lock.available() !== true || this.askedOnArrival) return;
+      this.askedOnArrival = true;
+      untracked(() => void this.unlock());
+    });
   }
 
   protected async unlock(): Promise<void> {

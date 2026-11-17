@@ -1,4 +1,4 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, computed, effect, inject, signal, untracked } from '@angular/core';
 import { FormField, email, form, required, submit } from '@angular/forms/signals';
 import { Pressable, SafeAreaView, ScrollView, Text, TextInput, View } from '@ng-native/components';
 import { Biometrics, type BiometricKind } from '@ng-native/expo/biometrics';
@@ -135,7 +135,8 @@ export class LoginScreen {
     required(path.password, { message: $localize`:@@login.error.passwordRequired:Enter your password.` });
   });
 
-  private readonly sensorAvailable = signal(false);
+  /** A signal since 0.23.0: false until the platform answers, then whether a prompt can succeed. */
+  private readonly sensorAvailable = this.biometrics.available;
   private readonly kinds = signal<readonly BiometricKind[]>([]);
   protected readonly faceBusy = signal(false);
   protected readonly faceError = signal<string | null>(null);
@@ -147,15 +148,18 @@ export class LoginScreen {
     return $localize`:@@login.faceId:Continue with ${name}:name:`;
   });
 
-  constructor() {
-    void this.start();
-  }
+  /** Face ID is asked for by itself once, on arrival, and only if a refresh token was kept then. */
+  private readonly tokenOnArrival = untracked(() => this.session.hasRefreshToken());
+  private askedOnArrival = false;
 
-  private async start(): Promise<void> {
-    const [available, kinds] = await Promise.all([this.biometrics.available(), this.biometrics.kinds()]);
-    this.sensorAvailable.set(available);
-    this.kinds.set(kinds);
-    if (this.canUseFaceId()) await this.askFaceId();
+  constructor() {
+    void this.biometrics.kinds().then((kinds) => this.kinds.set(kinds));
+    // The sensor can answer a turn or more after arrival, so wait for it rather than read it once.
+    effect(() => {
+      if (!this.tokenOnArrival || !this.canUseFaceId() || this.askedOnArrival) return;
+      this.askedOnArrival = true;
+      untracked(() => void this.askFaceId());
+    });
   }
 
   /** The first message of a field's errors, once the person has been through it. */

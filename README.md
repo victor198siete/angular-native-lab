@@ -24,7 +24,7 @@ iPhone 14 Pro (see [Upgrading to 0.18.2](#upgrading-to-0182)). Android coverage 
 
 | | Version |
 |---|---|
-| `@ng-native/*` | 0.22.2 (pinned; the Maestro flows were last run on 0.22.2 (both, English: 9 of 9 on iOS, 8 of 9 on Android with `join` passing alone), and the cases checked by hand on 0.17.1, see [Upgrading to 0.22.2](#upgrading-to-0222); also ran on 0.22.1, 0.22.0, 0.21.0, 0.20.0, 0.19.2, 0.18.2, 0.17.1, 0.16.0, 0.15.0, 0.14.0, 0.13.0, 0.10.0, 0.9.0, 0.5.0, 0.4.0 and 0.3.0: tags [`ng-native-0.13.0`](https://github.com/victor198siete/angular-native-lab/tree/ng-native-0.13.0), [`ng-native-0.10.0`](https://github.com/victor198siete/angular-native-lab/tree/ng-native-0.10.0), [`ng-native-0.9.0`](https://github.com/victor198siete/angular-native-lab/tree/ng-native-0.9.0), [`ng-native-0.5.0`](https://github.com/victor198siete/angular-native-lab/tree/ng-native-0.5.0), [`ng-native-0.4.0`](https://github.com/victor198siete/angular-native-lab/tree/ng-native-0.4.0) and [`ng-native-0.3.0`](https://github.com/victor198siete/angular-native-lab/tree/ng-native-0.3.0)) |
+| `@ng-native/*` | 0.23.0 (pinned; Node tests and typecheck pass, not yet run on a device, see [Upgrading to 0.23.0](#upgrading-to-0230); the Maestro flows were last run on 0.22.2 (both, English: 9 of 9 on iOS, 8 of 9 on Android with `join` passing alone), and the cases checked by hand on 0.17.1, see [Upgrading to 0.22.2](#upgrading-to-0222); also ran on 0.22.2, 0.22.1, 0.22.0, 0.21.0, 0.20.0, 0.19.2, 0.18.2, 0.17.1, 0.16.0, 0.15.0, 0.14.0, 0.13.0, 0.10.0, 0.9.0, 0.5.0, 0.4.0 and 0.3.0: tags [`ng-native-0.13.0`](https://github.com/victor198siete/angular-native-lab/tree/ng-native-0.13.0), [`ng-native-0.10.0`](https://github.com/victor198siete/angular-native-lab/tree/ng-native-0.10.0), [`ng-native-0.9.0`](https://github.com/victor198siete/angular-native-lab/tree/ng-native-0.9.0), [`ng-native-0.5.0`](https://github.com/victor198siete/angular-native-lab/tree/ng-native-0.5.0), [`ng-native-0.4.0`](https://github.com/victor198siete/angular-native-lab/tree/ng-native-0.4.0) and [`ng-native-0.3.0`](https://github.com/victor198siete/angular-native-lab/tree/ng-native-0.3.0)) |
 | Angular | 22.2.1 |
 | Expo SDK | 58 (`expo` 58.0.19) |
 | React Native | 0.88.0 |
@@ -1040,6 +1040,24 @@ with a caveat, — not tested there.
 | Reactive Forms, `ControlValueAccessor` | `@angular/forms` | Compatibility check only | ✅ | No | — | Angular binds `[formControl]` and `ngModel` to the `value` model; no accessor needed. Also ✅ on the Android emulator |
 | `HttpClient` with interceptors | `@ng-native/platform/http` (`provideNativeHttpClient`) | Login: auth interceptor, mock API | ✅ | No | — | Angular's `withInterceptors()` and `provideHttpClientTesting()` work unchanged. Also ✅ on the Android emulator |
 
+## Upgrading to 0.23.0
+
+0.23.0 (17 Nov), installed on 17 Nov 2026 for all ten `@ng-native/*` packages, with `npm install --save-exact`; the
+peers are unchanged (Angular `^22`, React Native `>=0.86`, Expo `^57 || ^58`). Most of the release is the macOS
+desktop host (`@ng-native/desktop`), which the lab does not use. One change reached the lab: every service's
+`available` is now a `Signal<boolean>` (#1436), and `Biometrics.available` reads `false` until the platform answers,
+no sooner than a turn after the first read. `npm run typecheck` still passed, since `await` on a boolean compiles, but
+`npm test` had 5 of 256 red: the login's Face ID (4) and the rewards lock screen (1) took that first `false` as "no
+sensor". The fix reads the signal instead of awaiting it: `VaultLock.available` is `null` until `kinds()` has answered
+too and follows the sensor after that, and the lock screen and the login ask for Face ID once, from an `effect()`, as
+soon as the signal turns `true`. A new test answers the sensor 50 ms after `kinds()` and expects the lock screen to
+ask by itself once; it fails if the screen reads the signal only once. `npm test` 257 of 257 and `npm run typecheck`
+pass. `npx @ng-native/migrate` (the `available-signal` migration) was not run: this session's permissions blocked it,
+and it rewrites the reads, not the "false until answered". The other changes that could reach the lab do not: there
+is no `<image>` (#1442 makes one cover its box), no comparison with `'ios'` or `OS_VERSION` (#1435 adds `'macos'`) and
+no boolean input bound to `null` (#1426). The triage is in `docs/whats-new-triage.md` ("Addendum: ng-native 0.23.0").
+Not yet run on a device on 0.23.0.
+
 ## Upgrading to 0.22.2
 
 0.22.2 (6 Nov, fixes only, peers unchanged), installed on 10 Nov 2026 for all ten `@ng-native/*` packages.
@@ -1049,7 +1067,8 @@ row fitted to its content, and the fitted row stays narrower than the line. Then
 day: **iOS 9 of 9**, **Android 8 of 9**. Android's `join` failed as the run's first flow (the tap on Join right after the
 page opened was lost, so the terms error never showed) and passed 2 of 2 alone; `offline` passed with one FAILED line
 inside a `retry`. So the fixes of 9 and 10 Nov (`bring-into-view.yaml`, A13-4's own cache) also pass on Android.
-Spanish was not run on 0.22.2. The triage is in `docs/whats-new-triage.md` ("Addendum: ng-native 0.22.2"): A20-1 to recheck by eye, two
+In Spanish only `whats-new-latest` was run, on iOS on 12 Nov, and passed (the first try failed waiting for the
+first screen while Metro built the bundle from a cleared cache, 47 s against the flow's 40 s). The triage is in `docs/whats-new-triage.md` ("Addendum: ng-native 0.22.2"): A20-1 to recheck by eye, two
 proposed cases (A22-2, a `text-shadow` with no colour; A22-3, `background-image: var()`), not built yet. #1414 reaches
 the rewards voucher's `ScreenCapture.protectAppSwitcher()`, which in Expo Go on Android now resolves doing nothing.
 

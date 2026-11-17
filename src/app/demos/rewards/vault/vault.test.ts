@@ -85,6 +85,15 @@ describe('lock screen', () => {
     expect(await screen.findByText('Recent activity')).toBeTruthy();
   });
 
+  it('asks by itself even when the sensor answers after kinds() (available is a signal since 0.23.0)', async () => {
+    const bio = fakeBiometrics([{ success: true }]);
+    bio.native.hasHardwareAsync.mockImplementation(() => new Promise((done) => setTimeout(() => done(true), 50)));
+    await renderApp(undefined, [bio.provider, fakeKeychain({ [LOCK_ON_LAUNCH_KEY]: true }).provider]);
+
+    expect(await screen.findByText('Recent activity', undefined, { timeout: 3000 })).toBeTruthy();
+    expect(bio.native.authenticateAsync).toHaveBeenCalledTimes(1);
+  });
+
   it('with the lock off, the app opens on the wallet as before', async () => {
     await renderApp(undefined, [fakeBiometrics().provider, fakeKeychain().provider]);
     expect(await screen.findByText('Recent activity')).toBeTruthy();

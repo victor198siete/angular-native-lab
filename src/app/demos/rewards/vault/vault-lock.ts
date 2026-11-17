@@ -24,8 +24,17 @@ export class VaultLock {
   /** What the launch guard checks. */
   readonly locked = computed(() => this.lockOnLaunch() && !this._unlocked());
 
-  /** `null` until `check()` has answered. */
-  readonly available = signal<boolean | null>(null);
+  /** Set once `kinds()` has answered: from then on a `false` from the sensor reads as a no. */
+  private readonly answered = signal(false);
+  /**
+   * `null` while the platform has not answered, then whether a prompt can succeed. Since 0.23.0
+   * `Biometrics.available` is a signal that reads `false` until the platform answers, so a `false`
+   * before `kinds()` has answered too is taken as "not known yet", not as "no sensor"; and a later
+   * `true` (the sensor answering after `kinds()`, or a face enrolled in Settings) still comes through.
+   */
+  readonly available = computed<boolean | null>(() =>
+    this.biometrics.available() ? true : this.answered() ? false : null,
+  );
   readonly kinds = signal<readonly BiometricKind[]>([]);
   /** The platform's reason the last prompt did not pass (`user_cancel`, `lockout`...). */
   readonly lastError = signal<string | null>(null);
@@ -33,12 +42,8 @@ export class VaultLock {
 
   /** Asks the device whether a prompt can succeed, and which kind of sensor it has. */
   async check(): Promise<void> {
-    const [available, kinds] = await Promise.all([
-      this.biometrics.available(),
-      this.biometrics.kinds(),
-    ]);
-    this.available.set(available);
-    this.kinds.set(kinds);
+    this.kinds.set(await this.biometrics.kinds());
+    this.answered.set(true);
   }
 
   /** Shows the system prompt. On success the session stays unlocked until the app restarts. */
